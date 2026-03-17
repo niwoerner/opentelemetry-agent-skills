@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/**
+      - .github/lychee.toml
+      - skills/opentelemetry-manual-instrumentation/references/generated/otel-version-index.md
+      - tools/otel-agent-tools/**
+
+permissions:
+  contents: read
+
+jobs:
+  tool-tests:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Setup Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: tools/otel-agent-tools/go.mod
+
+      - name: Lint Tool
+        uses: golangci/golangci-lint-action@v8
+        with:
+          version: latest
+          working-directory: tools/otel-agent-tools
+          args: ./...
+
+      - name: Build Tool
+        working-directory: tools/otel-agent-tools
+        run: go build ./cmd/otel-agent-tools
+
+      - name: Test Tool
+        run: go test ./tools/otel-agent-tools/...
+
+  check-links:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Link Checker
+        id: lychee
+        uses: lycheeverse/lychee-action@8646ba30535128ac92d33dfc9133794bfdd9b411 # v2.8.0
+        with:
+          args: "--verbose --no-progress skills/opentelemetry-manual-instrumentation/references/generated/otel-version-index.md --config .github/lychee.toml"
+          failIfEmpty: false
+        env:
+          GITHUB_TOKEN: ${{ github.token }}

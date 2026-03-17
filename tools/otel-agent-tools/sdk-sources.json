@@ -1,0 +1,122 @@
+[
+  {
+    "language": "C++",
+    "package": "open-telemetry/opentelemetry-cpp",
+    "source_kind": "github",
+    "source_label": "GitHub releases",
+    "source_url": "https://github.com/open-telemetry/opentelemetry-cpp/releases",
+    "target": "open-telemetry/opentelemetry-cpp",
+    "docs_url": "https://raw.githubusercontent.com/open-telemetry/opentelemetry.io/refs/heads/main/content/en/docs/languages/cpp/instrumentation.md",
+    "examples_url": "https://github.com/open-telemetry/opentelemetry-cpp/tree/main/examples"
+  },
+  {
+    "language": ".NET",
+    "package": "OpenTelemetry",
+    "source_kind": "nuget",
+    "source_label": "NuGet",
+    "source_url": "https://www.nuget.org/packages/OpenTelemetry",
+    "target": "OpenTelemetry",
+    "docs_url": "https://raw.githubusercontent.com/open-telemetry/opentelemetry.io/refs/heads/main/content/en/docs/languages/dotnet/instrumentation.md",
+    "examples_url": "https://github.com/open-telemetry/opentelemetry-dotnet/tree/main/examples"
+  },
+  {
+    "language": "Erlang/Elixir",
+    "package": "opentelemetry",
+    "source_kind": "hex",
+    "source_label": "Hex.pm",
+    "source_url": "https://hex.pm/packages/opentelemetry",
+    "target": "opentelemetry",
+    "docs_url": "https://raw.githubusercontent.com/open-telemetry/opentelemetry.io/refs/heads/main/content/en/docs/languages/erlang/instrumentation.md",
+    "examples_url": ""
+  },
+  {
+    "language": "Go",
+    "package": "go.opentelemetry.io/otel/sdk",
+    "source_kind": "goproxy",
+    "source_label": "Go proxy",
+    "source_url": "https://pkg.go.dev/go.opentelemetry.io/otel/sdk",
+    "target": "go.opentelemetry.io/otel/sdk",
+    "docs_url": "https://raw.githubusercontent.com/open-telemetry/opentelemetry.io/refs/heads/main/content/en/docs/languages/go/instrumentation.md",
+    "examples_url": "https://github.com/open-telemetry/opentelemetry-go-contrib/tree/main/examples"
+  },
+  {
+    "language": "Java",
+    "package": "io.opentelemetry:opentelemetry-sdk",
+    "source_kind": "maven",
+    "source_label": "Maven Central",
+    "source_url": "https://search.maven.org/artifact/io.opentelemetry/opentelemetry-sdk",
+    "target": "io.opentelemetry:opentelemetry-sdk",
+    "docs_url": "https://raw.githubusercontent.com/open-telemetry/opentelemetry.io/refs/heads/main/content/en/docs/languages/java/sdk.md",
+    "examples_url": "https://github.com/open-telemetry/opentelemetry-java-examples#java-opentelemetry-examples"
+  },
+  {
+    "language": "JavaScript",
+    "package": "@opentelemetry/sdk-node",
+    "source_kind": "npm",
+    "source_label": "npm",
+    "source_url": "https://www.npmjs.com/package/@opentelemetry/sdk-node",
+    "target": "@opentelemetry/sdk-node",
+    "docs_url": "https://raw.githubusercontent.com/open-telemetry/opentelemetry.io/refs/heads/main/content/en/docs/languages/js/instrumentation.md",
+    "examples_url": "https://github.com/open-telemetry/opentelemetry-js/tree/main/examples"
+  },
+  {
+    "language": "Kotlin",
+    "package": "open-telemetry/opentelemetry-kotlin",
+    "source_kind": "github",
+    "source_label": "GitHub releases",
+    "source_url": "https://github.com/open-telemetry/opentelemetry-kotlin/releases",
+    "target": "open-telemetry/opentelemetry-kotlin",
+    "docs_url": "https://raw.githubusercontent.com/open-telemetry/opentelemetry-kotlin/refs/heads/main/README.md",
+    "examples_url": "https://github.com/open-telemetry/opentelemetry-kotlin/tree/main/examples"
+  },
+  {
+    "language": "PHP",
+    "package": "open-telemetry/sdk",
+    "source_kind": "packagist",
+    "source_label": "Packagist",
+    "source_url": "https://packagist.org/packages/open-telemetry/sdk",
+    "target": "open-telemetry/sdk",
+    "docs_url": "https://raw.githubusercontent.com/open-telemetry/opentelemetry.io/refs/heads/main/content/en/docs/languages/php/instrumentation.md",
+    "examples_url": "https://github.com/open-telemetry/opentelemetry-php/tree/main/examples"
+  },
+  {
+    "language": "Python",
+    "package": "opentelemetry-sdk",
+    "source_kind": "pypi",
+    "source_label": "PyPI",
+    "source_url": "https://pypi.org/project/opentelemetry-sdk/",
+    "target": "opentelemetry-sdk",
+    "docs_url": "https://raw.githubusercontent.com/open-telemetry/opentelemetry.io/refs/heads/main/content/en/docs/languages/python/instrumentation.md",
+    "examples_url": ""
+  },
+  {
+    "language": "Ruby",
+    "package": "opentelemetry-sdk",
+    "source_kind": "rubygems",
+    "source_label": "RubyGems",
+    "source_url": "https://rubygems.org/gems/opentelemetry-sdk",
+    "target": "opentelemetry-sdk",
+    "docs_url": "https://raw.githubusercontent.com/open-telemetry/opentelemetry.io/refs/heads/main/content/en/docs/languages/ruby/instrumentation.md",
+    "examples_url": "https://github.com/open-telemetry/opentelemetry-ruby/tree/main/examples"
+  },
+  {
+    "language": "Rust",
+    "package": "opentelemetry_sdk",
+    "source_kind": "crates",
+    "source_label": "crates.io",
+    "source_url": "https://crates.io/crates/opentelemetry_sdk",
+    "target": "opentelemetry_sdk",
+    "docs_url": "https://raw.githubusercontent.com/open-telemetry/opentelemetry.io/refs/heads/main/content/en/docs/languages/rust/getting-started.md",
+    "examples_url": "https://github.com/open-telemetry/opentelemetry-rust/tree/main/examples"
+  },
+  {
+    "language": "Swift",
+    "package": "open-telemetry/opentelemetry-swift",
+    "source_kind": "github",
+    "source_label": "GitHub releases",
+    "source_url": "https://github.com/open-telemetry/opentelemetry-swift/releases",
+    "target": "open-telemetry/opentelemetry-swift",
+    "docs_url": "https://raw.githubusercontent.com/open-telemetry/opentelemetry.io/refs/heads/main/content/en/docs/languages/swift/instrumentation.md",
+    "examples_url": "https://github.com/open-telemetry/opentelemetry-swift/tree/main/Examples"
+  }
+]

@@ -1,0 +1,94 @@
+name: Reconcile OTel Versions
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * *"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: reconcile-otel-versions
+  cancel-in-progress: false
+
+jobs:
+  reconcile:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Setup Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: tools/otel-agent-tools/go.mod
+
+      - name: Reconcile Version Index
+        run: |
+          go run ./tools/otel-agent-tools/cmd/otel-agent-tools reconcile versions \
+            --out skills/opentelemetry-manual-instrumentation/references/generated/otel-version-index.md
+
+      - name: Detect Changes
+        id: changes
+        run: |
+          if git diff --quiet -- skills/opentelemetry-manual-instrumentation/references/generated/otel-version-index.md; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Push Automation Branch
+        if: steps.changes.outputs.changed == 'true'
+        env:
+          BRANCH_NAME: automation/reconcile-otel-versions
+        run: |
+          git config user.name "otel-agent-tools"
+          git config user.email "otel-agent-tools@users.noreply.github.com"
+          git checkout -B "$BRANCH_NAME"
+          git add skills/opentelemetry-manual-instrumentation/references/generated/otel-version-index.md
+          git commit -m "chore(deps): update OpenTelemetry SDK versions"
+          git push --force-with-lease origin "HEAD:$BRANCH_NAME"
+
+      - name: Create Or Update Pull Request
+        id: cpr
+        if: steps.changes.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH_NAME: automation/reconcile-otel-versions
+          PR_TITLE: "chore(deps): update OpenTelemetry SDK versions"
+          PR_BODY: |
+            Automated refresh of the generated OpenTelemetry version index.
+            This PR will auto-merge after CI passes.
+        run: |
+          pr_number="$(gh pr list \
+            --base main \
+            --head "$BRANCH_NAME" \
+            --state open \
+            --json number \
+            --jq '.[0].number')"
+
+          if [ -n "$pr_number" ]; then
+            gh pr edit "$pr_number" \
+              --title "$PR_TITLE" \
+              --body "$PR_BODY"
+          else
+            pr_url="$(gh pr create \
+              --base main \
+              --head "$BRANCH_NAME" \
+              --title "$PR_TITLE" \
+              --body "$PR_BODY")"
+            pr_number="$(gh pr view "$pr_url" --json number --jq '.number')"
+          fi
+
+          echo "pull-request-number=$pr_number" >> "$GITHUB_OUTPUT"
+
+      - name: Enable Auto-Merge
+        if: steps.cpr.outputs.pull-request-number != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh pr merge "${{ steps.cpr.outputs.pull-request-number }}" --auto --squash --delete-branch
