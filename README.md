@@ -25,6 +25,7 @@ Replace the skill name with any entry from the table below.
 | `opentelemetry-manual-instrumentation` | `skills/opentelemetry-manual-instrumentation/` | Planning, adding, or reviewing manual instrumentation; choosing runtime boundaries and signals; configuring SDK defaults; controlling cardinality; handling propagation; and performing final instrumentation review. |
 | `opentelemetry-semantic-conventions` | `skills/opentelemetry-semantic-conventions/` | Selecting released semantic convention groups, attributes, and span naming rules; checking semantic convention compliance; and looking up exact upstream semantic convention entries. |
 | `opentelemetry-sdk-versions` | `skills/opentelemetry-sdk-versions/` | Choosing the latest compatible released OpenTelemetry SDK or package version for a language and finding setup docs or examples. |
+| `span-events-to-logs-migration` | `skills/span-events-to-logs-migration/` | Migrating instrumentation from the deprecated Span Event API (AddEvent, RecordException) to the Logs API following the OTEP 4430 deprecation plan. |
 
 ## Contributing
 
