@@ -48,10 +48,9 @@ Declarative config has been supported since Javaagent 2.9.0; the property is now
 SDK 1.63.0 bundled with Javaagent 2.29.0). Newer agent versions track newer schema versions.
 Confirm both the accepted range and preferred `file_format` from the tag-matched parser, then use
 the preferred value from that release's fixture to avoid compatibility warnings for experimental
-properties. As of 2026-07-20, SDK BOM 1.64.0 accepts `0.4` and `1.*` and prefers `"1.1"`.
-Javaagent/Spring Boot Starter 2.29.0 targets SDK 1.63.0, whose parser accepts `0.4` and the
-`1.0` release/RC forms and prefers `"1.0"`; both released fixtures use the value `1.0`. Do not
-infer this from `main` or the generic language support matrix alone.
+properties. As of 2026-07-29, SDK BOM 1.64.0 and Javaagent/Spring Boot Starter 2.30.0 use SDK
+1.64.0: the parser accepts `0.4` and `1.*`, prefers `"1.1"`, and both released instrumentation
+fixtures use `1.1`. Do not infer this from `main` or the generic language support matrix alone.
 
 When `otel.config.file` / `OTEL_CONFIG_FILE` is set, all other SDK autoconfigure properties are
 ignored except agent-only properties (see Key API Facts).
@@ -107,19 +106,19 @@ AutoConfiguredOpenTelemetrySdk sdk =
 - **Spring Boot Starter activation**: unlike the Javaagent/autoconfigure, the starter does
   not load an external file. Embed the declarative config inline under the `otel:` key in
   `application.yaml` (or as `otel.*` properties in `application.properties`) and opt in by
-  setting `otel.file_format` (for example, `file_format: "1.0"` for starter 2.29.0; verify the
+  setting `otel.file_format` (for example, `file_format: "1.1"` for starter 2.30.0; verify the
   selected release fixture). The presence of `otel.file_format` is what switches the starter into
   declarative-config mode.
 - **Shutdown hook**: The Javaagent and autoconfigure both register a JVM shutdown hook automatically — no manual `sdk.close()` needed.
 - **Agent-only properties**: `otel.javaagent.extensions`, `otel.javaagent.enabled`, and
   `otel.javaagent.debug` cannot be set via declarative config. Set them as system properties or
   their corresponding environment variables instead.
-- **Released 2.29.0 selectors**: Javaagent and Starter declarative config can select semantic
+- **Released 2.30.0 selectors**: Javaagent and Starter declarative config can select semantic
   conventions per `db`, `code`, `rpc`, or `messaging` domain under
   `instrumentation/development.general.<domain>.semconv` with `version`, `experimental`, and
   `dual_emit`. `service.peer` is still flag-only in this release. Check the schema for supported
   value combinations; unsupported combinations fall back rather than forcing the requested mode.
-- **Starter thread details**: Starter 2.29.0 can add experimental `thread.id` and `thread.name`
+- **Starter thread details**: Starter 2.30.0 can add experimental `thread.id` and `thread.name`
   to spans with `distribution.spring_starter.thread_details_enabled: true`. This path is
   Starter-only; the Javaagent uses the separate
   `distribution.javaagent.thread_details_enabled` path.

@@ -32,18 +32,18 @@ otel.instrumentation.sanitization.url.experimental.sensitive-query-parameters=\
 
 - Type: list of case-sensitive parameter names. Setting it **replaces** the default list
   (full override, not additive) — re-list the credential defaults when extending it.
-- Declarative config limitation in Javaagent and Spring Boot Starter **v2.29.0**: custom
-  query-parameter redaction is not usable from the YAML file. The apparent
-  `sensitive_query_parameters/development` spelling is rejected during startup as an
-  unrecognized field. The unsuffixed `sensitive_query_parameters` spelling parses but is
-  silently ignored, leaving only the default credential list active. Marker requests confirm
-  that a custom parameter remains raw while `AWSAccessKeyId` is still redacted.
+- Declarative config limitation in Javaagent and Spring Boot Starter **v2.30.0**: custom
+  query-parameter redaction is not usable from the YAML file. The SDK 1.64.0 model accepts
+  unsuffixed `sensitive_query_parameters`, while the instrumentation reads
+  `sensitive_query_parameters/development`. The suffixed spelling is therefore rejected during
+  startup as an unrecognized field, and the unsuffixed spelling parses but is ignored, leaving
+  only the default credential list active.
 
-  If custom query redaction is required on v2.29.0, use the flat
+  If custom query redaction is required on v2.30.0, use the flat
   `otel.instrumentation.sanitization.url.experimental.sensitive-query-parameters` property
-  without activating declarative file-config mode, or redact `url.query` / `url.full` in a
-  `SpanProcessor` or Collector processor. Do not infer that redaction works merely because a
-  YAML file parses and the application starts.
+  without activating declarative file-config mode, customize the HTTP instrumentation's attribute
+  extraction, or redact `url.query` / `url.full` in a Collector processor. Do not infer that
+  redaction works merely because a YAML file parses and the application starts.
 - History: replaces `otel.instrumentation.http.client.experimental.redact-query-parameters`
   (client-only; deprecated, then removed in 2026 releases —
   [#18229](https://github.com/open-telemetry/opentelemetry-java-instrumentation/pull/18229)).
@@ -100,7 +100,7 @@ config, or
 variable. Per-instrumentation toggles can take precedence. Older property spellings
 (`otel.instrumentation.common.db-statement-sanitizer.enabled` and per-instrumentation
 `*-statement-sanitizer.enabled` variants) are deprecated and, when
-`instrumentation/development.java.common.v3_preview: true` in Javaagent/Starter 2.29.0, ignored.
+`instrumentation/development.java.common.v3_preview: true` in Javaagent/Starter 2.30.0, ignored.
 Use the `db.query_sanitization.enabled` forms above. Do not turn sanitization off on request paths.
 
 JDBC's parameter-capture switch shown above is a separate opt-in. It emits raw values as
@@ -111,6 +111,6 @@ JDBC's parameter-capture switch shown above is a separate opt-in. It emits raw v
 | Fact | Fetch |
 |---|---|
 | HTTP capture properties (headers, servlet params, known-methods) | `WebFetch https://opentelemetry.io/docs/zero-code/java/agent/instrumentation/http/` |
-| Current property names/defaults incl. `sensitive-query-parameters` | any instrumentation `metadata.yaml` at the selected Javaagent tag, e.g. `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-java-instrumentation/<selected-agent-tag>/instrumentation/jodd-http-4.2/metadata.yaml` |
+| Current property names/defaults incl. `sensitive-query-parameters` | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-java-instrumentation/<selected-agent-tag>/instrumentation-docs/src/main/resources/shared-config-definitions.yaml`; per-instrumentation `metadata.yaml` files reference these shared definitions |
 | Renames/removals of capture & sanitization properties | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-java-instrumentation/<selected-agent-tag>/CHANGELOG.md` |
 | Semconv redaction rules for `url.query`/`url.full` | `WebFetch https://opentelemetry.io/docs/specs/semconv/http/http-spans/` |
