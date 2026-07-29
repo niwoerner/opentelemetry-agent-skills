@@ -1,6 +1,6 @@
 # `otlp` receiver: configuration
 
-All keys live under the receiver instance (`receivers: { otlp: { … } }`). The only top-level key is `protocols:`, which holds two optional sub-blocks. Facts below trace to the core **v1.62.0 / v0.156.0** source (`receiver/otlpreceiver/config.go`, `config/configgrpc/configgrpc.go` `ServerConfig`, `config/confighttp/server.go` `ServerConfig`, and `config/configtls`).
+All keys live under the receiver instance (`receivers: { otlp: { … } }`). The only top-level key is `protocols:`, which holds two optional sub-blocks. Facts below trace to the core **v1.63.0 / v0.157.0** source (`receiver/otlpreceiver/config.go`, `config/configgrpc/configgrpc.go` `ServerConfig`, `config/confighttp/server.go` `ServerConfig`, and `config/configtls`).
 
 ## Top-level
 

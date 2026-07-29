@@ -6,7 +6,7 @@ If a piece of telemetry matches no route and `default_pipelines` is not set, it 
 
 ## `error_mode: propagate` drops the payload on OTTL errors
 
-With the default `error_mode: propagate`, any OTTL evaluation error — a missing attribute, a type mismatch — makes the connector return an error and the **whole payload is dropped** from the collector. In production use `error_mode: ignore`, which logs the error and sends the payload to `default_pipelines` instead — so `ignore` only actually rescues data when `default_pipelines` is set; without it the errored payload still has nowhere to go. Guard fragile conditions with nil checks (`resource.attributes["k"] != nil and resource.attributes["k"] == "v"`) so a missing key doesn't error in the first place. The default flips to `ignore` under the `connector.routing.defaultErrorModeIgnore` feature gate (alpha, since v0.155.0), so don't assume `propagate` — set `error_mode` explicitly.
+With `error_mode: propagate`, any OTTL evaluation error — a missing attribute, a type mismatch — makes the connector return an error and the **whole payload is dropped** from the collector. In v0.157.0 the default is `ignore`: the `connector.routing.defaultErrorModeIgnore` gate is Beta and enabled by default. `ignore` logs the error and sends the payload to `default_pipelines` instead — so it only actually rescues data when `default_pipelines` is set; without it the errored payload still has nowhere to go. Disabling the gate restores the old `propagate` default. Guard fragile conditions with nil checks (`resource.attributes["k"] != nil and resource.attributes["k"] == "v"`) so a missing key doesn't error in the first place.
 
 ## `action` defaults to `move`, so matched data skips `default_pipelines`
 

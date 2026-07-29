@@ -8,6 +8,8 @@ The default `max_clusters: 0` means *unlimited* — active clusters and tree nod
 
 When `warmup_min_clusters > 0`, the template attribute does not appear until that many clusters have been observed. If the attribute "never shows up", check `otelcol_processor_drain_clusters_active` against the threshold, or lower `warmup_min_clusters`. The warmup window is observable as `otelcol_processor_incoming_items - otelcol_processor_drain_log_records_annotated`.
 
+When `extract_parameters: true`, warmup also withholds the parameter attribute. Even after warmup, a fully literal template has no `<*>` positions and therefore emits no parameter slice; this is not an extraction failure.
+
 ## Templates reset on restart without persistence
 
 The tree lives in memory. Without a `storage` extension, templates are rebuilt (and re-warmed) on every restart, and independent instances may disagree on a template during early training on low-volume or highly variable streams. Mitigate with `seed_templates`/`seed_logs`, `warmup_min_clusters`, or shared `storage` (see [Advanced use-cases](advanced.md)).

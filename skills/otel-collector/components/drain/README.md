@@ -14,7 +14,7 @@ Logs support is Alpha since v0.151.0; configuration keys and behavior may change
 
 ## Description
 
-Applies the [Drain](https://pinjiahe.github.io/papers/ICWS17.pdf) log-clustering algorithm to each log record, derives a **template string** (e.g. `user <*> logged in from <*>`), and writes it to a configurable attribute (`log.record.template` by default). The template becomes a stable key for grouping, filtering, routing, or sampling whole classes of logs.
+Applies the [Drain](https://pinjiahe.github.io/papers/ICWS17.pdf) log-clustering algorithm to each log record, derives a **template string** (e.g. `user <*> logged in from <*>`), and writes it to a configurable attribute (`log.record.template` by default). The template becomes a stable key for grouping, filtering, routing, or sampling whole classes of logs. Since v0.157.0, optional positional parameter extraction can also write the body tokens matched by each `<*>` to a string-slice attribute.
 
 Drain tokenizes each log line and walks a **fixed-depth parse tree** (depth set by `tree_depth`). Lines with similar token structure land in the same cluster, and each cluster carries a template whose varying tokens become `<*>` wildcards while stable tokens are kept verbatim. The processor **annotates only** — it does not drop, aggregate, reorder, or otherwise modify the flow of logs.
 
@@ -23,6 +23,7 @@ Drain tokenizes each log line and walks a **fixed-depth parse tree** (depth set 
 Use it when:
 - You want to group high-volume, semi-structured logs into a small number of stable patterns.
 - You need a stable key for downstream filtering, routing, or sampling of log classes.
+- You need the variable tokens from a matched template as structured values without writing a regex (`extract_parameters`).
 - Your log bodies are free-form strings (or a structured body with a clear message field).
 - You want to identify the noisiest log patterns before deciding what to drop.
 
@@ -41,7 +42,7 @@ Avoid it when:
 
 ## Details
 
-- [Configuration](configuration.md) — config keys, defaults, validation rules, and structured-body behavior. Open when wiring up `drain` or tuning what gets templated.
+- [Configuration](configuration.md) — config keys, defaults, positional parameter extraction, validation rules, and structured-body behavior. Open when wiring up `drain` or tuning what gets templated.
 - [Verification](verification.md) — telemetrygen recipe to confirm templates are written. Open when checking the processor is bundled and working end-to-end.
-- [Advanced use-cases](advanced.md) — persistence, granularity tuning, warmup, delimiters, and combining with downstream components. Open when going beyond a single stock instance.
+- [Advanced use-cases](advanced.md) — persistence, granularity tuning, warmup, positional parameter extraction, delimiters, and combining with downstream components. Open when going beyond a single stock instance.
 - [Known quirks](quirks.md) — unbounded memory, warmup withholding, restart resets, map bodies, Alpha stability, and the "does not reduce volume" trap. Open when something behaves unexpectedly.

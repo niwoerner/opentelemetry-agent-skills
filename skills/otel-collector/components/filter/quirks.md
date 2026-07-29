@@ -16,8 +16,8 @@ Filtering at the `datapoint` level that empties a metric also removes the metric
 
 ## error_mode behavior
 
-- Default is `ignore` since v0.153.0 (the `processor.filter.defaultErrorModeIgnore` gate went **beta / enabled by default**): a failing condition is logged and skipped, valid data survives.
-- Setting `error_mode: propagate` — or disabling the gate with `--feature-gates=-processor.filter.defaultErrorModeIgnore` — makes a single failing condition (e.g. a type mismatch or a nil dereference) **drop the entire batch**, not just the offending item. Older collectors (pre-v0.153.0) defaulted to `propagate`, so the same config behaves differently across versions unless `error_mode` is set explicitly.
+- Default is `ignore`: a failing condition is logged and skipped, valid data survives. The `processor.filter.defaultErrorModeIgnore` gate reached **Stable** in v0.157.0, making this default permanent; disabling the gate now fails startup, and the gate is scheduled for removal in v0.159.0.
+- Setting `error_mode: propagate` explicitly makes a single failing condition (e.g. a type mismatch or a nil dereference) **drop the entire batch**, not just the offending item. Older collectors (pre-v0.153.0) defaulted to `propagate`; on v0.153.0–v0.156.0 the Beta gate could also be disabled to restore that old default.
 - `silent` hides evaluation errors entirely; if a filter "isn't working," confirm it isn't set to `silent`.
 
 ## Stability caveats

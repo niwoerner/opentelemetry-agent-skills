@@ -25,6 +25,18 @@ They are independent; mixing them up leads to surprising precedence. See [advanc
 
 Changing a resource attribute creates a **new metric time series**. With `refresh_interval` set, every refresh that picks up a changed attribute forks new series — which can sharply raise backend storage cost and query cost. Each refresh also re-runs all detectors, so short intervals add CPU/memory load. Leave it at the default (`0`, detect once) unless attributes genuinely change at runtime; intervals below 1 minute are strongly discouraged.
 
+## Internal telemetry added in v0.157.0
+
+The processor now emits three enabled-by-default, **Development**-stability metrics:
+
+| Metric | Type / unit | Attributes | Meaning |
+|--------|-------------|------------|---------|
+| `otelcol.resourcedetection.attributes.detected` | asynchronous non-monotonic sum / `{attribute}` | — | Number of attributes in the currently detected resource. |
+| `otelcol.resourcedetection.detector.duration` | histogram / `s` | `detector`, `outcome` | Per-detector runtime, including retry backoff. |
+| `otelcol.resourcedetection.detector.results` | monotonic sum / `{detection}` | `detector`, `outcome`, `error.type` on failure | Detection outcomes by detector; useful for identifying failing metadata lookups. |
+
+The names and attribute sets may still change because all three metrics are Development stability.
+
 ## Docker / container caveats
 
 - Use the **`docker`** detector instead of `system` when the Collector runs as a Docker container, and mount the Docker socket (`/var/run/docker.sock`). Note the official images run as non-root since 0.40.0, so socket access needs group permissions.

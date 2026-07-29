@@ -1,6 +1,6 @@
 # `prometheus_remote_write` exporter: configuration
 
-All keys live under the exporter instance — `exporters: { prometheus_remote_write: { … } }` (the deprecated alias `prometheusremotewrite` also works). Facts below trace to contrib **v0.156.0** source (`exporter/prometheusremotewriteexporter/config.go` + `factory.go` + `wal.go`, with the embedded `confighttp.ClientConfig`, `exporterhelper.TimeoutConfig`, and `configretry.BackOffConfig`). The config surface is unchanged since v0.154.0 (only a 5xx-classification bugfix and dependency bumps landed in between).
+All keys live under the exporter instance — `exporters: { prometheus_remote_write: { … } }` (the deprecated alias `prometheusremotewrite` also works). Facts below trace to contrib **v0.157.0** source (`exporter/prometheusremotewriteexporter/config.go` + `factory.go` + `wal.go`, with the embedded `confighttp.ClientConfig`, `exporterhelper.TimeoutConfig`, and `configretry.BackOffConfig`). The config shape is unchanged since v0.154.0; v0.157.0 corrected the field name in one validation error.
 
 ## Top-level keys
 
@@ -82,7 +82,7 @@ When set, this enum takes precedence over the deprecated `add_metric_suffixes`. 
 | `remote_write_queue.queue_size < 0` | `remote write queue size can't be negative` |
 | `remote_write_queue.enabled` and `queue_size == 0` | `a 0 size queue will drop all the data` |
 | `remote_write_queue.num_consumers < 0` | `remote write consumer number can't be negative` |
-| `max_batch_size_bytes < 0` | `max_batch_byte_size must be greater than 0` |
+| `max_batch_size_bytes < 0` | `max_batch_size_bytes must be greater than 0` |
 | `max_batch_size_bytes == 0` | not an error — **reset to `3000000`** |
 | `compression` set and not `snappy` | `compression type must be snappy` (empty is allowed) |
 | `protobuf_message` = `io.prometheus.write.v2.Request` without the `enableSendingRW2` gate | `remote write v2 is only supported with the feature gate exporter.prometheusremotewritexporter.enableSendingRW2` |

@@ -34,6 +34,10 @@ The `dns` resolver is only as fresh as the DNS responses it gets; intermediate c
 
 The ring balances **keys**, not bytes or backend CPU. It assumes routing-key values are reasonably uniform; a few very hot trace IDs or services can skew load even though key counts are even. The exporter does not look at actual backend load.
 
+## v0.157.0 remaps the ring even when the backend set is unchanged
+
+v0.157.0 increased virtual points per endpoint from 100 to 200, expanded the ring coordinate space from 36,000 to 131,071, and removed endpoint-order bias. Distribution across large backend sets improves, but the same routing key can map to a different backend than it did on v0.156.0. During a rolling upgrade, mixed-version front-end Collectors can therefore disagree on key→backend mapping and split a trace or service across stateful backends. Upgrade the load-balancing front-end tier together (or otherwise drain old instances) before relying on v0.157.0 affinity.
+
 ## `return_hostnames` needs a headless StatefulSet
 
 `k8s` `return_hostnames: true` only yields stable, resolvable names when the Service is headless and backs a StatefulSet (stable pod hostnames). With a normal Deployment, use IPs (the default).

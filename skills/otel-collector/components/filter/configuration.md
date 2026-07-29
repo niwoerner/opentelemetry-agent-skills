@@ -28,7 +28,7 @@ service:
 | `profile_conditions` | list | — | Profile conditions (contexts: `resource`, `scope`, `profile`). **Development** stability. |
 | `traces` / `metrics` / `logs` / `profiles` | block | — | **Deprecated** per-signal blocks and legacy `include`/`exclude` matchers. See [Legacy configuration](#legacy-configuration). |
 
-> **Default `error_mode` is `ignore` since v0.153.0.** The `processor.filter.defaultErrorModeIgnore` feature gate (**beta, enabled by default**) sets the default to `ignore`. Disable it — `--feature-gates=-processor.filter.defaultErrorModeIgnore` — to restore the old `propagate` default.
+> **Default `error_mode` is permanently `ignore` as of v0.157.0.** The `processor.filter.defaultErrorModeIgnore` feature gate reached **Stable** in v0.157.0, so disabling it now fails startup; the gate is scheduled for removal in v0.159.0. On v0.153.0–v0.156.0 it was Beta and could still be disabled to restore the old `propagate` default.
 
 ## The `*_conditions` fields
 

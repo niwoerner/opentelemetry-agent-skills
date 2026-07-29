@@ -26,7 +26,7 @@ This exporter does **not** use the standard `exporterhelper` `sending_queue`. Qu
 | `remote write queue size can't be negative` | Use a non-negative `queue_size`. |
 | `remote write consumer number can't be negative` | Use a non-negative `num_consumers`. |
 | `compression type must be snappy` | Remove the `compression` key, or set it to `snappy`. |
-| `max_batch_byte_size must be greater than 0` | Use a non-negative `max_batch_size_bytes` (0 is auto-reset to `3000000`). |
+| `max_batch_size_bytes must be greater than 0` | Use a non-negative `max_batch_size_bytes` (0 is auto-reset to `3000000`). On v0.156.0 and earlier this error misspelled the field as `max_batch_byte_size`. |
 | `max_batch_request_parallelism can't be set to below 1` | Set it to `1` or higher. |
 | `remote write v2 is only supported with the feature gate …` | Enable the `enableSendingRW2` gate, or keep `protobuf_message: prometheus.WriteRequest`. |
 | `invalid translation_strategy: <v>` | Use one of the four valid enum values. |
@@ -38,7 +38,7 @@ The factory default for `endpoint` is `http://some.url:9411/api/prom/push` — a
 
 ## `add_metric_suffixes` deprecation — version discrepancy
 
-`add_metric_suffixes` (default `true`) is **deprecated** in favor of `translation_strategy`. The factory logs a deprecation warning when it is `false` (`add_metric_suffixes is deprecated. Please use translation_strategy: UnderscoreEscapingWithoutSuffixes instead.`). Note a documentation/source discrepancy: the `config.go` comment claims it will be removed in **v0.153.0**, but it is **still present in v0.156.0**. Treat it as live-but-deprecated; migrate to `translation_strategy` for new configs.
+`add_metric_suffixes` (default `true`) is **deprecated** in favor of `translation_strategy`. The factory logs a deprecation warning when it is `false` (`add_metric_suffixes is deprecated. Please use translation_strategy: UnderscoreEscapingWithoutSuffixes instead.`). Note a documentation/source discrepancy: the `config.go` comment claims it will be removed in **v0.153.0**, but it is **still present in v0.157.0**. Treat it as live-but-deprecated; migrate to `translation_strategy` for new configs.
 
 ## RW2 is not production-ready
 

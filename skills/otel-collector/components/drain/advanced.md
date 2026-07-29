@@ -51,6 +51,19 @@ processors:
 
 Useful when values you want abstracted are glued to neighboring tokens by punctuation rather than whitespace.
 
+## Extract wildcard parameters
+
+Since v0.157.0, `extract_parameters` exposes the tokens occupying `<*>` positions as a string slice, in template order:
+
+```yaml
+processors:
+  drain:
+    extract_parameters: true
+    params_attribute: log.record.template.params
+```
+
+For template `user <*> logged in from <*>`, a matching body such as `user alice logged in from 10.0.0.1` produces `["alice", "10.0.0.1"]`. The slice appears only after the cluster template has wildcard positions; a fully literal template produces no parameter attribute.
+
 ## Combine templates with downstream components
 
 Feed the derived template into a `filter` to drop a noisy class, a `routing` connector to fan log classes into separate pipelines, or a `log_dedup` processor to aggregate identical records with a count:

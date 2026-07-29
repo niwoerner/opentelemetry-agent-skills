@@ -38,7 +38,7 @@ Avoid it when:
 ## Details
 
 - [Configuration](configuration.md) — top-level config keys (`decision_wait`, `num_traces`, `decision_cache`, …), defaults, and the minimal pipeline. Open when wiring up the processor or checking a key/default.
-- [Policy types](policies.md) — the full catalog of all ~17 policy types and their sub-fields. Open when choosing or configuring a sampling policy.
+- [Policy types](policies.md) — the full catalog of all ~17 policy types and their sub-fields, latency-boundary semantics, and optional W3C tracestate probability handling. Open when choosing or configuring a sampling policy.
 - [Verification](verification.md) — telemetrygen recipe to confirm sampling works. Open when you want to prove the config end-to-end.
 - [Advanced use-cases](advanced.md) — `and`/`composite`/`drop` combinations and scaling out with `load_balancing`. Open when building multi-condition policies or running more than one instance.
-- [Known quirks](quirks.md) — same-instance/loadbalancing requirement, memory model, `decision_wait` latency, late spans, statefulness. Open when sizing memory or debugging missing/partial traces.
+- [Known quirks](quirks.md) — same-instance/loadbalancing requirement, memory model, `decision_wait` latency, late spans, statefulness, and tracestate parsing. Open when sizing memory or debugging missing/partial traces.

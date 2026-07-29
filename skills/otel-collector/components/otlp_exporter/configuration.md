@@ -1,6 +1,6 @@
 # `otlp_grpc` exporter: configuration
 
-All keys live under the exporter instance — `exporters: { otlp_grpc: { … } }` or, via the deprecated alias, `exporters: { otlp: { … } }`. Facts below trace to core **v1.62.0 / v0.156.0** source (`exporter/otlpexporter/config.go` + `factory.go`, `config/configgrpc/configgrpc.go` `ClientConfig`, `config/configtls`, `config/configretry/backoff.go`, and `exporter/exporterhelper/internal/queuebatch/config.go` + `queue_sender.go`).
+All keys live under the exporter instance — `exporters: { otlp_grpc: { … } }` or, via the deprecated alias, `exporters: { otlp: { … } }`. Facts below trace to core **v1.63.0 / v0.157.0** source (`exporter/otlpexporter/config.go` + `factory.go`, `config/configgrpc/configgrpc.go` `ClientConfig`, `config/configtls`, `config/configretry/backoff.go`, and `exporter/exporterhelper/internal/queuebatch/config.go` + `queue_sender.go`).
 
 ## Top-level (gRPC client) keys
 
@@ -14,7 +14,7 @@ All keys live under the exporter instance — `exporters: { otlp_grpc: { … } }
 | `keepalive` | object | — | gRPC client keepalive: `time`, `timeout`, `permit_without_stream`. |
 | `read_buffer_size` | int | 0 (gRPC default) | gRPC read buffer. The factory leaves this unset (the exporter reads almost nothing). |
 | `write_buffer_size` | int | `524288` (512 KiB) | gRPC write buffer. |
-| `wait_for_ready` | bool | `false` | Block RPCs until the connection is ready instead of failing fast. |
+| `wait_for_ready` | bool | `false` | Block RPCs until the connection is ready instead of failing fast. Core v0.157.0 fixed this option being parsed but not applied on gRPC client calls. |
 | `balancer_name` | string | `round_robin` | gRPC client-side load-balancing policy across resolved addresses. |
 | `authority` | string | — | Overrides the `:authority` pseudo-header. |
 | `user_agent` | string | — (build-info default) | Overrides the default gRPC user-agent header. Empty keeps the build-derived default. |

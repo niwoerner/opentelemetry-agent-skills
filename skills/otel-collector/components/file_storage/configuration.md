@@ -1,6 +1,6 @@
 # `file_storage`: configuration
 
-All keys live under the extension instance (e.g. `extensions: { file_storage: { … } }`), and the extension must be listed under `service.extensions:` to load. Facts below are traced to the `v0.156.0` contrib source (`config.go`, `factory.go`, `default_others.go`).
+All keys live under the extension instance (e.g. `extensions: { file_storage: { … } }`), and the extension must be listed under `service.extensions:` to load. Facts below are traced to the `v0.157.0` contrib source (`config.go`, `factory.go`, `default_others.go`).
 
 ## Top-level keys
 

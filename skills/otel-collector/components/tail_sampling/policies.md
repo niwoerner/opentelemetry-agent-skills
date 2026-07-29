@@ -5,9 +5,9 @@ Each policy has `name` and `type`, plus a config block named after the type.
 | `type` | Purpose |
 |--------|---------|
 | `always_sample` | Sample every trace (catch-all / debugging). No sub-config. |
-| `latency` | Sample by total trace duration (earliest start to latest end). |
+| `latency` | Sample by total trace duration (earliest start to latest end); the lower bound is exclusive. |
 | `numeric_attribute` | Sample when a numeric span/resource attribute is within a range. |
-| `probabilistic` | Sample a fixed percentage of traces via trace-ID hash. |
+| `probabilistic` | Sample a fixed percentage via trace-ID hash, or via W3C probability sampling information when the opt-in tracestate gate is enabled. |
 | `status_code` | Sample if any span has a matching status code. |
 | `string_attribute` | Sample by string span/resource attribute value (exact or regex). |
 | `rate_limiting` | Sample up to a maximum spans-per-second via a token bucket; `spans_per_second` (required) + `burst_capacity` (optional, default 2× the rate). A trace with more spans than the burst never passes. |
@@ -69,10 +69,18 @@ Key sub-fields for the common policies:
     burst_capacity: 2000   # optional; default 2× spans_per_second
 ```
 
+The latency interval is **`threshold_ms < duration <= upper_threshold_ms`**. With no upper bound (`upper_threshold_ms: 0`), only durations strictly greater than `threshold_ms` match. v0.157.0 fixed the no-upper-bound case to use this same exclusive lower bound; a trace exactly equal to `threshold_ms` is not sampled.
+
 ## Decision precedence
 
 All policies are evaluated (unless `sample_on_first_match: true`), then a single decision is chosen: a `drop` decision wins over everything; otherwise any `sample` decision keeps the trace; if no policy matches, the trace is **not** sampled.
 
 > **`invert_match` note:** the legacy "inverted decisions" behavior is gone — the `disableinvertdecisions` feature gate was stabilized and then removed, so as of v0.156.0 `invert_match: true` always yields a plain sample/not-sample on the negated condition and no longer vetoes other policies. `invert_match` still exists on the `numeric_attribute`, `string_attribute`, and `boolean_attribute` policies. To explicitly suppress traces, use a `drop` policy; to sample on the opposite of a wrapped policy's decision, use a `not` policy instead.
+
+## Tracestate probability sampling
+
+The alpha `processor.tailsamplingprocessor.usetracestate` gate is off by default. When enabled, the `probabilistic` policy reads OpenTelemetry probability sampling fields (`rv` and `th` in the `ot` section) from W3C `tracestate`: it uses explicit `rv` randomness when present, otherwise trace-ID-derived randomness, and falls back to the legacy FNV trace-ID hash (with `hash_salt`) when no probability sampling information exists.
+
+For sampled traces, the processor rewrites each parseable span's outgoing `th` to the smallest effective threshold across policies that voted to sample; non-probabilistic sample decisions imply always-sample (`th=0`). Existing stricter thresholds are preserved. Spans with unparseable tracestate are skipped during rewriting and counted by the Development metric `otelcol_processor_tail_sampling_count_spans_with_unparseable_tracestate`.
 
 The `and`, `composite`, `not`, and `drop` policy types compose other policies; see [Advanced use-cases](advanced.md) for worked examples.

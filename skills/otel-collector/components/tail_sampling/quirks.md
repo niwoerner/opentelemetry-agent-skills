@@ -15,3 +15,7 @@ Sampled traces are only exported after `decision_wait` expires, so this delay is
 ## Stateful, single-process decision
 
 Tail sampling is inherently stateful: the keep/drop choice is computed once, in one process, from whatever spans were buffered at decision time. There is no cross-instance coordination and no re-evaluation of a trace once decided. Place context-enriching processors (e.g. `k8s_attributes`) **before** `tail_sampling` in the pipeline, since the processor re-batches spans and downstream context can be lost.
+
+## Tracestate rewriting is opt-in and parse-sensitive
+
+The processor only consumes and rewrites OpenTelemetry probability sampling fields when the alpha `processor.tailsamplingprocessor.usetracestate` gate is enabled. If a span's W3C `tracestate` cannot be parsed, its outgoing `th` is not rewritten; monitor `otelcol_processor_tail_sampling_count_spans_with_unparseable_tracestate` (Development stability) for this case. The probabilistic decision still falls back to the legacy trace-ID hash when the trace carries no probability sampling information.

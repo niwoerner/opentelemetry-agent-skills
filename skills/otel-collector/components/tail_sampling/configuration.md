@@ -46,4 +46,6 @@ service:
 
 `tail_storage` (a component ID) offloads span buffering to a tail-storage extension instead of memory, but is behind the alpha `processor.tailsamplingprocessor.tailstorageextension` feature gate — setting it without the gate fails validation.
 
+The alpha `processor.tailsamplingprocessor.usetracestate` gate (off by default) changes the `probabilistic` policy to consume OpenTelemetry probability sampling fields from W3C `tracestate` and rewrites the outgoing `th` on sampled traces. It falls back to the legacy trace-ID hash when no probability sampling information is present. See [Tracestate probability sampling](policies.md#tracestate-probability-sampling).
+
 For the full catalog of policy types and their sub-fields, see [Policy types](policies.md).

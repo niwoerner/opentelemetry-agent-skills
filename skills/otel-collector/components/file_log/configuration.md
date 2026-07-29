@@ -1,6 +1,6 @@
 # `file_log` receiver: configuration
 
-Every key below traces to the contrib v0.156.0 source (`receiver/filelogreceiver/README.md`, generated from the `fileconsumer` config). The receiver wraps the stanza `file_input` operator, so most keys are file-discovery and file-reading knobs; the parsing pipeline is `operators` (see [operators.md](operators.md)).
+Every key below traces to the contrib v0.157.0 source (`receiver/filelogreceiver/README.md`, generated from the `fileconsumer` config). The receiver wraps the stanza `file_input` operator, so most keys are file-discovery and file-reading knobs; the parsing pipeline is `operators` (see [operators.md](operators.md)).
 
 Only `include` is required.
 
