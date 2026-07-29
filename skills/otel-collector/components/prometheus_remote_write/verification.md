@@ -53,7 +53,7 @@ Run the collector on the same network:
 ```bash
 docker run -d --name prw-col --network prw-net \
   -v "$PWD/config.yaml:/etc/otelcol-contrib/config.yaml" \
-  otel/opentelemetry-collector-contrib:0.154.0
+  otel/opentelemetry-collector-contrib:0.157.0
 ```
 
 Drive it with `telemetrygen` — see the `otel-telemetrygen` skill. Run it as a container **on the same network** targeting the collector's alias (this avoids a host-port-mapped gRPC stall some Docker Desktop setups hit). This emits one **cumulative Sum** named `gen`; `telemetrygen` already defaults to cumulative temporality, which is required here — the exporter **drops non-cumulative (delta) monotonic sums** (see [quirks](quirks.md)). `--metrics N` is **per worker** and is **ignored when `--duration` is set**, so use `--workers 1` and no `--duration`:
