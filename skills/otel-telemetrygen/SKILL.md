@@ -5,7 +5,7 @@ description: Construct telemetrygen commands for generating synthetic OpenTeleme
 
 # Telemetrygen
 
-Generate synthetic OpenTelemetry telemetry with `telemetrygen` from [opentelemetry-collector-contrib](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/cmd/telemetrygen).
+Generate synthetic OpenTelemetry telemetry with `telemetrygen` from [opentelemetry-collector-contrib v0.157.0](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/v0.157.0/cmd/telemetrygen).
 
 Upstream metadata currently marks the traces, metrics, and logs subcommands as alpha.
 
@@ -14,6 +14,8 @@ Upstream metadata currently marks the traces, metrics, and logs subcommands as a
 `telemetrygen` has three subcommands -- `traces`, `metrics`, `logs` -- each exporting via OTLP to a collector or backend. The default transport is gRPC on port 4317; add `--otlp-http` to switch to HTTP on port 4318.
 
 Every command needs at least a subcommand and typically `--otlp-insecure` for local development (TLS is on by default).
+
+`telemetrygen` does not bind environment variables to its CLI flags. The underlying Go OTLP exporters can still read `OTEL_EXPORTER_OTLP_*` variables: telemetrygen overrides endpoint, signal path, TLS configuration, and timeout, while settings such as headers or compression can remain environment-driven when their corresponding CLI options are absent. For reproducible commands, unset inherited OTLP exporter variables or set the documented flags explicitly.
 
 ## Workflow
 
@@ -183,7 +185,7 @@ telemetrygen traces --mtls \
 ```bash
 # Docker with host networking
 docker run --rm --network host \
-  ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:v0.156.0 \
+  ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:v0.157.0 \
   traces --otlp-insecure --traces 100
 
 # Kubernetes Job
@@ -238,7 +240,7 @@ docker run -d --rm --name otelcol-verify \
   --user "$(id -u):$(id -g)" \
   -v "./config.yaml:/etc/otelcol-contrib/config.yaml:ro" \
   -v "./out:/output" \
-  otel/opentelemetry-collector-contrib:0.156.0 \
+  otel/opentelemetry-collector-contrib:0.157.0 \
   --config=/etc/otelcol-contrib/config.yaml
 
 # wait for the collector to be ready, then send the telemetry shape under test
@@ -278,8 +280,8 @@ These are the mistakes that cause real problems -- review before running against
 
 ```bash
 # go install (recommended, pin the version)
-go install github.com/open-telemetry/opentelemetry-collector-contrib/cmd/telemetrygen@v0.156.0
+go install github.com/open-telemetry/opentelemetry-collector-contrib/cmd/telemetrygen@v0.157.0
 
 # Container
-docker pull ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:v0.156.0
+docker pull ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:v0.157.0
 ```
