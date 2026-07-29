@@ -24,7 +24,7 @@ receivers:
 Requirements:
 
 - The local directory must contain a `go.mod` whose module path matches the `gomod` path.
-- Run OCB with a Go toolchain new enough for both OCB and the selected modules. OCB v0.156.0 declares Go 1.25, generates a `go 1.25` module, and runs `go mod tidy -compat=1.25`; a local component that requires newer Go needs that newer toolchain.
+- Run OCB with a Go toolchain new enough for both OCB and the selected modules. OCB v0.157.0 declares Go 1.25, generates a `go 1.25` module, and runs `go mod tidy -compat=1.25`; a local component that requires newer Go needs that newer toolchain.
 - Since v0.151.0 the generated `replace` uses a path relative to `dist.output_path`, so the generated tree can be committed or moved. Set `dist.use_absolute_replace_paths: true` if external tooling expects absolute paths.
 
 This is also the fastest verification loop when authoring a new component: manifest with the local component + `otlpreceiver` + `debugexporter`, build, run, send data with `telemetrygen`.
@@ -56,7 +56,7 @@ Run OCB in a container (no local Go needed):
 
 ```bash
 docker run --rm -v "$(pwd):/work" -w /work \
-  otel/opentelemetry-collector-builder:0.156.0 \
+  otel/opentelemetry-collector-builder:0.157.0 \
   --config=/work/builder.yaml
 ```
 
@@ -68,7 +68,7 @@ Typical multi-stage Dockerfile for shipping the result:
 FROM golang:1.25 AS build
 WORKDIR /build
 COPY builder.yaml .
-RUN go install go.opentelemetry.io/collector/cmd/builder@v0.156.0 \
+RUN go install go.opentelemetry.io/collector/cmd/builder@v0.157.0 \
  && builder --config=builder.yaml
 
 FROM gcr.io/distroless/static-debian12:nonroot
