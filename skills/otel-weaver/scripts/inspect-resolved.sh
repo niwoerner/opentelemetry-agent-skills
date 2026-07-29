@@ -2,9 +2,10 @@
 # Resolve a Weaver registry to JSON and pretty-print a slice with jq.
 #
 # Use this for a quick raw dump of the resolved schema. Note: `weaver registry
-# resolve --v2` is deprecated (still works; errors under --future), and its raw shape
-# is PRE-filter — it differs from the `ctx` a template receives via the
-# semconv_grouped_* jq helpers. To see the exact template fields, render
+# resolve --v2` is deprecated (still works; errors under --future for a custom
+# v2 registry), and its raw shape is PRE-filter — it differs from the `ctx` a
+# template receives via the semconv_grouped_* jq helpers. To see the exact
+# template fields, render
 # {{ ctx | tojson }} through the real filter (see references/template-authoring.md).
 #
 # Usage:

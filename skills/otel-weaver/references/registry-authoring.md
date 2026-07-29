@@ -26,7 +26,7 @@ description: "Telemetry conventions for the ecommerce monolith"
 stability: development
 ```
 
-`schema_url` is required and must follow the OTel schema URL format `http[s]://host/path/<version>`. The registry name is derived from the path (`example.com/schemas/ecommerce`) and the version from the final segment (`0.1.0`) — bump that segment on any schema change. Pick a stable URL even if it does not yet resolve. `description`, `stability`, and `dependencies` are optional. Dependency entries require `schema_url` and may add `registry_path` for the local, archive, or Git location. The older top-level `semconv_version`/`schema_base_url` pair is deprecated; top-level `name` is not a v0.24.2 manifest field. Dependencies may still accept legacy `name`, but use `schema_url`.
+`schema_url` is required and must follow the OTel schema URL format `http[s]://host/path/<version>`. The registry name is derived from the path (`example.com/schemas/ecommerce`) and the version from the final segment (`0.1.0`) — bump that segment on any schema change. Pick a stable URL even if it does not yet resolve. `description`, `stability`, and `dependencies` are optional. Dependency entries require `schema_url` and may add `registry_path` for the local, archive, or Git location; as of v0.25.1, a legacy dependency `name` cannot substitute for `schema_url`. The older top-level `semconv_version`/`schema_base_url` pair is deprecated; top-level `name` is not a v0.25.1 manifest field.
 
 ## Attributes
 
@@ -52,6 +52,12 @@ attributes:
     brief: "Identifier of the order being processed."
     examples: ['order-8f2a', 'order-4d1c']
 
+  - key: ecommerce.warehouse.id
+    type: string
+    stability: development
+    brief: "Identifier of the warehouse fulfilling the order."
+    examples: ['warehouse-1', 'warehouse-2']
+
   - key: ecommerce.payment.method
     type:
       members:
@@ -70,7 +76,7 @@ attributes:
 Notes:
 - Required fields: `key`, `type`, `stability`, `brief`.
 - Primitive `type` values: `string`, `int`, `double`, `boolean`, plus their `[]` array variants.
-- Enum types use the `members` form. Semantic-convention enums are open by definition — values outside the listed `id`s are allowed (the removed `allow_custom_values` flag no longer applies). The member `value` type (`string`/`int`/`boolean`) determines the attribute type. The v2 syntax guide requires member `stability`, although Weaver v0.24.2 does not enforce it.
+- Enum types use the `members` form. Semantic-convention enums are open by definition — values outside the listed `id`s are allowed (the removed `allow_custom_values` flag no longer applies). Since v0.25.0, omitting a member `value` defaults it to the member `id` as a string; otherwise the explicit `value` type (`string`/`int`/`boolean`) determines the attribute type. The v2 syntax guide requires member `stability`; v0.25.1 reports only a non-fatal warning when it is missing in normal mode.
 - Provide `examples` for non-enum strings; it improves generated docs and helps reviewers.
 
 ## Metrics
@@ -110,7 +116,7 @@ Notes:
 - `instrument` is one of `counter`, `updowncounter`, `histogram`, `gauge`.
 - Counter and UpDownCounter names should not append `_total`.
 - Duration instruments should use `s`. Bucket boundaries scale accordingly (e.g. `0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5`).
-- Signal-level `requirement_level` is `recommended` or `opt_in`; it defaults to `recommended`, but spelling it out avoids the v0.24.2 future-validation warning. This field is separate from each attribute reference's requirement level.
+- Signal-level `requirement_level` is `recommended` or `opt_in`; it defaults to `recommended`, but spelling it out avoids the v0.25.1 future-validation warning. This field is separate from each attribute reference's requirement level.
 - `attributes:` here are by `ref` only. Declare attributes once in `attributes.yaml` and reference them across metrics, spans, and events.
 
 ## Spans
@@ -151,15 +157,15 @@ Notes:
 file_format: definition/2
 
 entities:
-  - id: ecommerce.warehouse
+  - type: ecommerce.warehouse
     stability: development
+    requirement_level: recommended
     brief: "A physical or virtual warehouse fulfilling orders."
-    attributes:
+    identity:
       - ref: ecommerce.warehouse.id
-        requirement_level: required
 ```
 
-Entities describe resource-like things your telemetry is *about* (was called `resource` before v0.15.0 — use `entity` now). Most application registries won't need one: OTel's built-in resource entities (`service`, `host`, `k8s.*`, ...) already cover the common cases. Add an org-local entity only when you have a first-class domain concept that spans can attach attributes to but that isn't itself a span, metric, or event.
+Entities describe resource-like things your telemetry is *about* (was called `resource` before v0.15.0 — use `entity` now). An entity uses `type`, not `id`, and must have a non-empty `identity` list; optional non-identifying attributes go under `description`. The same attribute cannot appear in both lists. Most application registries won't need one: OTel's built-in resource entities (`service`, `host`, `k8s.*`, ...) already cover the common cases. Add an org-local entity only when you have a first-class domain concept that spans can attach attributes to but that isn't itself a span, metric, or event.
 
 ## What does NOT belong in your local registry
 
@@ -176,4 +182,4 @@ Fast feedback loop:
 weaver registry check --v2 -r ./telemetry/registry/
 ```
 
-Expected stderr noise: `File format definition/2 is not yet stable` (a warning). This is normal as of 0.24.2.
+Expected diagnostic noise: `File format definition/2 is not yet stable` (a warning for each custom v2 definition file). This is normal as of v0.25.1. `--future` elevates that format warning to an error, so it cannot yet be used for a custom `definition/2` registry.

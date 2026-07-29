@@ -84,7 +84,7 @@ See `references/ci-integration.md`. Ship the workflow in the same PR as the migr
 
 ## Verify before declaring victory
 
-- `weaver registry check --v2` returns success (modulo the expected `definition/2` warning)
+- `weaver registry check --v2` returns success (modulo the expected `definition/2` warnings)
 - `weaver registry generate --v2` followed by the language formatter leaves `git diff --exit-code` clean
 - the application builds and tests pass
 - a sample trace shows org-local span names and attributes from the generated symbols

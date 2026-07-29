@@ -15,7 +15,7 @@ weaver registry generate --v2 --registry ./telemetry/registry/ --templates ./tel
 jq '.' /tmp/out/dump.json | less
 ```
 
-(`weaver registry resolve` still works for a raw dump but is deprecated — and it errors under `--future` — and its raw shape differs from the filtered `ctx` above.)
+(`weaver registry resolve` still works for a raw dump but is deprecated — and it errors under `--future` for a custom `definition/2` registry — and its raw shape differs from the filtered `ctx` above.)
 
 ## Resolved-shape cheat sheet (`definition/2`)
 
@@ -28,8 +28,11 @@ Field names as they appear in the template `ctx` after the `semconv_grouped_*` f
 | span `type`     | `type`            |
 | span `kind`     | `kind`            |
 | span `name.note` | `name.note`      |
+| entity `type`   | `type`            |
+| entity `identity` | `identity`      |
+| entity `description` | `description` |
 
-The `semconv_grouped_*` helpers wrap each signal list in `[{ root_namespace, <attributes|metrics|spans|events> }]`. For v2 input, pass `{"v2": true}` or the helper takes its legacy-schema path. Fields are otherwise mostly verbatim (`brief`, `stability`, `unit`, `instrument`, `attributes`, ...).
+The `semconv_grouped_*` helpers wrap each signal list in `[{ root_namespace, <attributes|metrics|spans|events|entities> }]`. For v2 input, pass `{"v2": true}` or the helper takes its legacy-schema path. Fields are otherwise mostly verbatim (`brief`, `stability`, `unit`, `instrument`, `attributes`, ...).
 
 ## Layout
 
@@ -86,10 +89,12 @@ templates:
 
 Notes:
 - `application_mode: single` renders the template once with the filter result bound to `ctx`.
-- Bundled jq filters live in [`defaults/jq/semconv.jq`](https://github.com/open-telemetry/weaver/blob/main/defaults/jq/semconv.jq) in the Weaver repo. In v0.24.2, released grouped helpers are `semconv_grouped_attributes`, `semconv_grouped_metrics`, `semconv_grouped_spans`, and `semconv_grouped_events`. Entities are valid `definition/2` registry content, but v0.24.2 does not ship a `semconv_grouped_entities` helper; use a custom jq filter when generating entity code.
+- Bundled jq filters live in [`defaults/jq/semconv.jq`](https://github.com/open-telemetry/weaver/blob/main/defaults/jq/semconv.jq) in the Weaver repo. In v0.25.1, released grouped helpers are `semconv_grouped_attributes`, `semconv_grouped_metrics`, `semconv_grouped_spans`, `semconv_grouped_events`, and `semconv_grouped_entities`.
 - The no-argument helpers default to the legacy schema. For a `definition/2` registry, call them with `{"v2": true}` (as shown above). Use a folded YAML scalar (`filter: >`) so the object's colon doesn't collide with YAML mapping syntax. A custom multi-clause jq expression that takes no arguments should be single-quoted instead — for the same reason.
 - `acronyms` shapes how `pascal_case_const` and similar filters split words.
 - `comment_formats` lets `comment(format="go")` know what comment prefix to emit.
+- A template entry may add `when: <jq-expression>` to gate the entire template before its `filter` runs. It must return exactly one boolean; empty streams and non-booleans are errors. Template parameters are exposed as `$params`.
+- v0.25.1 also lets a project-wide `.weaver.toml` `[template]` section override `acronyms` and `text_maps` across template packages; other `weaver.yaml` settings are not project-level overrides.
 
 ## Jinja2 template patterns
 
