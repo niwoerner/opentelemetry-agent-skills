@@ -29,6 +29,9 @@ Pick the OCB version equal to the Collector core version you're targeting.
 go install go.opentelemetry.io/collector/cmd/builder@v0.157.0
 ```
 
+The commands below use `ocb`, the release-archive binary name. If you install with
+`go install`, invoke the same commands as `builder ...` instead.
+
 `ocb init` (experimental) scaffolds a new distribution repo — manifest, Makefile, sample config, README — in `--path` (default `.`).
 
 ## Minimal manifest
@@ -77,7 +80,7 @@ Two version streams exist and must be paired:
 Rules:
 
 - Use the **same `v0.x.0`** for every core and contrib component, matched to the OCB version.
-- The paired provider version for a given release is authoritative in that release's embedded default manifest: `https://github.com/open-telemetry/opentelemetry-collector/blob/cmd/builder/v0.x.0/cmd/builder/internal/config/default.yaml` — check it rather than guessing (for `v0.157.0` it is `v1.63.0`).
+- The paired provider version for a given release is authoritative in that release's embedded default manifest: `https://github.com/open-telemetry/opentelemetry-collector/blob/cmd/builder/v0.157.0/cmd/builder/internal/config/default.yaml` — check it rather than guessing (for `v0.157.0` it is `v1.63.0`).
 - Versions require the `v` prefix (`v0.157.0`, not `0.157.0`).
 - `--skip-strict-versioning` defaults to `true`, so mismatches surface as Go module resolution errors, not friendly OCB errors. Align versions up front instead of debugging `go mod tidy` output.
 
