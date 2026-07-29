@@ -58,7 +58,7 @@ delete_matching_keys(target, regex)   # delete by regex
 delete_index(target, start, end?)     # remove one slice item or range (v0.145+)
 keep_keys(target, [k1, k2])           # keep only these keys
 merge_maps(target, source, "upsert")  # "insert" | "update" | "upsert"
-truncate_all(target, max_len, truncation_marker = "…") # marker optional in v0.157+
+truncate_all(target, max_len, utf8_safe = true, truncation_marker = "") # marker added in v0.157
 replace_pattern(target, regex, replacement)
 stringify_all(target)                 # map values -> strings (v0.155+)
 
