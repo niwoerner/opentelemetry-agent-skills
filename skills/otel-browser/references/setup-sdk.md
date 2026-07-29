@@ -77,9 +77,11 @@ const resource = defaultResource().merge(
 const provider = new WebTracerProvider({
   resource,
   spanProcessors: [
-    new BatchSpanProcessor(
-      new OTLPTraceExporter({ url: 'https://collector.example.com/v1/traces' }),
-    ),
+    new BatchSpanProcessor({
+      exporter: new OTLPTraceExporter({
+        url: 'https://collector.example.com/v1/traces',
+      }),
+    }),
   ],
 });
 

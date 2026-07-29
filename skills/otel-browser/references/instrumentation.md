@@ -195,6 +195,11 @@ registerInstrumentations({
 | `instrumentation-web-exception` | js-contrib | Event-based unhandled exception capture. |
 | `plugin-react-load` | js-contrib | React component mount/load performance; **unmaintained** upstream. |
 
+The released fetch/XHR instrumentations `0.221.0` and document-load `0.66.0` emit only the stable
+HTTP semantic conventions. Their `semconvStabilityOptIn` migration option and legacy attributes
+(`http.method`, `http.url`, `http.status_code`, …) are gone; query the stable names such as
+`http.request.method`, `url.full`, and `http.response.status_code`.
+
 ### fetch / XHR cross-origin propagation
 
 ```typescript
