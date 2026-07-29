@@ -7,7 +7,7 @@ description: OpenTelemetry Transformation Language (OTTL) expert for writing and
 
 OTTL is a domain-specific language for transforming telemetry inside the OpenTelemetry Collector. It is consumed by the `transform`, `filter`, and `tail_sampling` processors, the `routing` connector, and a few other components in [opentelemetry-collector-contrib](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/pkg/ottl).
 
-This skill targets `pkg/ottl` as of collector-contrib **v0.156.0**. Function and path availability differs across Collector releases; check the upstream `pkg/ottl/ottlfuncs/README.md` and `pkg/ottl/contexts/*/README.md` for the exact set in older or newer releases.
+This skill targets `pkg/ottl` as of collector-contrib **v0.157.0**. Function and path availability differs across Collector releases; check the upstream `pkg/ottl/ottlfuncs/README.md` and `pkg/ottl/contexts/*/README.md` for the exact set in older or newer releases.
 
 ## Statement syntax
 
@@ -26,7 +26,7 @@ set(span.attributes["env"], "prod") where resource.attributes["env"] == nil
 1. **Pick the component.** `transform` rewrites; `filter` drops; the `routing` connector fans out by pipeline; `tail_sampling` keeps/drops traces. The component decides which contexts and function set are usable.
 2. **Pick the context.** `resource`, `scope`, `span`, `spanevent`, `metric`, `datapoint`, `exemplar`, `log`, `profile`, `profilesample`, or `otelcol` for Collector request/client metadata. Operate at the lowest level that gives you the data — using `datapoint` to set attributes is much cheaper than walking through `metric.data_points` from the metric context.
 3. **Write statements.** Reach for `references/quick-reference.md` for common recipes; `references/contexts.md` for paths/enums; `references/functions.md` for the editor and converter catalog.
-4. **Set `error_mode`.** `ignore` keeps the pipeline running and logs errors; `silent` does the same but quietly; `propagate` aborts on first failure. In v0.156, `transform` and `filter` default to `ignore` through enabled beta feature gates; `routing` defaults to `propagate` unless `connector.routing.defaultErrorModeIgnore` is enabled; lower-level OTTL sequences default to `propagate`.
+4. **Set `error_mode`.** `ignore` keeps the pipeline running and logs errors; `silent` does the same but quietly; `propagate` aborts on first failure. In v0.157, `transform` and `filter` permanently default to `ignore` through stable feature gates; `routing` also defaults to `ignore` through the enabled beta `connector.routing.defaultErrorModeIgnore` gate (disable it to restore `propagate`). Lower-level OTTL sequences default to `propagate`.
 5. **Verify.** OTTL gotchas are the kind that pass the eye test (see [Common gotchas](#common-gotchas)). Use the [telemetrygen verification recipe](../otel-telemetrygen/SKILL.md#verifying-a-collector-config) — `otelcol-contrib` + file exporter + telemetrygen — to confirm the snippet does what the prose claims before shipping.
 
 ## Contexts at a glance
@@ -58,7 +58,7 @@ delete_matching_keys(target, regex)   # delete by regex
 delete_index(target, start, end?)     # remove one slice item or range (v0.145+)
 keep_keys(target, [k1, k2])           # keep only these keys
 merge_maps(target, source, "upsert")  # "insert" | "update" | "upsert"
-truncate_all(target, max_len)         # UTF-8 safe by default in v0.148+
+truncate_all(target, max_len, truncation_marker = "…") # marker optional in v0.157+
 replace_pattern(target, regex, replacement)
 stringify_all(target)                 # map values -> strings (v0.155+)
 
@@ -66,7 +66,7 @@ stringify_all(target)                 # map values -> strings (v0.155+)
 Concat([a, b], "-")
 Split(s, ",")
 ToLowerCase(s) / ToUpperCase(s)
-IsMatch(s, "pattern")                 # bool
+IsMatch(s, "pattern") / IsEmpty(v)    # bool
 String(v) / Int(v) / Double(v) / Bool(v)
 ParseJSON(s) / ParseKeyValue(s, "=", "&")
 URL(s)                                # parse URL components (v0.127+)
@@ -86,7 +86,7 @@ set(log.attributes["selected"], ParseJSON(log.body.string)[log.attributes["field
 
 Full catalog with signatures in `references/functions.md`.
 
-The `transform` processor also provides 17 signal-specific functions that are not
+The `transform` processor also provides 18 signal-specific functions that are not
 part of the common `pkg/ottl/ottlfuncs` catalog. See the
 [transform-only function table](references/functions.md#transform-processor-only-functions)
 for their contexts, signatures, and released-source links.
@@ -195,7 +195,7 @@ The OTel `attributes` processor only operates on span/log/metric attributes. To 
 
 ### Per-log resource/scope rewrites may need `flatten_data`
 
-Log records can share resource and scope data. When a log-context statement derives either from record-specific `log.*` data, set `flatten_data: true` and enable the alpha `transform.flatten.logs` feature gate; otherwise records in the same batch can affect one another unexpectedly. In v0.156 the gate is disabled and `flatten_data` is `false` by default. The option is logs-only and incurs copying, hashing, and regrouping overhead.
+Log records can share resource and scope data. When a log-context statement derives either from record-specific `log.*` data, set `flatten_data: true` and enable the alpha `transform.flatten.logs` feature gate; otherwise records in the same batch can affect one another unexpectedly. In v0.157 the gate is disabled and `flatten_data` is `false` by default. The option is logs-only and incurs copying, hashing, and regrouping overhead.
 
 ### `logdedup` paths use dot-notation only
 
@@ -240,6 +240,10 @@ Recently added (still useful to know which release introduced them when supporti
 
 | Feature | Since |
 |---------|-------|
+| Lambda converters `All`, `Any`, `Filter`, `Find`, `MapEach`, `MapKeys`, `Reduce`, `When` (alpha; require `ottl.functions.enableLambda`) | v0.157 |
+| `IsEmpty` converter; transform-only `ParseCEF` log converter | v0.157 |
+| `truncate_all` optional `truncation_marker` parameter | v0.157 |
+| `transform` / `filter` default-error gates stable; routing default-error gate beta (default `ignore`) | v0.157 |
 | Exemplar context (transform `metric_statements` only) | v0.156 |
 | Routing connector context inference (`condition` with context-qualified paths) | v0.156 |
 | Routing connector `request` context deprecated; use `otelcol.*` metadata paths | v0.156 |

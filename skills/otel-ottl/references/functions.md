@@ -1,13 +1,13 @@
 # OTTL Functions Catalog
 
-Editor and converter reference for collector-contrib **v0.156.0**. Editors mutate telemetry; converters return values for use in expressions. See the upstream `pkg/ottl/ottlfuncs/README.md` for the authoritative source.
+Editor and converter reference for collector-contrib **v0.157.0**. Editors mutate telemetry; converters return values for use in expressions. See the upstream `pkg/ottl/ottlfuncs/README.md` for the authoritative source.
 
 ## Transform-processor-only functions
 
 The `transform` processor adds the following functions to the common OTTL
 catalog. They are not generally available in other OTTL-consuming components.
 The contexts and signatures below are pinned to the released
-[v0.156.0 transform processor source](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.156.0/processor/transformprocessor/README.md#supported-functions).
+[v0.157.0 transform processor source](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.157.0/processor/transformprocessor/README.md#supported-functions).
 
 | Context | Signature | Behavior and limits |
 |---------|-----------|---------------------|
@@ -25,18 +25,19 @@ The contexts and signatures below are pinned to the released
 | `metric` | `convert_exponential_histogram_to_histogram(distribution, explicit_bounds)` | Converts ExponentialHistogram to explicit Histogram using `upper`, `midpoint`, `uniform`, or `random`; bounds must be non-empty. This lossy conversion is not specified by OpenTelemetry. |
 | `metric` | `aggregate_on_attribute_value(function, attribute, values, new_value)` | Aggregates selected attribute values for Sum, Gauge, Histogram, or ExponentialHistogram datapoints; histogram types support only `sum`. |
 | `datapoint` | `merge_histogram_buckets(target_value, method?)` | Explicit Histograms only. Default `remove_explicit_bound` removes a matching bound; `limit_buckets` requires a positive integer target and reduces resolution. Other metric types are unchanged. |
+| `log` | `ParseCEF(target)` | Parses Common Event Format into a map, including an optional syslog prefix and string-valued extensions; malformed or empty input errors. |
 | `log` | `ParseCLF(target, format?)` | Parses CLF (`"clf"`, default) or NCSA combined (`"combined"`) text into a map; malformed or empty input errors. |
 | `log` | `ParseLEEF(target)` | Parses LEEF 1.0/2.0 into a map; malformed or empty input errors; attribute values remain strings. |
-| `span` | `set_semconv_span_name(semconv_version, original_span_name_attribute?)` | Derives low-cardinality HTTP, RPC, messaging, or database span names. v0.156 accepts semantic-convention versions 1.37.0 through 1.40.0; unrelated spans are unchanged. |
+| `span` | `set_semconv_span_name(semconv_version, original_span_name_attribute?)` | Derives low-cardinality HTTP, RPC, messaging, or database span names. v0.157 accepts semantic-convention versions 1.37.0 through 1.40.0; unrelated spans are unchanged. |
 
 For full behavior, examples, and edge cases, follow the tag-pinned
-[metrics](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.156.0/processor/transformprocessor/README.md#convert_sum_to_gauge),
-[logs](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.156.0/processor/transformprocessor/README.md#parseclf), and
-[traces](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.156.0/processor/transformprocessor/README.md#set_semconv_span_name)
+[metrics](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.157.0/processor/transformprocessor/README.md#convert_sum_to_gauge),
+[logs](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.157.0/processor/transformprocessor/README.md#parsecef), and
+[traces](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.157.0/processor/transformprocessor/README.md#set_semconv_span_name)
 function sections. The registrations that constrain the contexts are also tag-pinned:
-[metric/datapoint](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.156.0/processor/transformprocessor/internal/metrics/functions.go),
-[log](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.156.0/processor/transformprocessor/internal/logs/functions.go), and
-[span](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.156.0/processor/transformprocessor/internal/traces/functions.go).
+[metric/datapoint](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.157.0/processor/transformprocessor/internal/metrics/functions.go),
+[log](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.157.0/processor/transformprocessor/internal/logs/functions.go), and
+[span](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.157.0/processor/transformprocessor/internal/traces/functions.go).
 
 ## Editors (data manipulation)
 
@@ -101,10 +102,13 @@ merge_maps(span.attributes, ParseJSON(span.attributes["meta"]), "upsert")
 ```ottl
 truncate_all(target, max_length)
 truncate_all(target, max_length, utf8_safe = false)   # v0.148+
+truncate_all(target, max_length, truncation_marker = "(truncated)") # v0.157+
 truncate_all(span.attributes, 256)
 ```
 
 UTF-8 safe by default since v0.148 — truncates at character boundaries, so the result may be slightly shorter than `max_length`. Pass `utf8_safe = false` for the previous byte-level behavior.
+
+The optional `truncation_marker` is included inside `max_length`, so the complete result never exceeds the limit. A marker longer than the limit is an error.
 
 ### `stringify_all`
 ```ottl
@@ -225,10 +229,34 @@ Hex(bytes)               # bytes -> hex string
 ```ottl
 IsString(v) / IsInt(v) / IsDouble(v) / IsBool(v)
 IsList(v) / IsMap(v)
+IsEmpty(v)                                               # nil, zero value, or empty collection
 IsInCIDR(ip_string, ["10.0.0.0/8", "192.168.0.0/16"])   # v0.146+
 ```
 
 `IsInCIDR` returns `false` for invalid IP strings — useful in conditions: `where IsInCIDR(attributes["client.ip"], ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"])`.
+
+---
+
+## Lambda converters (v0.157+, alpha)
+
+These converters require the alpha `ottl.functions.enableLambda` feature gate.
+For slices, two-argument lambdas receive `(index, value)`; for maps they receive
+`(key, value)`. Use `_` for an ignored parameter.
+
+```ottl
+All(source, (k, v) => predicate)                 # every element; true for empty input
+Any(source, (k, v) => predicate)                 # at least one; false for empty input
+Filter(source, (k, v) => predicate)              # filtered slice or map
+Find(source, (k, v) => predicate, mapper?)        # first value, mapped value, or nil
+MapEach(source, (k, v) => mapped_value)           # transform values
+MapKeys(map, (k, v) => mapped_key)                # mapped_key must be a string
+Reduce(source, seed, (acc, k, v) => next_acc)     # fold; empty input returns seed
+When(() => condition, true_value, false_value)    # select one value
+```
+
+Map iteration order is not stable, so order-dependent `Reduce` expressions are
+not deterministic for maps. If `MapKeys` creates duplicate keys, which value is
+retained is unspecified.
 
 ---
 
