@@ -274,7 +274,8 @@ activity?.SetTag("batch.failed", items.Count - processed);
 ```
 
 Semconv reference: `otel-semantic-conventions` → messaging/general spans (use `messaging.system`,
-`messaging.operation`, etc. for queue-backed jobs; omit if purely internal).
+`messaging.operation.name`, `messaging.operation.type`, etc. for queue-backed jobs; omit if
+purely internal).
 
 ---
 
