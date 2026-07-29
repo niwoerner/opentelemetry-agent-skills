@@ -31,9 +31,9 @@ Use the bundled script instead of loading large spec files:
 
 1. `./scripts/query-otel-semantic-conventions.sh --groups`
 2. `./scripts/query-otel-semantic-conventions.sh <group>`
-3. `./scripts/query-otel-semantic-conventions.sh <group> <attribute-id>`
+3. `./scripts/query-otel-semantic-conventions.sh <group> <kind-or-entry-id>`
 
-Use the one-argument form first. Use the two-argument form only when you need the exact released upstream definition for a single attribute.
+Use the one-argument form first. Pass a listed kind to enumerate its entries, or pass an exact entry id to return its released upstream definition.
 To verify against a local upstream checkout, set `OTEL_SEMCONV_REPO=/path/to/semantic-conventions`.
 
 ## Typical Group Pairings

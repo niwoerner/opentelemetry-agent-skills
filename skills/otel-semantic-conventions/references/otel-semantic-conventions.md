@@ -8,14 +8,16 @@ Do not load the full semantic convention spec into context. Query only the neede
 Use:
 - list groups: `./scripts/query-otel-semantic-conventions.sh --groups`
 - group lookup: `./scripts/query-otel-semantic-conventions.sh http`
-- exact attribute: `./scripts/query-otel-semantic-conventions.sh http http.request.method`
+- kind lookup: `./scripts/query-otel-semantic-conventions.sh http spans`
+- exact entry: `./scripts/query-otel-semantic-conventions.sh http http.request.method`
 - local checkout mode: `OTEL_SEMCONV_REPO=/path/to/semantic-conventions ./scripts/query-otel-semantic-conventions.sh http`
 
 Rules:
 - use `--groups` first if you do not already know the right group
 - start with one group
 - use the one-argument form first to discover the current released attribute ids and available kinds
-- use the two-argument form only when you need the exact upstream definition block for one attribute
+- pass a listed kind as the second argument to list the released entries of that kind
+- pass an exact entry id as the second argument to return its upstream definition block
 - the script resolves the latest released semantic conventions version and reads released YAML model files under `model/<group>/` from that tag
 - deprecated model files and directories are excluded from lookup results
 - the core semantic-conventions repository added `model/manifest.yaml` in v1.43.0; use it as release metadata, not as a convention group
