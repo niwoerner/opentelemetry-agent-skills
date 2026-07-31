@@ -5,274 +5,76 @@ description: OpenTelemetry Transformation Language (OTTL) expert for writing and
 
 # OpenTelemetry Transformation Language (OTTL)
 
-OTTL is a domain-specific language for transforming telemetry inside the OpenTelemetry Collector. It is consumed by the `transform`, `filter`, and `tail_sampling` processors, the `routing` connector, and a few other components in [opentelemetry-collector-contrib](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/pkg/ottl).
+OTTL transforms or selects telemetry inside Collector components. This skill is pinned to
+collector-contrib **v0.157.0**. Function, path, default, and feature-gate availability varies by
+release; when the user's version differs, verify against the matching upstream tag.
 
-This skill targets `pkg/ottl` as of collector-contrib **v0.157.0**. Function and path availability differs across Collector releases; check the upstream `pkg/ottl/ottlfuncs/README.md` and `pkg/ottl/contexts/*/README.md` for the exact set in older or newer releases.
+## Workflow
 
-## Statement syntax
-
-```ottl
-function(arguments) [where condition]
-```
-
-Every statement has exactly one **editor** (lowercase: `set`, `delete_key`, `append`, …) optionally guarded by a `where` clause whose body is a boolean expression. Conditions can call **converters** (uppercase: `Concat`, `IsMatch`, `ParseJSON`, …) which return values but do not mutate telemetry.
+1. **Choose the component.** `transform` rewrites, `filter` drops, `tail_sampling` decides whether
+   to retain traces, and `routing` sends telemetry to pipelines. A component controls its available
+   contexts and functions.
+2. **Choose the lowest usable context.** Lower contexts can read their parents (for example, a span
+   can read `resource.attributes`), but parents cannot read children. Use `datapoint` for point
+   attributes instead of traversing `metric.data_points`.
+3. **Write the statement.** An editor such as `set` or `delete_key` mutates data and may have a
+   `where` condition. Converters such as `ParseJSON` and `IsMatch` return values; they do not mutate.
+4. **Set error behavior deliberately.** `ignore` logs statement errors and continues; `silent`
+   continues without logging; `propagate` returns the error and can cause the component to drop the
+   payload. In v0.157, transform and filter default to `ignore`; routing also defaults to `ignore`
+   while its beta default-error feature gate is enabled. For routing, `ignore` sends an errored
+   payload to `default_pipelines`; configure that fallback or the payload is dropped.
+5. **Verify end to end.** Validate the exact Collector version, then send known telemetry and inspect
+   file-exporter output. Use the
+   [telemetrygen recipe](../otel-telemetrygen/SKILL.md#verifying-a-collector-config).
 
 ```ottl
 set(span.attributes["env"], "prod") where resource.attributes["env"] == nil
 ```
 
-## Workflow
+## Load only what the task needs
 
-1. **Pick the component.** `transform` rewrites; `filter` drops; the `routing` connector fans out by pipeline; `tail_sampling` keeps/drops traces. The component decides which contexts and function set are usable.
-2. **Pick the context.** `resource`, `scope`, `span`, `spanevent`, `metric`, `datapoint`, `exemplar`, `log`, `profile`, `profilesample`, or `otelcol` for Collector request/client metadata. Operate at the lowest level that gives you the data — using `datapoint` to set attributes is much cheaper than walking through `metric.data_points` from the metric context.
-3. **Write statements.** Reach for `references/quick-reference.md` for common recipes; `references/contexts.md` for paths/enums; `references/functions.md` for the editor and converter catalog.
-4. **Set `error_mode`.** `ignore` keeps the pipeline running and logs errors; `silent` does the same but quietly; `propagate` aborts on first failure. In v0.157, `transform` and `filter` permanently default to `ignore` through stable feature gates; `routing` also defaults to `ignore` through the enabled beta `connector.routing.defaultErrorModeIgnore` gate (disable it to restore `propagate`). Lower-level OTTL sequences default to `propagate`.
-5. **Verify.** OTTL gotchas are the kind that pass the eye test (see [Common gotchas](#common-gotchas)). Use the [telemetrygen verification recipe](../otel-telemetrygen/SKILL.md#verifying-a-collector-config) — `otelcol-contrib` + file exporter + telemetrygen — to confirm the snippet does what the prose claims before shipping.
+- [Contexts](references/contexts.md) — exact paths, hierarchy, enums, and request metadata.
+- [Functions](references/functions.md) — editor/converter signatures and release availability.
+- [Quick reference](references/quick-reference.md) — component YAML, recipes, escaping,
+  troubleshooting, and safe skeletons.
 
-## Contexts at a glance
+For a single path or function, read only the relevant section instead of loading the full catalogs.
 
-OTTL paths are scoped by signal. Higher levels are reachable from lower ones (e.g., `resource.attributes` from a span statement); the reverse is not true.
+## Safety and correctness gates
 
-| Context | Common paths |
-|---------|--------------|
-| Resource | `resource.attributes["service.name"]`, `resource.schema_url` |
-| Scope | `scope.name`, `scope.version`, `scope.attributes["…"]` |
-| Span | `span.name`, `span.kind`, `span.status.code`, `span.attributes["…"]`, `span.flags` |
-| Span Event | `spanevent.name`, `spanevent.attributes["…"]`, `spanevent.event_index` |
-| Metric | `metric.name`, `metric.unit`, `metric.type`, `metric.aggregation_temporality` |
-| DataPoint | `datapoint.value_double`, `datapoint.value_int`, `datapoint.attributes["…"]` |
-| Exemplar | `exemplar.double_value`, `exemplar.int_value`, `exemplar.filtered_attributes["…"]` (transform `metric_statements` only, v0.156+) |
-| Log | `log.body`, `log.body.string`, `log.severity_number`, `log.attributes["…"]` |
-| Profile | `profile.profile_id`, `profile.attributes["…"]` (Development) |
-| OTelCol | `otelcol.client.metadata["x-tenant"][0]`, `otelcol.grpc.metadata["x-tenant"][0]` (read-only, enabled by default feature gate) |
+- Guard optional or polymorphic input before conversion: `where x != nil`, `IsString(x)`, or the
+  appropriate type check.
+- For JSON-object-only work, guard both the type and shape before calling `ParseJSON`, for example
+  `IsString(log.body) and IsMatch(log.body.string, "^\\s*\\{.*\\}\\s*$")`. Checking `IsMap` after
+  parsing does not prevent arrays or scalar JSON from being parsed.
+- On a version-pinned request, confirm every chosen path and function against that release tag;
+  do not assume a function listed for this skill's v0.157 anchor exists in an older release.
+- Request metadata is read-only and may contain credentials. Copy only explicitly allowlisted,
+  non-sensitive keys. OTLP metadata routing requires `include_metadata: true` on the receiver.
+  HTTP/client header spelling may retain its form (`otelcol.client.metadata["X-Tenant"][0]`);
+  gRPC metadata keys are lowercase (`otelcol.grpc.metadata["x-tenant"][0]`).
+- The routing `request` context is deprecated as of v0.156; use `otelcol.client.metadata` or
+  `otelcol.grpc.metadata`.
+- Log-record-specific rewrites of shared resource or scope data require `flatten_data: true` and the
+  alpha `transform.flatten.logs` gate. This copies and regroups data; do not enable it accidentally.
+- Hashing an identifier does not necessarily anonymize it. Apply the organization's data-handling
+  policy before retaining deterministic hashes of personal data.
 
-Full path inventory plus enums in `references/contexts.md`.
+## Frequent syntax traps
 
-## Essential functions
+- In Collector YAML, write an OTTL replacement backreference `${1}` as `$${1}`. A replacement such
+  as `$1REDACTED` is literal and silently fails to substitute the capture.
+- Go RE2 rejects large counted repetitions such as `(.{1024}).*`; use `Substring` with a nil/type
+  guard and `Len`, or `truncate_all` for a map.
+- Current span-event paths use `spanevent.*`, not `span_event.*`. Cache paths are context-qualified,
+  such as `span.cache["parsed"]`.
+- Use `Decode(value, "base64")`; `Base64Decode` is deprecated.
+- Regex escapes inside OTTL strings are doubled (`\\d`, `\\s`, `\\.`).
 
-```ottl
-# Editors (mutate telemetry)
-set(target, value)
-delete_key(target, key)               # delete by exact key
-delete_matching_keys(target, regex)   # delete by regex
-delete_index(target, start, end?)     # remove one slice item or range (v0.145+)
-keep_keys(target, [k1, k2])           # keep only these keys
-merge_maps(target, source, "upsert")  # "insert" | "update" | "upsert"
-truncate_all(target, max_len, utf8_safe = true, truncation_marker = "") # marker added in v0.157
-replace_pattern(target, regex, replacement)
-stringify_all(target)                 # map values -> strings (v0.155+)
+## Upstream sources
 
-# Converters (return values)
-Concat([a, b], "-")
-Split(s, ",")
-ToLowerCase(s) / ToUpperCase(s)
-IsMatch(s, "pattern") / IsEmpty(v)    # bool
-String(v) / Int(v) / Double(v) / Bool(v)
-ParseJSON(s) / ParseKeyValue(s, "=", "&")
-URL(s)                                # parse URL components (v0.127+)
-ExtractPatterns(s, "(?P<name>…)")     # named captures → map
-ExtractGrokPatterns(s, "%{IP:client}") # Grok (v0.130+)
-IsInCIDR(ip, ["10.0.0.0/8"])          # CIDR membership (v0.146+)
-SHA256(s) / Murmur3Hash(s) / XXH3(s)  # hexadecimal string hashes
-UUID() / UUIDv7()
-```
-
-Converter results can be indexed by dynamic string or integer expressions in v0.155+:
-
-```ottl
-set(log.attributes["last"], Split(log.body.string, ",")[Len(Split(log.body.string, ",")) - 1])
-set(log.attributes["selected"], ParseJSON(log.body.string)[log.attributes["field_name"]])
-```
-
-Full catalog with signatures in `references/functions.md`.
-
-The `transform` processor also provides 18 signal-specific functions that are not
-part of the common `pkg/ottl/ottlfuncs` catalog. See the
-[transform-only function table](references/functions.md#transform-processor-only-functions)
-for their contexts, signatures, and released-source links.
-
-## Common patterns
-
-```ottl
-# Conditional set
-set(span.attributes["sampled"], true)
-    where (span.end_time_unix_nano - span.start_time_unix_nano) > 1000000000
-
-# Normalize a value
-set(span.attributes["http.method"],
-    ToUpperCase(String(span.attributes["http.method"])))
-
-# Parse a JSON log body into structured attributes
-set(log.attributes, ParseJSON(log.body.string))
-    where IsString(log.body) and IsMatch(log.body.string, "^\\s*\\{.*\\}\\s*$")
-
-# Mark errored HTTP spans
-set(span.status.code, STATUS_CODE_ERROR)
-    where IsInt(span.attributes["http.status_code"])
-      and Int(span.attributes["http.status_code"]) >= 400
-
-# Redact secrets by key pattern
-delete_matching_keys(span.attributes, "(?i).*(password|secret|token|apikey).*")
-
-# Hash PII rather than dropping it (preserves cardinality for analytics)
-set(span.attributes["user.email_hash"], SHA256(span.attributes["user.email"]))
-delete_key(span.attributes, "user.email")
-```
-
-More recipes (sampling, redaction, time math, parsing) in `references/quick-reference.md`.
-
-## Processor wiring
-
-```yaml
-processors:
-  transform:
-    error_mode: ignore        # ignore | silent | propagate
-    trace_statements:
-      - context: span
-        statements:
-          - set(span.attributes["processed"], true)
-    log_statements:
-      - context: log
-        statements:
-          - set(log.attributes["source"], "collector")
-    metric_statements:
-      - context: datapoint
-        statements:
-          - set(datapoint.attributes["env"], "prod")
-
-  filter:
-    error_mode: ignore
-    trace_conditions:
-      - 'IsMatch(span.name, "^/health.*")'
-    log_conditions:
-      - 'log.severity_number < SEVERITY_NUMBER_WARN'
-
-  tail_sampling:
-    policies:
-      - name: errors
-        type: ottl_condition
-        ottl_condition:
-          span:
-            - 'span.status.code == STATUS_CODE_ERROR'
-
-connectors:
-  routing:
-    error_mode: ignore
-    default_pipelines: [traces/default]
-    table:
-      - condition: 'resource.attributes["env"] == "prod"'
-        pipelines: [traces/prod]
-      - condition: 'span.status.code == STATUS_CODE_ERROR'
-        pipelines: [traces/errors]
-```
-
-## Common gotchas
-
-These mistakes pass YAML validation but break OTTL semantics. Most have cost real time in production rollouts.
-
-### `replace_pattern` backreferences need `$${1}` in YAML
-
-OTTL uses `${1}`, `${2}`, … for regex backreferences. The collector's YAML loader treats `$` as an env-var marker, so YAML `$$` becomes OTTL `$`. To produce `${1}` at the OTTL level, write `$${1}` in YAML. Writing `"$1REDACTED"` produces literal `$1REDACTED` with no replacement — silent failure.
-
-### Go RE2 has a repeat-count ceiling
-
-Patterns like `(.{1024}).*` fail to compile with "invalid repeat count". For length-based truncation, prefer `Substring` + `Len`:
-
-```ottl
-set(attributes["db.statement"], Substring(attributes["db.statement"], 0, 1024))
-    where attributes["db.statement"] != nil and Len(attributes["db.statement"]) > 1024
-```
-
-Or use `truncate_all` for whole maps (UTF-8 safe by default since v0.148):
-
-```ottl
-truncate_all(span.attributes, 1024)
-```
-
-### `attributes` processor ≠ `resource` processor
-
-The OTel `attributes` processor only operates on span/log/metric attributes. To touch a *resource* attribute use the `resource` processor or a `transform` processor with `context: resource`. A config like `attributes/strip_resource: actions: [...delete os.description...]` runs without error but doesn't change resource attributes — silent no-op.
-
-### Per-log resource/scope rewrites may need `flatten_data`
-
-Log records can share resource and scope data. When a log-context statement derives either from record-specific `log.*` data, set `flatten_data: true` and enable the alpha `transform.flatten.logs` feature gate; otherwise records in the same batch can affect one another unexpectedly. In v0.157 the gate is disabled and `flatten_data` is `false` by default. The option is logs-only and incurs copying, hashing, and regrouping overhead.
-
-### `logdedup` paths use dot-notation only
-
-The processor accepts `include_fields` / `exclude_fields` (not `fields`). Paths must start with `attributes.` or `body.` and use dot-notation. Bracket notation (`attributes["service.name"]`) is rejected, and `resource[...]` paths are not addressable. Default behavior dedups on the full record, which is usually what's wanted.
-
-### `k8sattributes` cannot extract `k8s.cluster.name`
-
-The processor's `metadata` list is restricted to pod-level identity. Cluster name has to come from `resourcedetection` or a static `resource` processor that reads it from an env var.
-
-### Path syntax changed in v0.120
-
-In older configs you may see `span_event.*` — current syntax is `spanevent.*`. Cache paths now require the context prefix: write `span.cache["x"]` not just `cache["x"]`. Plain `cache` is only valid in profile/profilesample contexts where it's the documented path. Paste-from-old-config is the most common source of regressions.
-
-### `Base64Decode` is deprecated
-
-Use `Decode(value, "base64")` instead. The same `Decode` converter handles `base64-raw`, `base64-url`, `base64-raw-url`, and IANA character set encodings. Keep `Base64Decode` only if pinned to a pre-v0.141 collector.
-
-### `routing` request context is deprecated
-
-In routing connector configs, use `otelcol.client.metadata["key"][0]` for HTTP/client metadata or `otelcol.grpc.metadata["key"][0]` for gRPC metadata. The old `context: request` plus `request["key"] == "value"` form is deprecated in v0.156.
-
-### `Bool` converter coercion is loose
-
-`Bool` preserves booleans, treats any non-zero integer or double as `true`, and uses Go boolean parsing for strings (`1`, `t`, `T`, `TRUE`, `true`, `True`, and their false equivalents). Invalid strings and unsupported types error; `nil` returns `nil`. Don't assume Python-like truthiness for arbitrary strings.
-
-### Verify before publishing
-
-YAML/OTTL gotchas like the above pass the eye test. Use the [telemetrygen verification recipe](../otel-telemetrygen/SKILL.md#verifying-a-collector-config) (otelcol-contrib + file exporter + telemetrygen) to confirm the snippet does what the surrounding prose claims, especially before shipping to a customer or production.
-
-## Best practices
-
-1. **Validate inputs** before conversion: `where IsString(x)`, `where x != nil`.
-2. **Order conditions by selectivity** (cheap and most-selective first). `span.kind == SPAN_KIND_SERVER and IsMatch(...)` lets the kind check short-circuit before the regex runs.
-3. **Cache expensive operations** in `<context>.cache`: `set(span.cache["url_parts"], Split(span.attributes["http.url"], "/"))`, then read from cache.
-4. **Use the most specific context.** `datapoint` for metric-attribute work beats walking `metric.data_points` from the metric context.
-5. **Escape regex correctly.** Use `\\d+`, `\\.`, `\\s+` in OTTL strings (single backslash in YAML becomes a literal).
-6. **Prefer `keep_keys` to a long list of `delete_key`** when shaping output — easier to read, fails closed.
-
-## Versioning notes
-
-Recently added (still useful to know which release introduced them when supporting users on older collectors):
-
-| Feature | Since |
-|---------|-------|
-| Lambda converters `All`, `Any`, `Filter`, `Find`, `MapEach`, `MapKeys`, `Reduce`, `When` (alpha; require `ottl.functions.enableLambda`) | v0.157 |
-| `IsEmpty` converter; transform-only `ParseCEF` log converter | v0.157 |
-| `truncate_all` optional `truncation_marker` parameter | v0.157 |
-| `transform` / `filter` default-error gates stable; routing default-error gate beta (default `ignore`) | v0.157 |
-| Exemplar context (transform `metric_statements` only) | v0.156 |
-| Routing connector context inference (`condition` with context-qualified paths) | v0.156 |
-| Routing connector `request` context deprecated; use `otelcol.*` metadata paths | v0.156 |
-| Log-only `flatten_data` via alpha `transform.flatten.logs` feature gate | v0.103 |
-| `connector.routing.defaultErrorModeIgnore` feature gate | v0.155 |
-| `otelcol.*` context via enabled-by-default `ottl.contexts.enableOTelColContext` feature gate | v0.147 |
-| Filter processor top-level `trace_conditions`, `metric_conditions`, `log_conditions` | v0.146 |
-| Profile / ProfileSample contexts | v0.124 / v0.132 (Development) |
-| Cache paths require context prefix; `spanevent` rename | v0.120 (breaking) |
-| `delete_index` editor | v0.145 |
-| `span.flags` path | v0.145 |
-| `truncate_all` UTF-8 safe default (`utf8_safe` parameter) | v0.148 (behavior change) |
-| `Substring` optional `utf8_safe` parameter (default `false`) | v0.156 |
-| `SpanID` / `TraceID` accept hex strings | v0.142 |
-| `flatten` `resolveConflicts` parameter | v0.139 |
-| `Base64Encode` | v0.147 |
-| `Decode`, deprecates `Base64Decode` | v0.141 |
-| `Bool` converter | v0.143 |
-| `ExtractGrokPatterns` | v0.130 |
-| `URL`, `UserAgent` | v0.127, v0.134 |
-| `IsInCIDR` | v0.146 |
-| `Murmur3Hash*`, `XXH3`, `XXH128` | v0.129, v0.135 |
-| `Sort`, `Index`, `SliceToMap` | v0.125, v0.126, v0.128 |
-| `UUIDv7`, `ParseSeverity`, `CommunityID` | v0.138, v0.133, v0.131 |
-| `stringify_all` editor; dynamic keys when indexing converter results | v0.155 |
-
-## References
-
-- `references/contexts.md` — context paths and enums
-- `references/functions.md` — editors and converters with signatures
-- `references/quick-reference.md` — recipes, regex patterns, troubleshooting
-- Upstream: <https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/pkg/ottl>
+- [OTTL package](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/v0.157.0/pkg/ottl)
+- [Transform processor](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/v0.157.0/processor/transformprocessor)
+- [Filter processor](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/v0.157.0/processor/filterprocessor)
+- [Routing connector](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/v0.157.0/connector/routingconnector)

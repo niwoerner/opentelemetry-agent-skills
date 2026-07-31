@@ -2,6 +2,15 @@
 
 Editor and converter reference for collector-contrib **v0.157.0**. Editors mutate telemetry; converters return values for use in expressions. See the upstream `pkg/ottl/ottlfuncs/README.md` for the authoritative source.
 
+## Contents
+
+- [Transform-only functions](#transform-processor-only-functions)
+- [Editors](#editors-data-manipulation)
+- [String](#string-converters), [type conversion](#type-conversion), and [type checking](#type-checking)
+- [Lambda converters](#lambda-converters-v0157-alpha), [patterns](#pattern-matching), and [parsing](#data-parsing)
+- [Collections](#collections), [date/time](#datetime), [encoding](#hashing--encoding), and [OpenTelemetry-specific](#opentelemetry-specific)
+- [Safe function patterns](#function-patterns)
+
 ## Transform-processor-only functions
 
 The `transform` processor adds the following functions to the common OTTL
@@ -400,7 +409,7 @@ UUID()
 UUIDv7()                                      # v0.138+; time-ordered
 ```
 
-`UUIDv7` is preferable to `UUID()` when the resulting value is used as a primary key or sort key, because v7 is monotonic-ish and storage-friendly.
+`UUIDv7` is time-ordered; choose the identifier form according to the consuming system's requirements.
 
 ---
 
@@ -411,14 +420,6 @@ Log(value)                                    # natural logarithm
 ```
 
 OTTL's basic arithmetic operators (`+`, `-`, `*`, `/`) cover most needs; `Log` is the rare named math converter.
-
----
-
-## Utility
-
-```ottl
-UUID() / UUIDv7()
-```
 
 ---
 

@@ -2,6 +2,15 @@
 
 Context paths and enums for collector-contrib **v0.157.0**. Higher-level contexts are reachable from lower ones (a span statement can read `resource.attributes`); the reverse is not true. Always pick the most specific context for the work — using `datapoint` to set metric-point attributes is much cheaper than walking through `metric.data_points` from the metric context.
 
+## Contents
+
+- [Context hierarchy](#context-hierarchy)
+- [Resource](#resource-context), [scope](#scope-instrumentation-scope-context), [span](#span-context-beta), and [span event](#span-event-context-beta)
+- [Metric](#metric-context-beta), [data point](#datapoint-context), and [exemplar](#exemplar-context-v0156)
+- [Log](#log-context-beta), [profile](#profile-context-development-v0124), and [profile sample](#profile-sample-context-development-v0132)
+- [Collector request metadata](#otelcol-context-v0147-enabled-by-default-feature-gate)
+- [Enums](#enums)
+
 ## Context hierarchy
 
 ```
@@ -301,16 +310,16 @@ cache["key"]
 
 ## OTelCol context (v0.147+, enabled by default feature gate)
 
-The `otelcol` context exposes Collector-side client and request data that is not part of the telemetry payload. It is read-only. In v0.156, the routing connector deprecated its old `request` context in favor of these paths.
+The `otelcol` context exposes Collector-side client and request data that is not part of the telemetry payload. It is read-only. In v0.156, the routing connector deprecated its old `request` context in favor of these paths. OTLP receivers must set `include_metadata: true` for request metadata to reach downstream routing. HTTP/client key spelling may retain its form; gRPC keys are lowercase.
 
 ```ottl
 otelcol.client.addr
-otelcol.client.metadata["x-tenant-id"][0]   # first HTTP/client metadata value
+otelcol.client.metadata["X-Tenant-Id"][0]   # first HTTP/client metadata value
 otelcol.client.auth.attributes["subject"]   # auth extension attributes
 otelcol.grpc.metadata["x-tenant-id"][0]     # incoming gRPC metadata value
 ```
 
-Prefer `otelcol.*` paths for routing/filtering conditions. If copying values into telemetry, only copy allowlisted, non-sensitive keys; metadata often includes authorization headers, cookies, or API keys.
+Prefer `otelcol.*` paths for routing/filtering conditions. If copying values into telemetry, only copy allowlisted, non-sensitive keys; metadata often includes authorization headers, cookies, or API keys. With routing `error_mode: ignore`, an evaluation error goes to `default_pipelines`; without that fallback it is dropped.
 
 ## Enums
 

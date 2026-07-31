@@ -2,6 +2,15 @@
 
 Recipes, regex patterns, and a troubleshooting table. Pair with `contexts.md` for paths and `functions.md` for full signatures.
 
+## Contents
+
+- [Common patterns](#common-patterns)
+- [Processor configuration](#processor-configuration)
+- [Regular expressions](#regular-expressions)
+- [Debugging](#debugging)
+- [Performance](#performance)
+- [Troubleshooting and verification](#troubleshooting)
+
 ## Common patterns
 
 ### Attribute management
@@ -148,7 +157,7 @@ replace_all_patterns(log.attributes, "value",
                      "\\b\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\b",
                      "[REDACTED_IP]")
 
-# Hash, don't drop — preserves cardinality for analytics
+# Deterministic hash example; policy must permit retaining linkable identifiers
 set(span.attributes["user.email_hash"], SHA256(span.attributes["user.email"]))
 delete_key(span.attributes, "user.email")
 ```
@@ -201,6 +210,12 @@ connectors:
       - condition: 'span.status.code == STATUS_CODE_ERROR'
         pipelines: [traces/errors]
 ```
+
+With `error_mode: ignore`, an evaluation error is logged and the payload is sent to
+`default_pipelines`; without a configured fallback it is dropped. Metadata-based routing also
+requires `include_metadata: true` on the receiving OTLP protocol. Use
+`otelcol.client.metadata["X-Tenant"][0]` for HTTP/client metadata and lowercase
+`otelcol.grpc.metadata["x-tenant"][0]` for gRPC metadata.
 
 ### `tail_sampling`
 
