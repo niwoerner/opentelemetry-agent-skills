@@ -46,10 +46,13 @@ For a single path or function, read only the relevant section instead of loading
 - Guard optional or polymorphic input before conversion: `where x != nil`, `IsString(x)`, or the
   appropriate type check.
 - For JSON-object-only work, guard both the type and shape before calling `ParseJSON`, for example
-  `IsString(log.body) and IsMatch(log.body.string, "^\\s*\\{.*\\}\\s*$")`. Checking `IsMap` after
+  `IsString(log.body) and IsMatch(log.body.string, "(?s)^\\s*\\{.*\\}\\s*$")`. The RE2 `(?s)`
+  flag admits pretty-printed objects containing newlines. Checking `IsMap` after
   parsing does not prevent arrays or scalar JSON from being parsed.
 - On a version-pinned request, confirm every chosen path and function against that release tag;
   do not assume a function listed for this skill's v0.157 anchor exists in an older release.
+  For v0.156 JSON-object parsing, `ParseJSON`, `IsString`, and `IsMatch` are available without the
+  v0.157 alpha lambda feature gate.
 - Request metadata is read-only and may contain credentials. Copy only explicitly allowlisted,
   non-sensitive keys. OTLP metadata routing requires `include_metadata: true` on the receiver.
   HTTP/client header spelling may retain its form (`otelcol.client.metadata["X-Tenant"][0]`);

@@ -254,7 +254,7 @@ log.event_name                       # for event-shaped logs
 ```ottl
 # Parse JSON body into structured attributes
 set(log.attributes, ParseJSON(log.body.string))
-    where IsString(log.body) and IsMatch(log.body.string, "^\\s*\\{.*\\}\\s*$")
+    where IsString(log.body) and IsMatch(log.body.string, "(?s)^\\s*\\{.*\\}\\s*$")
 
 # Normalize severity text
 set(log.severity_text, "ERROR")

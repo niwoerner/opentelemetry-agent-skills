@@ -52,7 +52,7 @@ set(log.body, Trim(log.body.string, " \t\n"))
 ```ottl
 # JSON body -> attributes
 set(log.attributes, ParseJSON(log.body.string))
-    where IsString(log.body) and IsMatch(log.body.string, "^\\s*\\{.*\\}\\s*$")
+    where IsString(log.body) and IsMatch(log.body.string, "(?s)^\\s*\\{.*\\}\\s*$")
 
 # Query string -> map
 set(span.attributes["params"],
