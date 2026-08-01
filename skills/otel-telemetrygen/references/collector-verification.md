@@ -91,59 +91,77 @@ if find "$output_dir" -mindepth 1 -maxdepth 1 -print -quit | grep -q .; then
   exit 2
 fi
 
+container_id=''
 cleanup() {
-  if docker inspect "$container_name" >/dev/null 2>&1; then
-    printf 'retained failed Collector container %s and output %s\n' \
-      "$container_name" "$output_dir" >&2
+  original_status=$?
+  trap - EXIT
+  set +e
+  if [ -n "$container_id" ] && docker inspect "$container_id" >/dev/null 2>&1; then
+    docker stop --time 10 "$container_id" >/dev/null
+    stop_failed_status=$?
+    if [ "$stop_failed_status" -eq 0 ]; then
+      printf 'retained stopped failed Collector %s and output %s\n' \
+        "$container_id" "$output_dir" >&2
+    else
+      docker logs "$container_id" >&2
+      printf 'failed to stop Collector %s; retained output %s\n' \
+        "$container_id" "$output_dir" >&2
+    fi
   else
     printf 'retained failed-run output %s; no Collector container exists\n' \
       "$output_dir" >&2
   fi
+  exit "$original_status"
 }
 trap cleanup EXIT
 
-docker run -d --name "$container_name" \
+started_container_id=$(docker run -d --name "$container_name" \
   --user "$(id -u):$(id -g)" \
   -v "$config_path:/etc/otelcol-contrib/config.yaml:ro" \
   -v "$output_dir:/output" \
   otel/opentelemetry-collector-contrib:0.157.0 \
-  --config=/etc/otelcol-contrib/config.yaml || exit $?
+  --config=/etc/otelcol-contrib/config.yaml)
+docker_run_status=$?
+[ "$docker_run_status" -eq 0 ] || exit "$docker_run_status"
+case "$started_container_id" in (*[!a-f0-9]*|'') exit 1;; esac
+container_id=$started_container_id
 
 ready=0
 i=0
 while [ "$i" -lt 30 ]; do
   i=$((i + 1))
-  if [ "$(docker inspect -f '{{.State.Running}}' "$container_name")" != true ]; then
-    collector_status=$(docker inspect -f '{{.State.ExitCode}}' "$container_name")
-    docker logs "$container_name" >&2
+  if [ "$(docker inspect -f '{{.State.Running}}' "$container_id")" != true ]; then
+    collector_status=$(docker inspect -f '{{.State.ExitCode}}' "$container_id")
+    docker logs "$container_id" >&2
     [ "$collector_status" -ne 0 ] || collector_status=1
     exit "$collector_status"
   fi
-  if docker run --rm --network "container:$container_name" curlimages/curl:8.17.0 \
-      -fsS -o /dev/null http://127.0.0.1:13133/; then
+  if docker run --rm --network "container:$container_id" curlimages/curl:8.17.0 \
+      -fsS --connect-timeout 1 --max-time 2 -o /dev/null \
+      http://127.0.0.1:13133/; then
     ready=1
     break
   fi
   sleep 1
 done
 if [ "$ready" -ne 1 ]; then
-  docker logs "$container_name" >&2
+  docker logs "$container_id" >&2
   exit 1
 fi
 
 set +e
-docker run --rm --network "container:$container_name" \
+docker run --rm --network "container:$container_id" \
   ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:v0.157.0 \
   logs --otlp-insecure --otlp-endpoint 127.0.0.1:4317 \
   --logs 1 --severity-text Info
 telemetrygen_status=$?
 
-docker stop --time 10 "$container_name"
+docker stop --time 10 "$container_id"
 stop_status=$?
-[ "$stop_status" -eq 0 ] || docker logs "$container_name" >&2
-collector_status=$(docker inspect -f '{{.State.ExitCode}}' "$container_name")
+[ "$stop_status" -eq 0 ] || docker logs "$container_id" >&2
+collector_status=$(docker inspect -f '{{.State.ExitCode}}' "$container_id")
 case "$collector_status" in (*[!0-9]*|'') collector_status=1;; esac
-[ "$collector_status" -eq 0 ] || docker logs "$container_name" >&2
+[ "$collector_status" -eq 0 ] || docker logs "$container_id" >&2
 
 python3 - "$output_dir/result.json" <<'PY'
 import json
@@ -162,7 +180,7 @@ set -e
 [ "$collector_status" -eq 0 ] || exit "$collector_status"
 [ "$parse_status" -eq 0 ] || exit "$parse_status"
 trap - EXIT
-docker rm -- "$container_name"
+docker rm -- "$container_id"
 exit 0
 ```
 
@@ -177,8 +195,10 @@ reviewed input that must match the rule plus a known-positive control that must 
 their expected presence or absence against parsed records. Empty output or merely parseable output
 is not behavioral evidence.
 
-Do not claim cleanup unless the exact container and directory were actually removed. Never broaden
-cleanup to a parent directory or an unvalidated path.
+Call removal of the exact container **container cleanup**; the successful flow performs container
+cleanup and deliberately retains the output directory. Claim **full cleanup** only when both that
+container and the exact output directory were actually removed. Never broaden either operation to
+a parent directory or an unvalidated path.
 
 ## Controls and hard-to-generate shapes
 

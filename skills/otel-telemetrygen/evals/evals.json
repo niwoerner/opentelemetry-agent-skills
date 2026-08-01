@@ -1,7 +1,5 @@
 {
   "skill": "otel-telemetrygen",
-  "runtime": "Codex CLI",
-  "model": "gpt-5.6-terra",
   "cases": [
     {
       "id": "bounded-http-logs-env",

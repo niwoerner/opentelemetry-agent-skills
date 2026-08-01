@@ -37,8 +37,8 @@ These apply to all subcommands (`traces`, `metrics`, `logs`).
 | Flag | Type | Default | Description |
 |------|------|---------|-------------|
 | `--workers` | int | `1` | Concurrent worker goroutines |
-| `--rate` | float64 | `1` | Approximate configured metrics/spans/logs generation target per second per worker; delivered export throughput may be lower. `0` = no throttling |
-| `--duration` | duration | `0` | How long to generate. Go durations (`5s`, `1m`) or `inf`. Overrides count flags |
+| `--rate` | float64 | `1` | Approximate configured record target per second per worker; delivered export throughput may be lower. For traces, parent and child spans count toward this target, so approximate traces/s = `workers * rate / (effective children + 1)`. `0` means no throttling and is prohibited by the safety gate |
+| `--duration` | duration | `0` | How long to generate. Use a finite Go duration (`5s`, `1m`); `inf` is recognized but prohibited by the safety gate. Overrides count flags |
 | `--interval` | duration | `1s` | Registered reporting interval; not consumed by generation code in v0.157.0 |
 | `--timeout` | duration | `10s` | Maximum time to wait for the signals to reach destination |
 

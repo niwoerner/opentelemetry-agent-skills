@@ -120,12 +120,16 @@ go install github.com/open-telemetry/opentelemetry-collector-contrib/cmd/telemet
 docker pull ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:v0.157.0
 ```
 
+The version belongs in the installation or image reference, not between the installed
+`telemetrygen` binary and its subcommand; invoke the binary as `telemetrygen <subcommand>`.
+
 Run the container with the same flags after the image name:
 
 ```bash
 docker run --rm --network "container:<collector-container-name>" \
   ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:v0.157.0 \
-  traces --otlp-insecure --otlp-endpoint 127.0.0.1:4317 --traces 100
+  traces --otlp-insecure --otlp-endpoint 127.0.0.1:4317 \
+  --traces 100 --workers 1 --rate 1
 ```
 
 The plaintext example is local-only and joins the exact disposable Collector container's network
