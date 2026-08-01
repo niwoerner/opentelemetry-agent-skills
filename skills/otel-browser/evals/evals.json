@@ -1,7 +1,5 @@
 {
   "skill": "otel-browser",
-  "runtime": "Codex CLI 0.146.0",
-  "model": "gpt-5.6-terra",
   "cases": [
     {
       "id": "browser-v020-cross-origin-setup",

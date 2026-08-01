@@ -219,7 +219,7 @@ import { FetchInstrumentation } from '@opentelemetry/instrumentation-fetch';
 
 new FetchInstrumentation({
   // Required for traceparent to be sent to OTHER origins.
-  propagateTraceHeaderCorsUrls: [/api\.example\.com/],
+  propagateTraceHeaderCorsUrls: [/^https:\/\/api\.example\.com(?:\/|$)/],
   // Avoid tracing telemetry export calls themselves (prevents feedback loops).
   ignoreUrls: [/\/v1\/(traces|logs)/],
 });

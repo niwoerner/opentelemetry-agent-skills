@@ -4,6 +4,9 @@ This fixture is documentation-only. Do not install packages or contact endpoints
 
 ## Pinned dependencies
 
+The Browser SDK entry is a local build from the upstream GitHub `browser-sdk-v0.2.0` release tag,
+not an npm-published 0.2.0 package. The other entries are npm packages.
+
 ```json
 {
   "@opentelemetry/browser-sdk": "0.2.0",
