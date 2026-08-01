@@ -1,16 +1,16 @@
 # Browser performance, cost & privacy
 
-In the browser the SDK is shipped to the user and runs on their device. Every byte of SDK and every
-exported record competes with page-load speed and observability spend. Three budgets dominate —
-**bundle size**, **runtime cost**, and **telemetry volume/cost** — with **PII** as a hard constraint
-across all three.
+## Contents
 
-| Budget | Main levers |
-|---|---|
-| Bundle size | Tree-shaking, per-signal SDK imports, prefer events over spans, skip `zone.js` when you can |
-| Runtime cost | Idle-time scheduling, batch processors, bounded work per callback |
-| Telemetry volume/cost | Fewer instrumentations, restrict resource-timing, sampling, Collector-side trimming |
-| Privacy (PII) | URL sanitization, restrict console capture, redact in the Collector |
+- [Bundle size](#bundle-size)
+- [Runtime cost](#runtime-cost-dont-block-the-main-thread)
+- [Page lifecycle](#page-lifecycle-flush-before-the-page-vanishes)
+- [Telemetry volume and cost](#telemetry-volume-and-cost)
+- [Collector or edge enforcement](#the-collector-is-your-cost-and-safety-valve)
+- [Privacy / PII](#privacy--pii-hard-constraint)
+
+The SDK runs on the user's device, so bundle size, main-thread work, telemetry volume, and privacy
+are explicit budgets.
 
 ## Bundle size
 
@@ -119,35 +119,8 @@ Controlling it is partly developer discipline and partly pipeline enforcement.
 | `console.log`/`info`/`debug` | apps log user data to the console | capture only `['error', 'warn']` in prod |
 | `data-otel-*` attributes | exported verbatim | keep to non-PII business keys only |
 | Free-form custom attributes | accidental PII | review `applyCustomAttributes` / `applyCustomLogRecordData` hooks |
+| Session context | persistent user correlation or identity | use consented, pseudonymous bounded IDs; never copy account PII |
 | Anything the client sends | the client is untrusted | redact in the Collector as a backstop |
-
-## Performance checklist
-
-- [ ] Per-signal SDK imports; unused signal SDK tree-shaken out
-- [ ] Subpath imports for instrumentations (no barrel import)
-- [ ] `zone.js`/`ZoneContextManager` included **only** if async span stitching is required
-- [ ] Batch processors with bounded queue/batch sizes (no `Simple*` processors)
-- [ ] Browser batch processor auto-flush on document hide left enabled, or equivalent
-      `forceFlush()` wired to `visibilitychange`/`pagehide`; export uses `keepalive` when possible
-- [ ] Minimal instrumentation set enabled; resource timing restricted by `initiatorTypes` /
-      `ignoreUrls`
-- [ ] Console capture limited to `error`/`warn` in production
-- [ ] Sampling configured (SDK and/or Collector edge)
-- [ ] URL sanitization on; PII redaction enforced in the Collector
-- [ ] Exporting to a Collector, not directly to a backend store
-
-## Background
-
-These durable learnings are corroborated by OpenTelemetry community talks:
-
-- **Coming soon to a browser near you: OpenTelemetry** — Browser SIG panel, Oct 2025
-  ([recap](https://embrace.io/blog/browser-opentelemetry-panel-recap/)). Events-vs-spans model,
-  sessions as the correlation primitive, the `zone.js` trade-off, bundle-size strategy.
-- **From RUM to Front-End Observability with OpenTelemetry** — Purvi Kanal, KubeCon EU 2024
-  ([video](https://www.youtube.com/watch?v=l2_wsvv-Rhs)). Connecting browser spans to backend traces.
-- **A Practical Guide to Debugging Browser Performance with OpenTelemetry** — Purvi Kanal,
-  KubeCon NA 2023 ([video](https://www.youtube.com/watch?v=0J1z599tmfY)). Core Web Vitals, page/
-  resource timing, long tasks.
 
 > The `browser.*` semantic conventions are still evolving and vendors differ in how they represent
 > Core Web Vitals. Confirm attribute names and thresholds against the current

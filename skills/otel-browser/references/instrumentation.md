@@ -1,5 +1,14 @@
 # Browser instrumentation catalog
 
+Captured against `@opentelemetry/browser-instrumentation` 0.7.0 (2026-08). Verify current exports,
+README options, and release notes before relying on experimental behavior.
+
+## Contents
+
+- [Event-based instrumentations](#event-based-instrumentations-opentelemetrybrowser-instrumentation)
+- [Span-based instrumentations](#span-based-instrumentations-opentelemetry-js--js-contrib)
+- [Choosing what to enable](#choosing-what-to-enable)
+
 Choosing and configuring browser/RUM instrumentations. Browser telemetry uses **two signal shapes**;
 knowing which is which tells you where each instrumentation lives and how to consume the data.
 
@@ -17,7 +26,7 @@ with a real begin/end and parent/child relationship.
 > against the upstream READMEs and `package.json` `exports` (see
 > [SKILL.md Sources of Truth](../SKILL.md#sources-of-truth)).
 
-### Network context correlation proposal (0.6.0)
+### Network context correlation proposal (captured through 0.7.0)
 
 Release 0.6.0 added `ContextRegistry` and `NetworkContextRegistry` as a proposal for sharing
 OpenTelemetry context between instrumentations that observe the same network operation from
@@ -26,7 +35,7 @@ window, then lets a consumer match that context to a `PerformanceResourceTiming`
 `fetchStart` and `responseEnd` fall inside the window. This is intended to let resource-timing
 telemetry retain the network span's trace context.
 
-This is **not yet a user-facing activation mechanism** in 0.6.0: the package does not expose the
+This is **not yet a user-facing activation mechanism** in 0.7.0: the package does not expose the
 registry through its npm `exports`, and no released instrumentation registers or consumes it.
 Track it as released experimental groundwork; do not import internal source paths or claim
 resource-timing events are correlated automatically.
@@ -116,7 +125,7 @@ The released `browser.web_vital` event (development stability; verify via the
 `otel-semantic-conventions` skill, group `browser`, entry `event.browser.web_vital`) requires a map
 **body** with `name`, `value`, `delta`, and `id`. These are body fields, not log attributes.
 
-`@opentelemetry/browser-instrumentation` 0.6.0 does not yet match that released shape: it uses the
+`@opentelemetry/browser-instrumentation` 0.7.0 does not yet match that released shape: it uses the
 correct event name but emits `browser.web_vital.name`, `.value`, `.rating`, `.delta`, `.id`, and
 `.navigation_type` as attributes; `body` is only set to raw attribution when
 `includeRawAttribution` is enabled. Account for that package shape in queries or transform it at
@@ -168,6 +177,9 @@ new UserActionInstrumentation({ autoCapturedActions: ['click'] }); // default
 ```
 
 > `data-otel-*` values are exported verbatim — do not put PII (emails, names) in them.
+
+In 0.7.0, user-action instrumentation also accepts `applyCustomLogRecordData`; review that hook as
+untrusted-data handling and keep any added fields bounded and non-PII.
 
 ## Span-based instrumentations (`opentelemetry-js` / `js-contrib`)
 
@@ -226,16 +238,3 @@ The server must list `traceparent` (and `tracestate`/`baggage` if used) in
 | Error tracking | Errors, Console (`error`/`warn` only) |
 | Frontend↔backend tracing | fetch + XHR span instrumentation with CORS propagation |
 | Minimal footprint | Web Vitals + Errors + Navigation (low volume, high value); add the rest deliberately |
-
-## Anti-patterns
-
-| Anti-pattern | Why it's wrong | Fix |
-|---|---|---|
-| Enabling every instrumentation by default | Resource-timing + console `log` create huge, low-value volume | Start minimal; add deliberately once you understand the volume |
-| Capturing `console.log`/`debug` in production | Noise + PII leakage | `logMethods: ['error', 'warn']` |
-| Putting PII in `data-otel-*` or URLs | Exported verbatim to your backend | Use `sanitizeUrl`; keep `data-otel-*` to non-PII business keys |
-| Tracing your own OTLP export calls | Infinite telemetry-about-telemetry loop | `ignoreUrls` the `/v1/traces` and `/v1/logs` endpoints |
-| Forcing spans around point-in-time facts | Wrong model; bloats traces | Use the event-based instrumentations for vitals/navigation/errors |
-| Treating event body fields as attributes | Produces the wrong shape (the released Web Vitals convention requires a map body) | Check the full event definition, not only its name; account for the documented 0.6.0 implementation mismatch above |
-| Relying on navigation *timing* for page-view counts | Lost when `load` never fires / user leaves early | Use the navigation *event* for counts, timing for performance |
-| Assuming an instrumentation works because registration threw no error | These packages are experimental; a misconfigured or no-op instrumentation emits neither errors nor telemetry | Verify each one reaches the Collector (diag logging + `debug` exporter) — see [setup-sdk.md](setup-sdk.md#verify-it-actually-emits) |
