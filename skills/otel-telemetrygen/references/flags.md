@@ -37,7 +37,7 @@ These apply to all subcommands (`traces`, `metrics`, `logs`).
 | Flag | Type | Default | Description |
 |------|------|---------|-------------|
 | `--workers` | int | `1` | Concurrent worker goroutines |
-| `--rate` | float64 | `1` | Metrics/spans/logs per sec/worker. `0` = no throttling |
+| `--rate` | float64 | `1` | Approximate configured metrics/spans/logs generation target per second per worker; delivered export throughput may be lower. `0` = no throttling |
 | `--duration` | duration | `0` | How long to generate. Go durations (`5s`, `1m`) or `inf`. Overrides count flags |
 | `--interval` | duration | `1s` | Registered reporting interval; not consumed by generation code in v0.157.0 |
 | `--timeout` | duration | `10s` | Maximum time to wait for the signals to reach destination |
@@ -134,6 +134,10 @@ key=123                    # Integer
 
 ## Kubernetes Job Manifest
 
+This example requires a reviewed TLS endpoint whose certificate is trusted by the container. For a
+private CA, mount the reviewed certificate and add `--ca-cert=<mounted-path>`; do not disable or skip
+TLS verification.
+
 ```yaml
 apiVersion: batch/v1
 kind: Job
@@ -147,7 +151,6 @@ spec:
         image: ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:v0.157.0
         args:
         - traces
-        - --otlp-insecure
         - --otlp-endpoint=otel-collector.observability:4317
         - --duration=60s
         - --rate=10

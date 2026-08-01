@@ -22,7 +22,11 @@ receivers:
   otlp:
     protocols:
       grpc:
-        endpoint: 127.0.0.1:4317
+        endpoint: 0.0.0.0:4317
+
+extensions:
+  health_check:
+    endpoint: 0.0.0.0:13133
 
 processors:
   transform/under_test:
@@ -38,6 +42,7 @@ exporters:
     flush_interval: 200ms
 
 service:
+  extensions: [health_check]
   pipelines:
     logs:
       receivers: [otlp]
@@ -48,6 +53,18 @@ service:
 Validate this config with the pinned Collector before calling it live validation. Static or parser
 acceptance does not prove that a generated fixture traversed the pipeline.
 
+This executable example is scoped to logs. Match the pipeline, processor configuration, and
+telemetrygen subcommand to the signal under test:
+
+- **Metrics:** use a `metrics` pipeline, the processor's metric configuration (for example
+  `metric_statements`), and `telemetrygen metrics --metrics <finite-count>`.
+- **Traces and tail sampling:** use a `traces` pipeline and `telemetrygen traces`. For
+  `tail_sampling`, configure a finite `decision_wait`, generate a complete trace shape that should
+  match a reviewed policy plus a known-positive control, and wait past the decision window before
+  shutdown. A logs pipeline cannot verify tail sampling.
+- **Logs:** use the configuration above and `telemetrygen logs`. Do not infer trace or metric
+  processor behavior from a successful logs run.
+
 ## Live disposable run
 
 Create a fresh directory with `mktemp -d`, record its exact path, and mount only that directory and
@@ -55,34 +72,110 @@ the reviewed config. Use a unique validated container name rather than silently 
 existing container. On SELinux systems append `:z` to bind mounts; rootless Podman may not need an
 explicit user mapping.
 
+The complete shell flow below is a connectivity, flush, and parse smoke test. It keeps the Collector
+on Docker's bridge network. Disposable curl and telemetrygen containers join its network namespace
+and use loopback, so the receivers are not published on the host. Replace the placeholders only
+after validating the exact name and paths. Keep the output directory after the run as diagnostic
+evidence.
+
 ```bash
-docker run -d --rm --name <unique-container-name> \
-  --network host \
+set -u
+container_name='otelcol-verify-unique-suffix'
+config_path='/absolute/path/to/reviewed-config.yaml'
+output_dir='/absolute/path/to/fresh-output-directory'
+case "$container_name" in (*[!a-zA-Z0-9_.-]*|'') exit 2;; esac
+case "$config_path:$output_dir" in (/*:/*) ;; (*) exit 2;; esac
+test -f "$config_path" && test -d "$output_dir" || exit 2
+if find "$output_dir" -mindepth 1 -maxdepth 1 -print -quit | grep -q .; then
+  printf 'output directory is not empty: %s\n' "$output_dir" >&2
+  exit 2
+fi
+
+cleanup() {
+  if docker inspect "$container_name" >/dev/null 2>&1; then
+    printf 'retained failed Collector container %s and output %s\n' \
+      "$container_name" "$output_dir" >&2
+  else
+    printf 'retained failed-run output %s; no Collector container exists\n' \
+      "$output_dir" >&2
+  fi
+}
+trap cleanup EXIT
+
+docker run -d --name "$container_name" \
   --user "$(id -u):$(id -g)" \
-  -v "<reviewed-absolute-config>:/etc/otelcol-contrib/config.yaml:ro" \
-  -v "<fresh-output-directory>:/output" \
+  -v "$config_path:/etc/otelcol-contrib/config.yaml:ro" \
+  -v "$output_dir:/output" \
   otel/opentelemetry-collector-contrib:0.157.0 \
-  --config=/etc/otelcol-contrib/config.yaml
-```
+  --config=/etc/otelcol-contrib/config.yaml || exit $?
 
-Wait with a finite timeout for readiness. If the container exits or readiness is not reached, stop
-and preserve the non-zero result; do not send telemetry or inspect old output as if the run passed.
-Then send the exact bounded signal shape under test:
+ready=0
+i=0
+while [ "$i" -lt 30 ]; do
+  i=$((i + 1))
+  if [ "$(docker inspect -f '{{.State.Running}}' "$container_name")" != true ]; then
+    collector_status=$(docker inspect -f '{{.State.ExitCode}}' "$container_name")
+    docker logs "$container_name" >&2
+    [ "$collector_status" -ne 0 ] || collector_status=1
+    exit "$collector_status"
+  fi
+  if docker run --rm --network "container:$container_name" curlimages/curl:8.17.0 \
+      -fsS -o /dev/null http://127.0.0.1:13133/; then
+    ready=1
+    break
+  fi
+  sleep 1
+done
+if [ "$ready" -ne 1 ]; then
+  docker logs "$container_name" >&2
+  exit 1
+fi
 
-```bash
-telemetrygen logs --otlp-insecure --otlp-endpoint localhost:4317 \
+set +e
+docker run --rm --network "container:$container_name" \
+  ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:v0.157.0 \
+  logs --otlp-insecure --otlp-endpoint 127.0.0.1:4317 \
   --logs 1 --severity-text Info
+telemetrygen_status=$?
+
+docker stop --time 10 "$container_name"
+stop_status=$?
+[ "$stop_status" -eq 0 ] || docker logs "$container_name" >&2
+collector_status=$(docker inspect -f '{{.State.ExitCode}}' "$container_name")
+case "$collector_status" in (*[!0-9]*|'') collector_status=1;; esac
+[ "$collector_status" -eq 0 ] || docker logs "$container_name" >&2
+
+python3 - "$output_dir/result.json" <<'PY'
+import json
+import pathlib
+import sys
+
+path = pathlib.Path(sys.argv[1])
+objects = [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
+print(json.dumps(objects, indent=2))
+PY
+parse_status=$?
+set -e
+
+[ "$telemetrygen_status" -eq 0 ] || exit "$telemetrygen_status"
+[ "$stop_status" -eq 0 ] || exit "$stop_status"
+[ "$collector_status" -eq 0 ] || exit "$collector_status"
+[ "$parse_status" -eq 0 ] || exit "$parse_status"
+trap - EXIT
+docker rm -- "$container_name"
+exit 0
 ```
 
-Stop the exact disposable container cleanly so the file exporter flushes. Confirm that stop
-succeeded before reading `<fresh-output-directory>/result.json`; parse it directly rather than
-using a pipeline that can hide an earlier failure:
+The captured telemetrygen status wins over stop, Collector, cleanup, or parse success. After a
+clean stop, inspect and propagate the Collector workload exit code before accepting the JSONL.
+Failed runs retain the exact container and output directory for diagnosis; a fully successful run
+removes the container and retains the output. Failure to remove that exact successful-run container
+is itself a non-zero result. The JSONL parser preserves every non-empty exported object.
 
-```bash
-docker stop <unique-container-name>
-python3 -c 'import json,sys; print(json.load(open(sys.argv[1])))' \
-  "<fresh-output-directory>/result.json"
-```
+This smoke flow alone does not prove processor behavior. Before making a behavioral claim, send a
+reviewed input that must match the rule plus a known-positive control that must survive, then assert
+their expected presence or absence against parsed records. Empty output or merely parseable output
+is not behavioral evidence.
 
 Do not claim cleanup unless the exact container and directory were actually removed. Never broaden
 cleanup to a parent directory or an unvalidated path.
