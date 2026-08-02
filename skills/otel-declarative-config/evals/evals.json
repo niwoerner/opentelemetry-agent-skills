@@ -52,7 +52,8 @@
         "Treats the schema release list as discovery only and does not default to its latest v1.3.0 release.",
         "Refetches official target-2.31.0 runtime parser documentation, source, or test fixtures.",
         "Uses target-2.31.0 runtime evidence to select a compatible schema tag.",
-        "Records refreshed evidence under a complete cache identity containing runtime, package or agent, version, selected schema tag, and source revision."
+        "Records refreshed evidence under a complete cache identity containing runtime, package or agent, version, selected schema tag, and source revision.",
+        "Separately reports the cached release-schema pass as historical evidence only for its unchanged file and tag, invalidates selected-parser compatibility for target 2.31.0, and leaves live validation explicitly unrun."
       ]
     },
     {
@@ -70,7 +71,8 @@
         "States that configuration-spec substitution applies to scalar values and not mapping keys.",
         "Does not rely on recursive substitution or unverified sequence-item or type-coercion behavior.",
         "Separates release-schema validation of the configuration shape from selected-parser validation of substitution, default, escaping, and post-substitution behavior.",
-        "Does not claim schema validation proves parser behavior or that live startup or export verification was run."
+        "Does not claim schema validation proves parser behavior or that live startup or export verification was run.",
+        "States that substitution-evidence.md identifies the parser release but does not establish substitution semantics, and does not claim selected-parser substitution validation passed unless the parser was actually run."
       ]
     }
   ]
