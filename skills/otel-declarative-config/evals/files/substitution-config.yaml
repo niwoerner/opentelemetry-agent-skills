@@ -1,0 +1,17 @@
+# Synthetic evaluation fixture; not production configuration.
+file_format: "1.1"
+resource:
+  attributes:
+    - name: service.name
+      value: "${env:SERVICE_NAME}"
+tracer_provider:
+  processors:
+    - batch:
+        exporter:
+          otlp_http:
+            endpoint: "${OTLP_ENDPOINT:-http://otel-gateway:4318/v1/traces}"
+            headers:
+              - name: x-display
+                value: "cost-$$5"
+              - name: x-template
+                value: "$${NOT_EXPANDED}"

@@ -1,7 +1,5 @@
 {
   "skill": "otel-declarative-config",
-  "runtime": "Codex CLI",
-  "model": "gpt-5.6-terra",
   "cases": [
     {
       "id": "runtime-parser-beats-coverage",
@@ -40,6 +38,39 @@
         "Flags the non-schema YAML tag and command-like endpoint or header values instead of carrying them into corrected deployable YAML.",
         "Provides only a bounded sanitized diagnosis or clearly non-deployable schematic until the target SDK/runtime and version are known.",
         "Separates release-schema validation, selected-parser validation, and live startup/export verification, and does not claim any unperformed level passed."
+      ]
+    },
+    {
+      "id": "stale-evidence-cache-runtime-upgrade",
+      "prompt": "Our synthetic Javaagent upgrade now rejects the previously deployed declarative file. Use evals/files/upgrade-evidence.md to prepare a recovery plan. The team proposes either reusing the cached configuration evidence or switching its file_format to the latest discovered schema release. Decide what evidence can be reused, what must be refreshed, whether a deployable file_format can be selected now, and how each validation level should be handled without running a live export.",
+      "files": [
+        "evals/files/upgrade-evidence.md"
+      ],
+      "expectations": [
+        "Treats the 2.30.0 compatibility cache record as invalid for the 2.31.0 target.",
+        "Leaves the deployable file_format unset until target 2.31.0 parser evidence establishes its accepted literal.",
+        "Treats the schema release list as discovery only and does not default to its latest v1.3.0 release.",
+        "Refetches official target-2.31.0 runtime parser documentation, source, or test fixtures.",
+        "Uses target-2.31.0 runtime evidence to select a compatible schema tag.",
+        "Records refreshed evidence under a complete cache identity containing runtime, package or agent, version, selected schema tag, and source revision."
+      ]
+    },
+    {
+      "id": "valid-scalar-substitution",
+      "prompt": "Review evals/files/substitution-config.yaml for the release-matched parser identified in evals/files/substitution-evidence.md. SERVICE_NAME is checkout, OTLP_ENDPOINT is the empty string, and NOT_EXPANDED is secret-text. Resolve service.name, endpoint, x-display, and x-template. Explain which substitution locations and behaviors are portable configuration-spec rules versus selected-parser evidence, and separate schema, parser, and live validation without running an export.",
+      "files": [
+        "evals/files/substitution-config.yaml",
+        "evals/files/substitution-evidence.md"
+      ],
+      "expectations": [
+        "Resolves service.name from ${env:SERVICE_NAME} to checkout.",
+        "Uses the default http://otel-gateway:4318/v1/traces because OTLP_ENDPOINT is empty.",
+        "Resolves the escaped scalar cost-$$5 to the literal value cost-$5.",
+        "Resolves $${NOT_EXPANDED} to the literal text ${NOT_EXPANDED} without recursively substituting secret-text.",
+        "States that configuration-spec substitution applies to scalar values and not mapping keys.",
+        "Does not rely on recursive substitution or unverified sequence-item or type-coercion behavior.",
+        "Separates release-schema validation of the configuration shape from selected-parser validation of substitution, default, escaping, and post-substitution behavior.",
+        "Does not claim schema validation proves parser behavior or that live startup or export verification was run."
       ]
     }
   ]
