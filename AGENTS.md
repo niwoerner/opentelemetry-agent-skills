@@ -68,7 +68,7 @@ A new skill is only "registered" when it appears in **all** of these. Missing an
 `CONTRIBUTING.md` is the source of truth; the parts an agent preparing a PR must know:
 
 - **Agent-authored PRs are accepted** and expected — but a human must own the PR, and agent involvement should be disclosed in the description.
-- **Harness evidence is required** for any PR that adds or substantively changes a skill: run the same representative prompt(s) on a frontier model without and with the skill (fresh sessions, same model and harness), and include the comparison plus transcript links in the PR description. The `.github/PULL_REQUEST_TEMPLATE.md` has a section for this.
+- **Harness evidence is required** for any PR that adds or substantively changes a skill: the same representative prompt(s) run on a frontier model in three arms — target skill withheld, current `origin/main` skill, and the proposed PR skill — in fresh sessions with the same model, harness, cases, and repetitions (at least three per case). The `origin/main` arm is the only one that catches a regression in a skill that already ships; for a new skill it is `Not present`. Report it in the table in `.github/PULL_REQUEST_TEMPLATE.md`, with transcript links.
 - **Spec conformance**: validate with `./bin/validate-skill.sh` ([agentskills.io spec](https://agentskills.io/specification)).
 - **CLA**: first-time contributors sign the organization-wide
   [OllyGarden CLA](https://github.com/ollygarden/.github/blob/main/CLA.md) via the CLA bot on the PR

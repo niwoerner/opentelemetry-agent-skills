@@ -88,14 +88,31 @@ retrieves, recommends, or generates. Typo-only, formatting-only, link-only, and 
 wording changes normally do not require a harness comparison. When in doubt, include the
 comparison or ask in an issue before opening the pull request.
 
-The required evidence is an A/B comparison from an agent harness (Claude Code, or a comparable harness driving a frontier model):
+The required evidence comes from an agent harness (Claude Code, or a comparable harness driving a frontier model), run in **three arms**:
+
+| Arm | What it is | What it answers |
+| --- | --- | --- |
+| **Target skill withheld** | The skill is not installed | Does this skill help at all? |
+| **Current `origin/main` skill** | The skill exactly as it ships today | — |
+| **Proposed PR skill** | The skill as this PR would ship it | Compared to `origin/main`: did I break what already worked? |
+
+The first and third arms are the A/B comparison this repo has always asked for. The second is what catches a **regression in a skill that already ships** — neither of the other two can, because neither of them is the current baseline. For a brand-new skill it costs nothing (mark it `Not present`); for a change to an existing skill it is the arm that matters most.
 
 1. Pick one or more representative prompts a user would realistically ask — ideally prompts that exercise the part of the skill you added or changed.
-2. Run each prompt **without** the skill installed, on a frontier model (e.g. the current Claude Opus/Sonnet generation), in a fresh session.
-3. Run the **same prompt, same model, same harness** with the skill installed, in a fresh session.
-4. Include the results in the PR description: the prompts used, the model and harness versions, and a summary of how the outputs differed — where the baseline was wrong, outdated, or wasteful, and what the skill fixed. Attach or link the transcripts (a gist is fine) so reviewers can verify.
+2. Run every arm with the **same** cases, repetitions, model, harness, grading rules, and tool access, each in a fresh session. Name the model and harness once, above the table.
+3. In the withheld arm, withhold **only** the target skill. Leave everything else in place.
+4. Run each case **at least three times** per arm. A single run cannot distinguish a real improvement from a lucky sample.
+5. Report the results in the PR description using the table in the pull request template, and attach or link the transcripts (a gist is fine) so reviewers can verify.
 
-What we look for: the baseline getting facts wrong (stale versions, renamed packages, invalid config keys) that the skill corrects; the skill reaching the right answer with fewer tokens or fewer wrong turns; and no regressions on prompts the skill shouldn't affect. If the comparison shows no meaningful difference, that's a signal the skill (or the change) isn't earning its place — rework it rather than submitting the results anyway.
+Recording the arms honestly matters more than a clean-looking table:
+
+- **`Not present`** goes in the target-skill revision cell only — for a new skill, on the `origin/main` arm; for a removal, on the proposed arm. The arm's *results* are still required either way.
+- **An arm you did not run, or that was invalidated, is `Not run`, with the reason.** Incomplete evidence is not an improvement claim, and a gap named plainly costs a reviewer far less than one they have to find.
+- **Preserve genuine misses.** Never retry a failing repetition until it passes, and never report a designed-but-unrun case as passing.
+
+What we look for: the baseline getting facts wrong (stale versions, renamed packages, invalid config keys) that the skill corrects; the skill reaching the right answer with fewer tokens or fewer wrong turns; and no regression against the shipping version. If the comparison shows no meaningful difference, that's a signal the skill (or the change) isn't earning its place — rework it rather than submitting the results anyway.
+
+If your change is a pure **efficiency** improvement — trimming a skill so it costs less context while behaving identically — say so, state the metric and how you measured it, and show that the required behavior still passes in the proposed arm. This repo values token efficiency explicitly, so that is a legitimate result; an aggregate gain still cannot excuse a behavioral regression.
 
 The [`skill-creator`](https://github.com/anthropics/skills/tree/main/skills/skill-creator) skill can help you set up and run these evals.
 
