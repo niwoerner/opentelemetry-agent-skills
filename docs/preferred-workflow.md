@@ -38,7 +38,7 @@ Any change that can alter when a skill triggers, or what an agent retrieves, rec
 
 The bar is set in [`CONTRIBUTING.md`](../CONTRIBUTING.md#proving-the-skill-helps-harness-results): the same representative prompt(s), cases, repetitions, model, harness, grading rules, and tool access, run in fresh sessions across **three arms** — target skill withheld, current `origin/main` skill, and the proposed PR skill — reported in the PR template's table with transcript links.
 
-Editing an existing skill is the case that makes the third arm non-optional. "Withheld vs mine" can look like a clear win while the change has quietly broken something the shipping version already did; only `origin/main` vs proposed can see that. For a brand-new skill the `origin/main` arm is `Not present` and costs nothing.
+Editing an existing skill is the case that makes the third arm non-optional. "Withheld vs mine" can look like a clear win while the change has quietly broken something the shipping version already did; only `origin/main` vs proposed can see that. For a brand-new skill that arm names no revision (`Not present`) and is the same configuration as the withheld arm, so it needs no extra runs — but it still reports results.
 
 If a change genuinely cannot alter agent behavior, say `Not applicable — no harness comparison required` in the PR and why.
 

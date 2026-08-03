@@ -39,6 +39,6 @@ skill fixed; and whether the proposed arm regressed anything against `origin/mai
 - [ ] `./bin/check-skill-inventory.py` passes
 - [ ] Skill registered in all three places (skill directory, `.claude-plugin/marketplace.json`, `README.md` table + tree) — if adding/renaming a skill
 - [ ] Content is vendor-neutral, non-opinionated, DRY, and token-efficient
-- [ ] All three harness arms reported above, or explicitly marked `Not run` / `Not present` with a reason — if skill content changed
+- [ ] All three harness arms reported above, with any `Not run` arm given a reason — if skill content changed
 - [ ] Commit messages follow Conventional Commits
 - [ ] I have signed (or will sign via the CLA bot on this PR) the [OllyGarden CLA](https://github.com/ollygarden/.github/blob/main/CLA.md)

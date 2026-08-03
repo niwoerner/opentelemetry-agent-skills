@@ -94,7 +94,7 @@ The required evidence comes from an agent harness (Claude Code, or a comparable 
 2. **Current `origin/main` skill** — the skill exactly as it ships today.
 3. **Proposed PR skill** — the skill as this PR would ship it.
 
-Arms 1 and 3 are the A/B comparison this repo has always asked for: does this skill help at all? Arm 2 is what catches a **regression in a skill that already ships** — neither of the others can, because neither is the current baseline. For a brand-new skill it costs nothing (mark it `Not present`); for a change to an existing skill it is the arm that matters most.
+Arms 1 and 3 are the A/B comparison this repo has always asked for: does this skill help at all? Arm 2 is what catches a **regression in a skill that already ships** — neither of the others can, because neither is the current baseline. For a brand-new skill there is no revision to name, so its revision cell is `Not present` — but the arm still reports results. It is then the same configuration as the withheld arm, so it needs no extra runs. For a change to an existing skill it is the arm that matters most.
 
 1. Pick one or more representative prompts a user would realistically ask — ideally prompts that exercise the part of the skill you added or changed.
 2. Run every arm with the **same** cases, repetitions, model, harness, grading rules, and tool access, each in a fresh session. Name the model and harness once, above the table.
