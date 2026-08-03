@@ -30,7 +30,13 @@ skill fixed; and whether the proposed arm regressed anything against `origin/mai
 
 **Failing or unknown runs kept, and why:**
 
-**Transcripts:** <!-- links; a gist is fine -->
+**Per-case results:** <!-- case-level totals, or a link to them -->
+
+**Limitations:** <!-- model, harness, fixture, or coverage limits; anything the evidence does not
+establish -->
+
+**Transcripts:** <!-- links; a gist is fine. Sanitize first — redact credentials, tokens, customer
+data, and private repository content. If it cannot be sanitized, summarize it instead. -->
 
 ## Checklist
 

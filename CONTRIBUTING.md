@@ -102,6 +102,8 @@ Arms 1 and 3 are the A/B comparison this repo has always asked for: does this sk
 4. Run each case **at least three times** per arm. A single run cannot distinguish a real improvement from a lucky sample.
 5. Report the results in the PR description using the table in the pull request template, and attach or link the transcripts (a gist is fine) so reviewers can verify.
 
+**Sanitize a transcript before you link it.** A harness transcript records everything the agent saw: environment variables, tokens pasted into a session, customer names, paths and file contents from private repositories. This repository is public and a linked gist usually is too, so redact before posting — and if a transcript cannot be sanitized without destroying the evidence, summarize the run instead and say that is what you did. A reviewer can work with a summary; neither of us can unpublish a leaked credential.
+
 Recording the arms honestly matters more than a clean-looking table:
 
 - **`Not present`** goes in the target-skill revision cell only — for a new skill, on the `origin/main` arm; for a removal, on the proposed arm. The arm's *results* are still required either way.
