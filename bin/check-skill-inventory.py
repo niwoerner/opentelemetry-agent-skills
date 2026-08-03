@@ -11,7 +11,8 @@ entry, and an entry with no skill.
 Spec conformance (frontmatter shape, name/description limits) is a separate
 gate; see bin/validate-skill.sh.
 
-Usage: bin/check-skill-registration.py    (runs from anywhere)
+Usage: bin/check-skill-inventory.py    (resolves the repository root itself,
+so any path spelling works from any working directory)
 """
 
 from __future__ import annotations

@@ -14,12 +14,14 @@ For any change that adds, renames, moves, or removes a skill, or that alters wha
 
 ## Running the gates locally
 
-Everything CI enforces is a script in `bin/`, runnable from any directory:
+The two skill gates are scripts in `bin/`. Both resolve the repository root themselves, so any path spelling works from any working directory — the `./` form below assumes you are at the root:
 
 ```bash
-./bin/validate-skill.sh              # spec conformance + house rules; a path checks one skill
+./bin/validate-skill.sh            # spec conformance + house rules; a path checks one skill
 ./bin/check-skill-inventory.py     # skills/, marketplace.json, and README in sync
 ```
+
+CI enforces one further check that is not a `bin/` script: the `Link Check` workflow. Reproduce it locally with the `lychee` command in [`docs/preferred-workflow.md`](docs/preferred-workflow.md#5-run-the-gates).
 
 `validate-skill.sh` needs `skills-ref`, pinned in `bin/skills-ref.requirement` — that file is the single source CI, Renovate, and `CONTRIBUTING.md` all read, so never paste a revision anywhere else. Install with `uv tool install "$(cat bin/skills-ref.requirement)"`.
 

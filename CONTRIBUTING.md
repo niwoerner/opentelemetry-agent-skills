@@ -60,11 +60,12 @@ Prefer using the [`skill-creator`](https://github.com/anthropics/skills/tree/mai
 
 Skills live under `skills/<skill-name>/` and must follow the [Agent Skills specification](https://agentskills.io/specification). Each must include a `SKILL.md` with YAML frontmatter (`name` and `description`), where the directory name matches the `name` field. Optional subdirectories: `references/`, `scripts/`, `assets/`.
 
-Run the same gates CI runs, before opening a PR. Both scripts work from any directory
-and take no setup beyond the validator install above:
+Run the same gates CI runs, before opening a PR. They take no setup beyond the validator
+install above. Both scripts locate the repository root themselves, so any path spelling
+works from any working directory; the `./` form below assumes you are at the root:
 
 ```bash
-./bin/validate-skill.sh              # all skills; pass a path to check just one
+./bin/validate-skill.sh            # all skills; pass a path to check just one
 ./bin/check-skill-inventory.py     # README, marketplace, and skills/ in sync
 ```
 

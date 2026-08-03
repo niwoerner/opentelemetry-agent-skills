@@ -96,10 +96,14 @@ Conventional Commits for both the commit message and the PR title, with an optio
 CodeRabbit reviews PRs here. Read its threads with a thread-aware query — `gh pr view --comments` shows the flat view and hides resolution state:
 
 ```bash
-gh api graphql -f query='{repository(owner:"ollygarden",name:"opentelemetry-agent-skills"){pullRequest(number:<pr>){reviewThreads(first:100,after:null){pageInfo{hasNextPage endCursor}nodes{isResolved path comments(first:10){nodes{body}}}}}}}'
+gh api graphql -f query='{repository(owner:"ollygarden",name:"opentelemetry-agent-skills"){pullRequest(number:<pr>){reviewThreads(first:100,after:null){pageInfo{hasNextPage endCursor}nodes{id isResolved path line comments(first:10){pageInfo{hasNextPage endCursor}nodes{author{login} body}}}}}}}'
 ```
 
-Both connections are paged. If `reviewThreads.pageInfo.hasNextPage` is true, repeat with `after:"<endCursor>"` until it is false — an unresolved count taken from one page is not a count of zero. `comments(first:10)` truncates the same way, so page it too before concluding a thread was answered.
+Both connections are paged, and each pages **independently** — which is why the query selects `pageInfo` at both levels and the thread `id` alongside it. If `reviewThreads.pageInfo.hasNextPage` is true, repeat with `after:"<endCursor>"` until it is false; an unresolved count taken from one page is not a count of zero. `comments(first:10)` truncates the same way, so page a thread's own comments with its `id` before concluding it was answered:
+
+```bash
+gh api graphql -f query='query($id:ID!,$cursor:String){node(id:$id){... on PullRequestReviewThread{comments(first:100,after:$cursor){pageInfo{hasNextPage endCursor}nodes{author{login} body}}}}}' -f id='<thread-id>'
+```
 
 Verify each suggestion against the current head, fix the valid ones, and reply with evidence. Dismiss a finding only with a stated reason — a bare resolve is not an answer. Resolve only what is genuinely addressed, push, then wait for a review of the *new* head. If none appears within ~10 minutes, report it and stop rather than polling on or declaring victory. Repeat until checks are green and unresolved threads are zero.
 
