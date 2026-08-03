@@ -22,15 +22,13 @@
 | Current `origin/main` skill | `<full SHA>` or `Not present` | | | | |
 | Proposed PR skill | `<full SHA>` or `Not present` | | | | |
 
-<!-- Same cases, repetitions, model, harness, grading rules, and tool access in every
-     arm. Withhold ONLY the target skill in arm 1. At least 3 repetitions per case.
-     `Not present` belongs in the revision cell only — the arm's results are still
-     required. An arm you did not run is `Not run`, with the reason. -->
+<!-- Every arm needs results. `Not present` / `Not run` go in the revision cell, with a
+     reason. See CONTRIBUTING.md for what must be held identical across arms. -->
 
 **What differed:** <!-- where the withheld arm was wrong, outdated, or wasteful; what the
 skill fixed; and whether the proposed arm regressed anything against `origin/main` -->
 
-**Failing or unknown runs kept, and why:** <!-- never retry a failure until it passes -->
+**Failing or unknown runs kept, and why:**
 
 **Transcripts:** <!-- links; a gist is fine -->
 

@@ -90,13 +90,11 @@ comparison or ask in an issue before opening the pull request.
 
 The required evidence comes from an agent harness (Claude Code, or a comparable harness driving a frontier model), run in **three arms**:
 
-| Arm | What it is | What it answers |
-| --- | --- | --- |
-| **Target skill withheld** | The skill is not installed | Does this skill help at all? |
-| **Current `origin/main` skill** | The skill exactly as it ships today | — |
-| **Proposed PR skill** | The skill as this PR would ship it | Compared to `origin/main`: did I break what already worked? |
+1. **Target skill withheld** — the skill is not installed.
+2. **Current `origin/main` skill** — the skill exactly as it ships today.
+3. **Proposed PR skill** — the skill as this PR would ship it.
 
-The first and third arms are the A/B comparison this repo has always asked for. The second is what catches a **regression in a skill that already ships** — neither of the other two can, because neither of them is the current baseline. For a brand-new skill it costs nothing (mark it `Not present`); for a change to an existing skill it is the arm that matters most.
+Arms 1 and 3 are the A/B comparison this repo has always asked for: does this skill help at all? Arm 2 is what catches a **regression in a skill that already ships** — neither of the others can, because neither is the current baseline. For a brand-new skill it costs nothing (mark it `Not present`); for a change to an existing skill it is the arm that matters most.
 
 1. Pick one or more representative prompts a user would realistically ask — ideally prompts that exercise the part of the skill you added or changed.
 2. Run every arm with the **same** cases, repetitions, model, harness, grading rules, and tool access, each in a fresh session. Name the model and harness once, above the table.
@@ -112,7 +110,7 @@ Recording the arms honestly matters more than a clean-looking table:
 
 What we look for: the baseline getting facts wrong (stale versions, renamed packages, invalid config keys) that the skill corrects; the skill reaching the right answer with fewer tokens or fewer wrong turns; and no regression against the shipping version. If the comparison shows no meaningful difference, that's a signal the skill (or the change) isn't earning its place — rework it rather than submitting the results anyway.
 
-If your change is a pure **efficiency** improvement — trimming a skill so it costs less context while behaving identically — say so, state the metric and how you measured it, and show that the required behavior still passes in the proposed arm. This repo values token efficiency explicitly, so that is a legitimate result; an aggregate gain still cannot excuse a behavioral regression.
+A pure **efficiency** improvement — trimming a skill so it costs less context while behaving identically — is a legitimate result here. Say so, state how you measured it, and show the required behavior still passing in the proposed arm.
 
 The [`skill-creator`](https://github.com/anthropics/skills/tree/main/skills/skill-creator) skill can help you set up and run these evals.
 

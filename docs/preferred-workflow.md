@@ -40,12 +40,6 @@ The bar is set in [`CONTRIBUTING.md`](../CONTRIBUTING.md#proving-the-skill-helps
 
 Editing an existing skill is the case that makes the third arm non-optional. "Withheld vs mine" can look like a clear win while the change has quietly broken something the shipping version already did; only `origin/main` vs proposed can see that. For a brand-new skill the `origin/main` arm is `Not present` and costs nothing.
 
-Three rules that are easy to skip and expensive to skip:
-
-- **Run each case at least three times, per arm.** A single run cannot distinguish a real improvement from a lucky sample.
-- **Preserve genuine misses.** Never retry a failing repetition until it passes, and never report a designed-but-unrun case as passing.
-- **Name what you did not run.** An arm recorded as `Not run` with a reason is usable evidence; a blank cell, or one filled to look complete, is worse than no table because a reviewer will trust it.
-
 If a change genuinely cannot alter agent behavior, say `Not applicable — no harness comparison required` in the PR and why.
 
 ## 5. Run the gates
