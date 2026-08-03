@@ -1,0 +1,61 @@
+name: Link Check
+
+# Kept out of ci.yml on purpose: link rot is an external-world failure. It must
+# not turn a content PR's required check red because a third-party host had a
+# bad afternoon, and it needs a schedule to catch rot in files nobody is
+# currently editing — which a pull_request trigger cannot provide.
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  check-links:
+    runs-on: blacksmith
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install Lychee
+        env:
+          LYCHEE_VERSION: lychee-v0.24.2
+        run: |
+          set -euo pipefail
+
+          case "$RUNNER_ARCH" in
+            X64) target="x86_64-unknown-linux-musl" ;;
+            ARM64) target="aarch64-unknown-linux-musl" ;;
+            *) echo "Unsupported runner architecture: $RUNNER_ARCH" >&2; exit 1 ;;
+          esac
+
+          asset="lychee-${target}.tar.gz"
+          base_url="https://github.com/lycheeverse/lychee/releases/download/${LYCHEE_VERSION}"
+          install_dir="${RUNNER_TEMP}/lychee"
+          bin_dir="${RUNNER_TEMP}/lychee-bin"
+
+          mkdir -p "${install_dir}" "${bin_dir}"
+          cd "${install_dir}"
+          curl --fail --location --silent --show-error --remote-name "${base_url}/${asset}"
+          curl --fail --location --silent --show-error --remote-name "${base_url}/${asset}.sha256"
+          sha256sum --check "${asset}.sha256"
+          tar --extract --gzip --file "${asset}"
+          find "${install_dir}" -type f -name lychee -perm /111 -exec cp {} "${bin_dir}/lychee" \; -quit
+          "${bin_dir}/lychee" --version
+          echo "${bin_dir}" >> "${GITHUB_PATH}"
+
+      - name: Check Links
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: >-
+          lychee --verbose --no-progress
+          --root-dir "${GITHUB_WORKSPACE}"
+          --config .github/lychee.toml .

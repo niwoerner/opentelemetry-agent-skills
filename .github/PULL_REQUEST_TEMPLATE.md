@@ -20,8 +20,8 @@
 ## Checklist
 
 - [ ] I read and agree to follow the [Code of Conduct](https://github.com/ollygarden/.github/blob/main/CODE_OF_CONDUCT.md)
-- [ ] `skills-ref validate skills/<skill-name>` passes ([Agent Skills spec](https://agentskills.io/specification))
-- [ ] `python .github/scripts/check-skill-registration.py` passes
+- [ ] `./bin/validate-skill.sh` passes ([Agent Skills spec](https://agentskills.io/specification) + the under-500-line rule)
+- [ ] `./bin/check-skill-inventory.py` passes
 - [ ] Skill registered in all three places (skill directory, `.claude-plugin/marketplace.json`, `README.md` table + tree) — if adding/renaming a skill
 - [ ] Content is vendor-neutral, non-opinionated, DRY, and token-efficient
 - [ ] Harness comparison results included above — if skill content changed

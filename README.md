@@ -81,6 +81,14 @@ skills/
   otel-span-events-to-logs-migration/
   otel-telemetrygen/
   otel-weaver/
+
+bin/                     # the gates CI runs, runnable locally
+  validate-skill.sh      # Agent Skills spec conformance + house rules
+  check-skill-inventory.py
+  skills-ref.requirement # pinned validator revision; the single source
+docs/
+  preferred-workflow.md  # how a change moves through this repository
+tools/otel-agent-tools/  # Go CLI that generates bundled reference data
 ```
 
 ## Available Skills
@@ -117,8 +125,9 @@ Contributions are welcome — including pull requests authored and implemented b
 - Keep skills DRY. Prefer referencing official docs, examples, and source code that are already maintained instead of copying large amounts of additional knowledge into the skill. There will be exceptions, but the default should be to link or point to the maintained source of truth.
 - Design skills to be token efficient. Avoid dumping large files or broad context into a skill when a targeted lookup, focused reference, or small generated artifact will do.
 - Stay vendor neutral.
-- Skills must conform to the [Agent Skills specification](https://agentskills.io/specification).
+- Skills must conform to the [Agent Skills specification](https://agentskills.io/specification). Check yours with `./bin/validate-skill.sh` and `./bin/check-skill-inventory.py` — the same gates CI runs.
 - PRs that add or substantively change a skill must include harness results: the same prompt run on a frontier model without and with the skill, showing the skill helps.
+- [`docs/preferred-workflow.md`](docs/preferred-workflow.md) walks a change through the repository end to end, from branch to merge.
 - Contributors sign the organization-wide
   [OllyGarden CLA](https://github.com/ollygarden/.github/blob/main/CLA.md) on their first pull request.
 

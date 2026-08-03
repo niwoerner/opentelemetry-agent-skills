@@ -1,7 +1,46 @@
-accept = ["200", "206", "429"]
+accept = ["200..=299", "429"]
 max_retries = 2
 retry_wait_time = 2
+timeout = 20
+max_concurrency = 10
+hidden = true
+method = "get"
+extensions = ["md", "markdown", "html", "txt", "rst", "sh", "yml", "yaml", "json", "toml"]
+include_verbatim = false
+
+exclude_path = [
+  "(^|/)\\.git/",
+  "(^|/)\\.lycheecache/",
+  # These two files hold link *patterns* rather than links: this config's own
+  # exclude regexes, and the workflow line that interpolates ${LYCHEE_VERSION}.
+  "(^|/)\\.github/lychee\\.toml$",
+  "(^|/)\\.github/workflows/link-check\\.yml$",
+  # Eval fixtures are synthetic inputs, written to look hostile or malformed on
+  # purpose; their URLs are payloads under test, not references to check.
+  "(^|/)skills/[^/]+/evals/files/"
+]
+
 exclude = [
+  # renovate.json holds a matchStrings regex and a Handlebars template, so these
+  # two are patterns rather than links: the escaped `https://github\.com/` reads
+  # as `https://github`, and packageNameTemplate as a literal `{{{depName}}}`.
+  # Excluded by URL rather than by path so the file's real $schema URL is still
+  # checked.
+  "^https://github/$",
+  "^https://github\\.com/%7B%7B%7BdepName%7D%7D%7D$",
+  # Registries that reject unattended clients with 403 rather than 404. Both are
+  # rendered into the generated version index, so the pattern has to match there
+  # as well as in tools/otel-agent-tools/sdk-sources.json.
   "^https://search\\.maven\\.org/artifact/io\\.opentelemetry/opentelemetry-sdk$",
   "^https://www\\.npmjs\\.com/package/@opentelemetry/sdk-node$",
+  # printf and shell templates in skills/otel-semantic-conventions/scripts/. The
+  # placeholders (%s, ${tag}, ${path}) are filled in at runtime, so the literal
+  # string in the file is never a fetchable URL. lychee leaves `$` alone and
+  # percent-encodes the braces, hence the `%7B`/`%7D` below.
+  "^https://github\\.com/open-telemetry/semantic-conventions/(blob|tree)/",
+  "^https://raw\\.githubusercontent\\.com/open-telemetry/semantic-conventions/\\$%7Btag%7D/",
+  "^https://api\\.github\\.com/repos/open-telemetry/semantic-conventions/git/trees/\\$%7Btag%7D",
+  # Example in-cluster endpoint in skill prose and eval prompts; by design it
+  # resolves only inside a user's own cluster, never from CI.
+  "^http://otel-gateway:4318([/?#]|$)"
 ]

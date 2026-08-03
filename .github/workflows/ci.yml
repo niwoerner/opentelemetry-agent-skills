@@ -4,43 +4,52 @@ on:
   pull_request:
     branches:
       - main
+  push:
+    branches:
+      - main
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
   skill-validation:
+    name: Skills conform to the spec and are registered
     runs-on: blacksmith
 
     steps:
       - name: Checkout Repo
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: Setup Python
-        uses: actions/setup-python@v7.0.0
         with:
-          python-version: "3.14"
+          persist-credentials: false
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          enable-cache: true
+          # skills-ref is a pinned git dependency rather than a Python project,
+          # so key the cache on the pin itself: bumping the revision in
+          # bin/skills-ref.requirement is exactly when the cache must be rebuilt.
+          cache-dependency-glob: bin/skills-ref.requirement
 
       - name: Install Agent Skills Reference Validator
-        run: python -m pip install "git+https://github.com/agentskills/agentskills.git@38a2ff82958afee88dadf4831509e6f7e9d8ef4e#subdirectory=skills-ref"
+        run: uv tool install "$(cat bin/skills-ref.requirement)"
 
       - name: Validate Skills
-        run: |
-          for skill in skills/*; do
-            skills-ref validate "$skill"
-          done
+        run: ./bin/validate-skill.sh
 
       - name: Check Skill Registration
-        run: python .github/scripts/check-skill-registration.py
+        run: ./bin/check-skill-inventory.py
 
   tool-tests:
+    name: otel-agent-tools
     runs-on: blacksmith
 
     steps:
       - name: Checkout Repo
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          fetch-depth: 0
+          persist-credentials: false
 
       - name: Setup Go
         uses: actions/setup-go@v7
@@ -60,45 +69,3 @@ jobs:
 
       - name: Test Tool
         run: go test ./tools/otel-agent-tools/...
-
-  check-links:
-    runs-on: blacksmith
-
-    steps:
-      - name: Checkout Repo
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          fetch-depth: 0
-
-      - name: Install Lychee
-        env:
-          LYCHEE_VERSION: "0.24.2"
-        run: |
-          case "$RUNNER_ARCH" in
-            X64) lychee_arch="x86_64" ;;
-            ARM64) lychee_arch="aarch64" ;;
-            *) echo "Unsupported runner architecture: $RUNNER_ARCH" >&2; exit 1 ;;
-          esac
-
-          archive="lychee-${lychee_arch}-unknown-linux-musl.tar.gz"
-          release_url="https://github.com/lycheeverse/lychee/releases/download/lychee-v${LYCHEE_VERSION}"
-          install_dir="$RUNNER_TEMP/lychee"
-          mkdir -p "$install_dir"
-
-          curl --fail --location --silent --show-error \
-            --output "$RUNNER_TEMP/$archive" "$release_url/$archive"
-          curl --fail --location --silent --show-error \
-            --output "$RUNNER_TEMP/$archive.sha256" "$release_url/$archive.sha256"
-          cd "$RUNNER_TEMP"
-          sha256sum --check "$archive.sha256"
-          tar --extract --gzip --file "$archive" --directory "$install_dir" \
-            --strip-components=1
-          echo "LYCHEE_BIN=$install_dir/lychee" >> "$GITHUB_ENV"
-
-      - name: Check Links
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        run: >-
-          "$LYCHEE_BIN" --verbose --no-progress
-          skills/otel-sdk-versions/references/generated/otel-version-index.md
-          --config .github/lychee.toml

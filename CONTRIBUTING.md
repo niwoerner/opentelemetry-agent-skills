@@ -36,28 +36,43 @@ Agent-authored PRs are held to the same bar as any other PR:
 6. Open a focused pull request using the repository template.
 
 Skill validation requires Python 3.11 or newer and the Agent Skills reference validator.
-Install it in a virtual environment from its pinned upstream source:
+The pinned upstream revision lives in `bin/skills-ref.requirement`, which is the single
+source CI, Renovate, and the commands below all read — so install from that file rather
+than pasting a revision:
+
+```bash
+uv tool install "$(cat bin/skills-ref.requirement)"
+```
+
+Without [`uv`](https://docs.astral.sh/uv/), a virtual environment works the same way:
 
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
-python -m pip install "git+https://github.com/agentskills/agentskills.git@38a2ff82958afee88dadf4831509e6f7e9d8ef4e#subdirectory=skills-ref"
+python -m pip install "$(cat bin/skills-ref.requirement)"
 ```
 
 Go is only required when changing `tools/otel-agent-tools/` or its generated output.
 
 ## Adding a Skill
 
-Prefer using the [`skill-creator`](https://github.com/anthropics/skills/tree/main/skill-creator) skill to scaffold and refine new skills rather than authoring them by hand — it walks you through the structure and helps keep skills well-scoped.
+Prefer using the [`skill-creator`](https://github.com/anthropics/skills/tree/main/skills/skill-creator) skill to scaffold and refine new skills rather than authoring them by hand — it walks you through the structure and helps keep skills well-scoped.
 
 Skills live under `skills/<skill-name>/` and must follow the [Agent Skills specification](https://agentskills.io/specification). Each must include a `SKILL.md` with YAML frontmatter (`name` and `description`), where the directory name matches the `name` field. Optional subdirectories: `references/`, `scripts/`, `assets/`.
 
-Validate spec conformance locally with the [`skills-ref`](https://github.com/agentskills/agentskills/tree/main/skills-ref) reference tool before opening a PR:
+Run the same gates CI runs, before opening a PR. Both scripts work from any directory
+and take no setup beyond the validator install above:
 
 ```bash
-skills-ref validate skills/<skill-name>
-python .github/scripts/check-skill-registration.py
+./bin/validate-skill.sh              # all skills; pass a path to check just one
+./bin/check-skill-inventory.py     # README, marketplace, and skills/ in sync
 ```
+
+`validate-skill.sh` delegates spec conformance to the
+[`skills-ref`](https://github.com/agentskills/agentskills/tree/main/skills-ref) reference
+tool and adds this repository's own rule that a `SKILL.md` stays under 500 lines. A skill
+that outgrows the cap should move detail into `references/` rather than load it all up
+front.
 
 These skills are **non-opinionated and vendor neutral by design** — they describe how OpenTelemetry works, not how you should use it. Keep them DRY and token efficient: prefer linking to official docs, examples, and source code that are already maintained over copying large amounts of knowledge into a skill, and prefer a targeted lookup or small generated artifact over dumping broad context. OllyGarden's opinionated guidance lives in the companion [`skills`](https://github.com/ollygarden/skills) repo.
 
@@ -81,7 +96,7 @@ The required evidence is an A/B comparison from an agent harness (Claude Code, o
 
 What we look for: the baseline getting facts wrong (stale versions, renamed packages, invalid config keys) that the skill corrects; the skill reaching the right answer with fewer tokens or fewer wrong turns; and no regressions on prompts the skill shouldn't affect. If the comparison shows no meaningful difference, that's a signal the skill (or the change) isn't earning its place — rework it rather than submitting the results anyway.
 
-The [`skill-creator`](https://github.com/anthropics/skills/tree/main/skill-creator) skill can help you set up and run these evals.
+The [`skill-creator`](https://github.com/anthropics/skills/tree/main/skills/skill-creator) skill can help you set up and run these evals.
 
 ## The `otel-agent-tools` Module
 

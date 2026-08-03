@@ -14,7 +14,7 @@ Logs support is Alpha since v0.151.0; configuration keys and behavior may change
 
 ## Description
 
-Applies the [Drain](https://pinjiahe.github.io/papers/ICWS17.pdf) log-clustering algorithm to each log record, derives a **template string** (e.g. `user <*> logged in from <*>`), and writes it to a configurable attribute (`log.record.template` by default). The template becomes a stable key for grouping, filtering, routing, or sampling whole classes of logs. Since v0.157.0, optional positional parameter extraction can also write the body tokens matched by each `<*>` to a string-slice attribute.
+Applies the [Drain](https://jiemingzhu.github.io/pub/pjhe_icws2017.pdf) log-clustering algorithm to each log record, derives a **template string** (e.g. `user <*> logged in from <*>`), and writes it to a configurable attribute (`log.record.template` by default). The template becomes a stable key for grouping, filtering, routing, or sampling whole classes of logs. Since v0.157.0, optional positional parameter extraction can also write the body tokens matched by each `<*>` to a string-slice attribute.
 
 Drain tokenizes each log line and walks a **fixed-depth parse tree** (depth set by `tree_depth`). Lines with similar token structure land in the same cluster, and each cluster carries a template whose varying tokens become `<*>` wildcards while stable tokens are kept verbatim. The processor **annotates only** — it does not drop, aggregate, reorder, or otherwise modify the flow of logs.
 

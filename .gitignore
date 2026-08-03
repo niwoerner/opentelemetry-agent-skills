@@ -1,0 +1,22 @@
+# Go build artifacts
+/otel-agent-tools
+/tools/otel-agent-tools/otel-agent-tools
+*.test
+*.out
+
+# Go coverage output
+.coverprofile
+coverage.out
+
+# Python virtualenv used for the skills-ref validator (see CONTRIBUTING.md)
+/.venv/
+
+# Link checker cache
+.lycheecache
+
+# Local scratch: research, drafts, eval evidence. Never committed.
+/local/
+
+# Local Claude Code session state. CLAUDE.md is a committed symlink to
+# AGENTS.md so both names resolve in every clone and worktree.
+/.claude/
