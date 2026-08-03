@@ -10,11 +10,19 @@ include_verbatim = false
 
 exclude_path = [
   "(^|/)\\.git/",
+  # Conditional, not dead: nothing matches this in a default run, but a local
+  # `lychee --cache` creates the directory. Keep the distinction in mind when
+  # pruning — an exclusion that *cannot* match is rot, one that does not match
+  # *today* is not.
   "(^|/)\\.lycheecache/",
-  # These two files hold link *patterns* rather than links: this config's own
-  # exclude regexes, and the workflow line that interpolates ${LYCHEE_VERSION}.
+  # This config's own content is entirely link *patterns*, not links: lychee
+  # reads `https://github/` and `https://api/` straight out of the regexes
+  # below (5 errors when this line is removed). Excluding those by URL would
+  # take one exclusion per pattern, each itself a pattern — so the file is
+  # excluded wholesale. Every other file is scanned; prefer a narrow URL
+  # exclusion to a path exclusion, which also hides whether a pattern still
+  # works.
   "(^|/)\\.github/lychee\\.toml$",
-  "(^|/)\\.github/workflows/link-check\\.yml$",
   # Eval fixtures are synthetic inputs, written to look hostile or malformed on
   # purpose; their URLs are payloads under test, not references to check.
   "(^|/)skills/[^/]+/evals/files/"
@@ -40,6 +48,13 @@ exclude = [
   "^https://github\\.com/open-telemetry/semantic-conventions/(blob|tree)/",
   "^https://raw\\.githubusercontent\\.com/open-telemetry/semantic-conventions/\\$%7Btag%7D/",
   "^https://api\\.github\\.com/repos/open-telemetry/semantic-conventions/git/trees/\\$%7Btag%7D",
+  # The lychee release URL in .github/workflows/link-check.yml, built from
+  # ${LYCHEE_VERSION} at run time. Excluded by URL rather than by excluding the
+  # whole workflow file, so the rest of that file still gets checked. Note the
+  # encoding: lychee leaves `$` literal and percent-encodes the braces, so this
+  # must be `\$%7B...%7D` — an unencoded `\$\{...\}` here would never match, and
+  # a path exclusion would hide that it had stopped working.
+  "^https://github\\.com/lycheeverse/lychee/releases/download/\\$%7BLYCHEE_VERSION%7D",
   # Example in-cluster endpoint in skill prose and eval prompts; by design it
   # resolves only inside a user's own cluster, never from CI.
   "^http://otel-gateway:4318([/?#]|$)"
