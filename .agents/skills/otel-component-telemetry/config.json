@@ -1,0 +1,58 @@
+{
+  "options": {
+    "parallel_agents": 4,
+    "last_versions": 3,
+    "cleanup": false,
+    "force": false
+  },
+  "components": [
+    {
+      "repo": "open-telemetry/opentelemetry-collector-contrib",
+      "path": "receiver/hostmetricsreceiver"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-collector-contrib",
+      "path": "receiver/k8sclusterreceiver"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-collector-contrib",
+      "path": "receiver/kafkareceiver"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-collector-contrib",
+      "path": "receiver/kubeletstatsreceiver"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-collector-contrib",
+      "path": "receiver/postgresqlreceiver"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-collector-contrib",
+      "path": "receiver/redisreceiver"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-go-contrib",
+      "path": "instrumentation/google.golang.org/grpc/otelgrpc"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-go-contrib",
+      "path": "instrumentation/net/http/otelhttp"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-js",
+      "path": "experimental/packages/opentelemetry-instrumentation-http"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-js-contrib",
+      "path": "packages/instrumentation-express"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-js-contrib",
+      "path": "packages/instrumentation-ioredis"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-js-contrib",
+      "path": "packages/instrumentation-pg"
+    }
+  ]
+}
