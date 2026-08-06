@@ -1,6 +1,6 @@
 {
   "options": {
-    "parallel_agents": 4,
+    "parallel_agents": 10,
     "last_versions": 3,
     "cleanup": false,
     "force": false
@@ -32,11 +32,23 @@
     },
     {
       "repo": "open-telemetry/opentelemetry-go-contrib",
+      "path": "instrumentation/github.com/gin-gonic/gin/otelgin"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-go-contrib",
       "path": "instrumentation/google.golang.org/grpc/otelgrpc"
     },
     {
       "repo": "open-telemetry/opentelemetry-go-contrib",
       "path": "instrumentation/net/http/otelhttp"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-go-contrib",
+      "path": "instrumentation/runtime"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-js",
+      "path": "experimental/packages/opentelemetry-instrumentation-grpc"
     },
     {
       "repo": "open-telemetry/opentelemetry-js",
@@ -52,7 +64,35 @@
     },
     {
       "repo": "open-telemetry/opentelemetry-js-contrib",
+      "path": "packages/instrumentation-mongodb"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-js-contrib",
+      "path": "packages/instrumentation-mysql2"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-js-contrib",
       "path": "packages/instrumentation-pg"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-python-contrib",
+      "path": "instrumentation/opentelemetry-instrumentation-fastapi"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-python-contrib",
+      "path": "instrumentation/opentelemetry-instrumentation-flask"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-python-contrib",
+      "path": "instrumentation/opentelemetry-instrumentation-psycopg2"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-python-contrib",
+      "path": "instrumentation/opentelemetry-instrumentation-redis"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-python-contrib",
+      "path": "instrumentation/opentelemetry-instrumentation-requests"
     }
   ]
 }
