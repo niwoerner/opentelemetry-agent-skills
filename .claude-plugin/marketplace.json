@@ -19,6 +19,11 @@
       "description": "Building custom OpenTelemetry Collector distributions with OCB: builder manifest authoring, core/contrib/provider version alignment, local component development, CI/Docker/multi-arch builds, and troubleshooting."
     },
     {
+      "name": "otel-components-telemetry",
+      "source": "./skills/otel-components-telemetry",
+      "description": "Version-pinned inventory of the telemetry (spans, metrics, logs, attributes) emitted by OpenTelemetry collector components and SDK instrumentation packages. Lookup by component and version, including how emission changed across versions."
+    },
+    {
       "name": "otel-declarative-config",
       "source": "./skills/otel-declarative-config",
       "description": "OpenTelemetry declarative YAML configuration for SDK setup (otelconf, OTEL_CONFIG_FILE, file_format). Points at upstream schema, env-var substitution, and configuration precedence."
