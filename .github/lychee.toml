@@ -55,7 +55,7 @@ exclude = [
   # must be `\$%7B...%7D` — an unencoded `\$\{...\}` here would never match, and
   # a path exclusion would hide that it had stopped working.
   "^https://github\\.com/lycheeverse/lychee/releases/download/\\$%7BLYCHEE_VERSION%7D",
-  # Shell template in .agents/skills/otel-component-telemetry/scripts/scan.sh:
+  # Shell template in tools/otel-telemetry-emission-scan/scripts/scan.sh:
   # the clone URL is built from $repo at run time, so the literal string in the
   # file is never a fetchable URL. lychee leaves `$` literal, hence `\$repo`.
   "^https://github\\.com/\\$repo$",

@@ -6,7 +6,7 @@ set -euo pipefail
 # Versions that already have a file are skipped unless options.force is true.
 
 SKILL_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-OUT_DIR="$(cd "$SKILL_DIR/../../.." && pwd)/skills/otel-components-telemetry"
+OUT_DIR="$(cd "$SKILL_DIR/../.." && pwd)/skills/otel-telemetry-emissions"
 CONFIG="$SKILL_DIR/config.json"
 PI_CMD="${PI_CMD:-pi -p --provider openai-codex --model gpt-5.6-luna --thinking medium}"
 WORK_DIR="/tmp/otel-component-telemetry"
@@ -64,7 +64,7 @@ jq -c '.components[]' "$CONFIG" | {
 }
 
 {
-  echo "# otel-components-telemetry index"
+  echo "# Telemetry emissions index"
   echo
   echo "| File | Version | Last verified |"
   echo "|---|---|---|"

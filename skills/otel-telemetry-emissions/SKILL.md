@@ -1,9 +1,9 @@
 ---
-name: otel-components-telemetry
+name: otel-telemetry-emissions
 description: Version-pinned inventory of the telemetry (spans, metrics, logs, attributes) emitted by OpenTelemetry collector components and SDK instrumentation packages. Use when working with a covered component — what it emits at a given version, or how emission changed across versions — and when upgrading a component or SDK version, to see the telemetry after the change.
 ---
 
-# otel-components-telemetry
+# Telemetry Emissions
 
 A registry of what telemetry OpenTelemetry components actually emit, pinned to
 upstream versions.

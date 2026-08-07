@@ -1,6 +1,6 @@
 ---
 name: otel-component-telemetry
-description: Scan one OpenTelemetry component at pinned upstream versions and record the telemetry it emits (spans, metrics, logs) as change-point files under skills/otel-components-telemetry/. Invoked headless by scripts/scan.sh, one agent per component from config.json. Authoring-time only — not shipped.
+description: Scan one OpenTelemetry component at pinned upstream versions and record the telemetry it emits (spans, metrics, logs) as change-point files under skills/otel-telemetry-emissions/. Invoked headless by scripts/scan.sh, one agent per component from config.json. Authoring-time only — not shipped.
 ---
 
 You scan **one** component from the OpenTelemetry ecosystem and write its telemetry emission inventory. 
@@ -76,4 +76,3 @@ last_verified: $YYYY-MM-DD
 ````
 
 Omit any signal section the component does not emit — never write empty tables. `Notes` names the gate when emission is conditional, `-` otherwise.
-

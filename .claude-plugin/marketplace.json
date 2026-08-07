@@ -19,11 +19,6 @@
       "description": "Building custom OpenTelemetry Collector distributions with OCB: builder manifest authoring, core/contrib/provider version alignment, local component development, CI/Docker/multi-arch builds, and troubleshooting."
     },
     {
-      "name": "otel-components-telemetry",
-      "source": "./skills/otel-components-telemetry",
-      "description": "Version-pinned inventory of the telemetry (spans, metrics, logs, attributes) emitted by OpenTelemetry collector components and SDK instrumentation packages. Lookup by component and version, including how emission changed across versions."
-    },
-    {
       "name": "otel-declarative-config",
       "source": "./skills/otel-declarative-config",
       "description": "OpenTelemetry declarative YAML configuration for SDK setup (otelconf, OTEL_CONFIG_FILE, file_format). Points at upstream schema, env-var substitution, and configuration precedence."
@@ -49,9 +44,19 @@
       "description": "Migrate OpenTelemetry Span Events (AddEvent, RecordException) to the Logs API following the OTEP 4430 deprecation plan."
     },
     {
+      "name": "otel-telemetry-emissions",
+      "source": "./skills/otel-telemetry-emissions",
+      "description": "Version-pinned inventory of the telemetry (spans, metrics, logs, attributes) emitted by OpenTelemetry collector components and SDK instrumentation packages. Lookup by component and version, including how emission changed across versions."
+    },
+    {
       "name": "otel-telemetrygen",
       "source": "./skills/otel-telemetrygen",
       "description": "Construct telemetrygen commands for generating synthetic OpenTelemetry traces, metrics, and logs via OTLP; load-test collectors and validate pipelines."
+    },
+    {
+      "name": "otel-upgrade",
+      "source": "./skills/otel-upgrade",
+      "description": "Assess OpenTelemetry package and Collector upgrades across ecosystems, including version selection, dependency compatibility, Collector distributions, configuration, builds, runtime behavior, telemetry changes, and rollout risk."
     },
     {
       "name": "otel-weaver",

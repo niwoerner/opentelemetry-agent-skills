@@ -1,4 +1,4 @@
-# otel-components-telemetry index
+# Telemetry emissions index
 
 | File | Version | Last verified |
 |---|---|---|
