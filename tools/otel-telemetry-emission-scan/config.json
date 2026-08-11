@@ -1,11 +1,95 @@
 {
   "options": {
     "parallel_agents": 10,
-    "last_versions": 3,
+    "last_versions": 6,
     "cleanup": false,
     "force": false
   },
   "components": [
+    {
+      "repo": "open-telemetry/opentelemetry-collector",
+      "path": "processor/memorylimiterprocessor"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-collector",
+      "path": "processor/batchprocessor"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-collector",
+      "path": "receiver/otlpreceiver"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-collector",
+      "path": "exporter/otlpexporter"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-collector",
+      "path": "exporter/otlphttpexporter"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-collector",
+      "path": "exporter/debugexporter"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-collector-contrib",
+      "path": "receiver/prometheusreceiver"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-collector-contrib",
+      "path": "receiver/filelogreceiver"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-collector-contrib",
+      "path": "receiver/dockerstatsreceiver"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-collector-contrib",
+      "path": "receiver/k8seventsreceiver"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-collector-contrib",
+      "path": "receiver/mongodbreceiver"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-collector-contrib",
+      "path": "receiver/mysqlreceiver"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-collector-contrib",
+      "path": "receiver/sqlserverreceiver"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-collector-contrib",
+      "path": "receiver/rabbitmqreceiver"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-collector-contrib",
+      "path": "receiver/nginxreceiver"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-collector-contrib",
+      "path": "connector/spanmetricsconnector"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-collector-contrib",
+      "path": "connector/servicegraphconnector"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-collector-contrib",
+      "path": "processor/tailsamplingprocessor"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-collector-contrib",
+      "path": "processor/k8sattributesprocessor"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-collector-contrib",
+      "path": "processor/resourcedetectionprocessor"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-collector-contrib",
+      "path": "processor/filterprocessor"
+    },
     {
       "repo": "open-telemetry/opentelemetry-collector-contrib",
       "path": "receiver/hostmetricsreceiver"

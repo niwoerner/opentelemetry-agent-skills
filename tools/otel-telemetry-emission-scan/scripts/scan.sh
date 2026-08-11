@@ -22,12 +22,22 @@ if [ "$cleanup" = true ]; then
 fi
 
 # Clone each unique repo once (blobless; file contents are fetched lazily on
-# checkout), or update tags if it is already there from a previous run.
+# checkout). Valid cached clones are refreshed; invalid cached paths are
+# replaced automatically.
 jq -r '.components[].repo' "$CONFIG" | sort -u | while read -r repo; do
-  dir="$WORK_DIR/$(basename "$repo")"
-  if [ -d "$dir" ]; then
-    git -C "$dir" fetch --tags
+  repo_name="$(basename "$repo")"
+  if [[ ! "$repo_name" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ ]]; then
+    echo "invalid repository name: $repo" >&2
+    exit 1
+  fi
+  dir="$WORK_DIR/$repo_name"
+  if git -C "$dir" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    git -C "$dir" fetch --tags --force --prune
   else
+    if [ -e "$dir" ]; then
+      echo "replace invalid repository cache $dir" >&2
+      rm -rf -- "$dir"
+    fi
     git clone --filter=blob:none "https://github.com/$repo" "$dir"
   fi
 done
