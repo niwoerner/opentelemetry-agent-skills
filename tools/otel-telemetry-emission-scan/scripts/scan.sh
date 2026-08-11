@@ -46,15 +46,29 @@ jq -c '.components[]' "$CONFIG" | {
   while read -r entry; do
     repo="$(jq -r .repo <<<"$entry")"
     path="$(jq -r .path <<<"$entry")"
+    tag_prefix="$(jq -r '.tag_prefix // ""' <<<"$entry")"
 
-    # Skip when all of the last N repo tags already have a file. In monorepos
-    # the package version differs from the repo tag, so this never matches
-    # there and the agent decides (it applies the same rule per version).
+    # Skip when all of the last N matching tags already have a file. A literal
+    # tag prefix supports independently released monorepo packages. When no
+    # usable tags match, let the agent resolve package versions itself.
     if [ "$force" != true ]; then
       missing=0
-      for tag in $(git -C "$WORK_DIR/$(basename "$repo")" tag | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -n "$last_versions"); do
-        [ -f "$OUT_DIR/$(basename "$repo")/$path/$tag.md" ] || missing=1
-      done
+      matched=0
+      if [ -n "$tag_prefix" ]; then
+        while IFS= read -r tag; do
+          [ -n "$tag" ] || continue
+          matched=1
+          version="${tag#"$tag_prefix"}"
+          [ -f "$OUT_DIR/$(basename "$repo")/$path/v$version.md" ] || missing=1
+        done < <(git -C "$WORK_DIR/$(basename "$repo")" tag --list "$tag_prefix*" | sort -V | tail -n "$last_versions")
+      else
+        while IFS= read -r tag; do
+          [ -n "$tag" ] || continue
+          matched=1
+          [ -f "$OUT_DIR/$(basename "$repo")/$path/$tag.md" ] || missing=1
+        done < <(git -C "$WORK_DIR/$(basename "$repo")" tag | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -n "$last_versions")
+      fi
+      [ "$matched" = 1 ] || missing=1
       if [ "$missing" = 0 ]; then
         echo "skip $(basename "$repo")/$path — all versions scanned" >&2
         continue
@@ -64,8 +78,8 @@ jq -c '.components[]' "$CONFIG" | {
     # Strip the frontmatter — pi would parse a prompt starting with "---" as a
     # CLI option — then fill in the placeholders.
     prompt="$(awk 'NR==1 && $0=="---" {skip=1; next} skip && $0=="---" {skip=0; next} !skip' "$SKILL_DIR/SKILL.md" |
-      Repo="$repo" Path="$path" Version="$last_versions" Force="$force" OutDir="$OUT_DIR" \
-      envsubst '${Repo} ${Path} ${Version} ${Force} ${OutDir}')"
+      Repo="$repo" Path="$path" Version="$last_versions" TagPrefix="$tag_prefix" Force="$force" OutDir="$OUT_DIR" \
+      envsubst '${Repo} ${Path} ${Version} ${TagPrefix} ${Force} ${OutDir}')"
     $PI_CMD "$prompt" &
 
     while [ "$(jobs -rp | wc -l)" -ge "$parallel_agents" ]; do sleep 1; done

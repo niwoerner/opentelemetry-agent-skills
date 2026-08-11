@@ -131,6 +131,82 @@
       "path": "instrumentation/runtime"
     },
     {
+      "repo": "open-telemetry/opentelemetry-java-instrumentation",
+      "path": "instrumentation/spring/spring-webmvc"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-java-instrumentation",
+      "path": "instrumentation/spring/spring-webflux"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-java-instrumentation",
+      "path": "instrumentation/servlet"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-java-instrumentation",
+      "path": "instrumentation/java-http-client"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-java-instrumentation",
+      "path": "instrumentation/jdbc"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-java-instrumentation",
+      "path": "instrumentation/kafka"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-java-instrumentation",
+      "path": "instrumentation/grpc-1.6"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-java-instrumentation",
+      "path": "instrumentation/netty"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-java-instrumentation",
+      "path": "instrumentation/logback"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-dotnet-contrib",
+      "path": "src/OpenTelemetry.Instrumentation.AspNetCore",
+      "tag_prefix": "Instrumentation.AspNetCore-"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-dotnet-contrib",
+      "path": "src/OpenTelemetry.Instrumentation.Http",
+      "tag_prefix": "Instrumentation.Http-"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-dotnet-contrib",
+      "path": "src/OpenTelemetry.Instrumentation.GrpcNetClient",
+      "tag_prefix": "Instrumentation.GrpcNetClient-"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-dotnet-contrib",
+      "path": "src/OpenTelemetry.Instrumentation.SqlClient",
+      "tag_prefix": "Instrumentation.SqlClient-"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-dotnet-contrib",
+      "path": "src/OpenTelemetry.Instrumentation.Runtime",
+      "tag_prefix": "Instrumentation.Runtime-"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-dotnet-contrib",
+      "path": "src/OpenTelemetry.Instrumentation.EntityFrameworkCore",
+      "tag_prefix": "Instrumentation.EntityFrameworkCore-"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-dotnet-contrib",
+      "path": "src/OpenTelemetry.Instrumentation.StackExchangeRedis",
+      "tag_prefix": "Instrumentation.StackExchangeRedis-"
+    },
+    {
+      "repo": "open-telemetry/opentelemetry-dotnet-contrib",
+      "path": "src/OpenTelemetry.Instrumentation.ConfluentKafka",
+      "tag_prefix": "Instrumentation.ConfluentKafka-"
+    },
+    {
       "repo": "open-telemetry/opentelemetry-js",
       "path": "experimental/packages/opentelemetry-instrumentation-grpc"
     },

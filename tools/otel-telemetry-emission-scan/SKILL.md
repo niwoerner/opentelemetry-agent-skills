@@ -7,7 +7,8 @@ You scan **one** component from the OpenTelemetry ecosystem and write its teleme
 
 Repo: ${Repo}
 Path: ${Path}
-Version: ${Version}
+Versions to scan: ${Version}
+Tag prefix: ${TagPrefix}
 Force: ${Force}
 Output root: ${OutDir}
 
@@ -15,7 +16,7 @@ Output root: ${OutDir}
 
 ## Procedure
 
-1. **Resolve versions.** The repo is already cloned locally at `/tmp/otel-component-telemetry/<repo basename>` — do not clone it yourself. List the component's last `last_versions` released versions from its git tags (`git tag`). In monorepos where packages version independently of repo tags (e.g. opentelemetry-js experimental packages), use the package's own version from its manifest at each release tag, and name files after the package version.
+1. **Resolve versions.** The repo is already cloned locally at `/tmp/otel-component-telemetry/<repo basename>` — do not clone it yourself. List the component's requested number of released versions from its git tags (`git tag`). When `Tag prefix` is non-empty, consider only tags beginning with that literal prefix, check out the full tag, and strip the prefix to obtain the version used in frontmatter and the output filename. In monorepos where packages version independently of repo tags and no tag prefix is provided (e.g. opentelemetry-js experimental packages), use the package's own version from its manifest at each release tag, and name files after the package version.
 
 2. **Get source.** Check out each resolved tag into its own temp directory: `git worktree add "$(mktemp -d)" <tag>`. Never scan a branch — only pinned tags.
 
