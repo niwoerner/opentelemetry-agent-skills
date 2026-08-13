@@ -10,7 +10,7 @@ if [[ -z "$repo" ]]; then
   exit 2
 fi
 
-query=(env OTEL_SEMCONV_REPO="$repo" "$script_dir/query-otel-semantic-conventions.sh")
+query=(env OTEL_SEMCONV_REPO="$repo" OTEL_SEMCONV_TAG=v1.44.0 "$script_dir/query-otel-semantic-conventions.sh")
 
 messaging_spans=$("${query[@]}" messaging spans)
 grep -q '^span.messaging.aws.sqs.send.producer' <<<"$messaging_spans"
@@ -24,3 +24,6 @@ grep -q '^source: .*semantic-conventions/blob/v1.44.0/model/messaging/aws.yaml#L
 
 legacy_http=$(env OTEL_SEMCONV_REPO="$repo" OTEL_SEMCONV_TAG=v1.43.0 "$script_dir/query-otel-semantic-conventions.sh" http spans)
 grep -q '^span.http.client' <<<"$legacy_http"
+
+legacy_messaging=$(env OTEL_SEMCONV_REPO="$repo" OTEL_SEMCONV_TAG=v1.43.0 "$script_dir/query-otel-semantic-conventions.sh" messaging spans)
+grep -q '^messaging.kafka' <<<"$legacy_messaging"
