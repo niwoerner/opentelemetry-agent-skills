@@ -6,7 +6,7 @@ description: Build safe, version-pinned telemetrygen commands for synthetic OTLP
 # Telemetrygen
 
 Generate synthetic OpenTelemetry telemetry with `telemetrygen` from
-[opentelemetry-collector-contrib v0.157.0](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/v0.157.0/cmd/telemetrygen).
+[opentelemetry-collector-contrib v0.158.0](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/v0.158.0/cmd/telemetrygen).
 Upstream metadata marks its traces, metrics, and logs subcommands as alpha.
 
 ## Safety and input gate
@@ -116,8 +116,8 @@ Before finalizing a response, check that:
 Pin the release:
 
 ```bash
-go install github.com/open-telemetry/opentelemetry-collector-contrib/cmd/telemetrygen@v0.157.0
-docker pull ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:v0.157.0
+go install github.com/open-telemetry/opentelemetry-collector-contrib/cmd/telemetrygen@v0.158.0
+docker pull ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:v0.158.0
 ```
 
 The version belongs in the installation or image reference, not between the installed
@@ -127,7 +127,7 @@ Run the container with the same flags after the image name:
 
 ```bash
 docker run --rm --network "container:<collector-container-name>" \
-  ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:v0.157.0 \
+  ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:v0.158.0 \
   traces --otlp-insecure --otlp-endpoint 127.0.0.1:4317 \
   --traces 100 --workers 1 --rate 1
 ```

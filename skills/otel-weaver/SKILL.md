@@ -60,8 +60,8 @@ These cost time and are not obvious from the upstream docs:
 8. CLI argument ordering for `generate`: target directory name is positional **after** `--registry` and `--templates`; the output directory follows. `--templates` points at the **parent** that contains target dirs, not at the language-specific subdir.
 9. Span name in registry vs. runtime: required schema fields are `type`, `kind` (`client`/`server`/`producer`/`consumer`/`internal`), `brief`, `stability`, and a structured `name: { note: "..." }`. For internal business spans, putting the dotted type identifier in `name.note` and rendering the resolved `span.name.note` string at runtime is clean.
 10. **What does NOT belong in your local registry.** DB, HTTP, messaging, RPC, network, GenAI, and similar boundary spans/attributes follow upstream OTel semconv. Until upstream is pulled in as a manifest dependency, instrumentation for those should reference the language SDK's semconv package directly. This is the most common modeling mistake.
-11. Counter and UpDownCounter names should not append `_total`; this is the current semconv v1.43.0 naming rule.
-12. Duration instruments should use seconds (`s`) under the current semconv v1.43.0 unit guidance.
+11. Counter and UpDownCounter names should not append `_total`; this is the current semconv v1.44.0 naming rule.
+12. Duration instruments should use seconds (`s`) under the current semconv v1.44.0 unit guidance.
 
 ## References To Load On Demand
 

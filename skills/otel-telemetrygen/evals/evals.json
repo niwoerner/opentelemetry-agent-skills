@@ -3,7 +3,7 @@
   "cases": [
     {
       "id": "bounded-http-logs-env",
-      "prompt": "We use telemetrygen v0.157.0. Give me, but do not run, a reproducible command that sends logs over OTLP/HTTP with trusted TLS to collector.example.test:4318 for 30 seconds at exactly 120 logs/second total using four workers. Set service.name to checkout, the resource attribute deployment.environment.name to staging, and the log-record attribute test.scenario to refund. My shell may already define OTEL_EXPORTER_OTLP_* variables.",
+      "prompt": "We use telemetrygen v0.158.0. Give me, but do not run, a reproducible command that sends logs over OTLP/HTTP with trusted TLS to collector.example.test:4318 for 30 seconds at exactly 120 logs/second total using four workers. Set service.name to checkout, the resource attribute deployment.environment.name to staging, and the log-record attribute test.scenario to refund. My shell may already define OTEL_EXPORTER_OTLP_* variables.",
       "expectations": [
         "Uses the logs subcommand with --otlp-http and --otlp-endpoint collector.example.test:4318, and does not disable or skip verification of trusted TLS.",
         "Uses --duration 30s, --workers 4, and --rate 30 for an approximate configured target of 120 logs/second total, without also supplying --logs or an unbounded duration/rate; states that observed delivered throughput can be lower.",

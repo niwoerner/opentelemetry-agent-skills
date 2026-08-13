@@ -359,7 +359,7 @@ where span.kind == SPAN_KIND_SERVER and IsMatch(span.name, "expensive.*")
 1. Syntax: parens balanced, strings closed, regex escapes doubled.
 2. Types: type-check before conversion (`IsString`, `IsInt`).
 3. Existence: nil-guard paths that may be absent.
-4. Logic: dry-run with the [telemetrygen verification recipe](../../otel-telemetrygen/SKILL.md#verifying-a-collector-config) — generate a known input, capture the file-exporter output, confirm the transformation. The eye test misses too many gotchas.
+4. Logic: dry-run with the [telemetrygen verification recipe](../../otel-telemetrygen/SKILL.md#verify-collector-behavior) — generate a known input, capture the file-exporter output, confirm the transformation. The eye test misses too many gotchas.
 5. Performance: most-selective `where` clause first.
 
 ### Safe transformation skeletons

@@ -1,6 +1,6 @@
 # OTTL Functions Catalog
 
-Editor and converter reference for collector-contrib **v0.157.0**. Editors mutate telemetry; converters return values for use in expressions. See the upstream `pkg/ottl/ottlfuncs/README.md` for the authoritative source.
+Editor and converter reference for collector-contrib **v0.158.0**. Editors mutate telemetry; converters return values for use in expressions. See the upstream `pkg/ottl/ottlfuncs/README.md` for the authoritative source.
 
 ## Contents
 
@@ -16,7 +16,7 @@ Editor and converter reference for collector-contrib **v0.157.0**. Editors mutat
 The `transform` processor adds the following functions to the common OTTL
 catalog. They are not generally available in other OTTL-consuming components.
 The contexts and signatures below are pinned to the released
-[v0.157.0 transform processor source](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.157.0/processor/transformprocessor/README.md#supported-functions).
+[v0.158.0 transform processor source](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.158.0/processor/transformprocessor/README.md#supported-functions).
 
 | Context | Signature | Behavior and limits |
 |---------|-----------|---------------------|
@@ -36,17 +36,18 @@ The contexts and signatures below are pinned to the released
 | `datapoint` | `merge_histogram_buckets(target_value, method?)` | Explicit Histograms only. Default `remove_explicit_bound` removes a matching bound; `limit_buckets` requires a positive integer target and reduces resolution. Other metric types are unchanged. |
 | `log` | `ParseCEF(target)` | Parses Common Event Format into a map, including an optional syslog prefix and string-valued extensions; malformed or empty input errors. |
 | `log` | `ParseCLF(target, format?)` | Parses CLF (`"clf"`, default) or NCSA combined (`"combined"`) text into a map; malformed or empty input errors. |
+| `log` | `ParseELF(target)` | Parses a complete W3C Extended Log Format block into directive metadata, fields, and entries; requires a `#Version` directive and `#Fields` before data. Added in v0.158. |
 | `log` | `ParseLEEF(target)` | Parses LEEF 1.0/2.0 into a map; malformed or empty input errors; attribute values remain strings. |
-| `span` | `set_semconv_span_name(semconv_version, original_span_name_attribute?)` | Derives low-cardinality HTTP, RPC, messaging, or database span names. v0.157 accepts semantic-convention versions 1.37.0 through 1.40.0; unrelated spans are unchanged. |
+| `span` | `set_semconv_span_name(semconv_version, original_span_name_attribute?)` | Derives low-cardinality HTTP, RPC, messaging, or database span names. v0.158 accepts semantic-convention versions 1.37.0 through 1.40.0; unrelated spans are unchanged. |
 
 For full behavior, examples, and edge cases, follow the tag-pinned
-[metrics](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.157.0/processor/transformprocessor/README.md#convert_sum_to_gauge),
-[logs](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.157.0/processor/transformprocessor/README.md#parsecef), and
-[traces](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.157.0/processor/transformprocessor/README.md#set_semconv_span_name)
+[metrics](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.158.0/processor/transformprocessor/README.md#convert_sum_to_gauge),
+[logs](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.158.0/processor/transformprocessor/README.md#parsecef), and
+[traces](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.158.0/processor/transformprocessor/README.md#set_semconv_span_name)
 function sections. The registrations that constrain the contexts are also tag-pinned:
-[metric/datapoint](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.157.0/processor/transformprocessor/internal/metrics/functions.go),
-[log](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.157.0/processor/transformprocessor/internal/logs/functions.go), and
-[span](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.157.0/processor/transformprocessor/internal/traces/functions.go).
+[metric/datapoint](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.158.0/processor/transformprocessor/internal/metrics/functions.go),
+[log](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.158.0/processor/transformprocessor/internal/logs/functions.go), and
+[span](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.158.0/processor/transformprocessor/internal/traces/functions.go).
 
 ## Editors (data manipulation)
 
@@ -58,6 +59,9 @@ set(target, value)
 set(span.attributes["env"], "production")
 set(log.body, Concat([log.severity_text, ": ", log.body.string], ""))
 ```
+
+Since v0.158, assigning `nil` to a map or slice path clears it, and assigning `nil` to a
+`pcommon.Value` makes it empty. Scalar and struct paths reject `nil`.
 
 ### `append`
 ```ottl

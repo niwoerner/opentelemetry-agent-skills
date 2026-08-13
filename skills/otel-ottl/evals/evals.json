@@ -5,7 +5,7 @@
   "cases": [
     {
       "id": "routing-metadata-fallback",
-      "prompt": "We run OpenTelemetry Collector contrib v0.157. Route OTLP logs by the X-Tenant header to logs/acme, but malformed or missing headers must not lose telemetry. Provide the relevant YAML and explain the failure behavior.",
+      "prompt": "We run OpenTelemetry Collector contrib v0.158. Route OTLP logs by the X-Tenant header to logs/acme, but malformed or missing headers must not lose telemetry. Provide the relevant YAML and explain the failure behavior.",
       "expectations": [
         "Uses executable routing YAML with either otelcol.client.metadata[\"X-Tenant\"][0] for HTTP or otelcol.grpc.metadata[\"x-tenant\"][0] for gRPC.",
         "Enables include_metadata on the OTLP receiver and notes lowercase keys for gRPC metadata.",
@@ -16,7 +16,7 @@
     },
     {
       "id": "yaml-backreference-redaction",
-      "prompt": "For Collector contrib v0.157, write a transform processor that redacts token query-parameter values in span URL attributes while preserving the parameter name. Include how you would verify it.",
+      "prompt": "For Collector contrib v0.158, write a transform processor that redacts token query-parameter values in span URL attributes while preserving the parameter name. Include how you would verify it.",
       "expectations": [
         "Uses a span-context transform statement with replace_pattern.",
         "Uses the Collector-YAML replacement $${1}REDACTED and does not present $1REDACTED as valid.",
