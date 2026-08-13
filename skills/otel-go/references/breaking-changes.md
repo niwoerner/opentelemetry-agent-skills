@@ -11,6 +11,7 @@ version selection, fetch from the Sources of Truth table in the `otel-go` skill 
 - otelgrpc's deprecated client/server interceptors were removed in v0.60.0. Use stats handlers (`NewServerHandler` / `NewClientHandler`).
 - `attribute.INVALID` deprecated (core v1.43.0) — an empty value is now valid; use `attribute.EMPTY` instead.
 - `attribute.Value.Emit` deprecated (core v1.44.0). Use `attribute.Value.String` instead.
+- `sdk/log.WithExportBufferSize` is deprecated and has no effect as of log SDK v0.21.0 (core v1.45.0 release); the batch processor no longer keeps a separate export-request buffer.
 - `OTEL_EXPERIMENTAL_CONFIG_FILE` is no longer supported by root `otelconf` v0.23.0+ (contrib v1.43.0+). Use `OTEL_CONFIG_FILE`.
 
 ## Removed APIs (instrumentation v0.65.0; contrib v1.40.0 release)
@@ -43,16 +44,28 @@ RPC attribute changes:
 
 - The 8192-byte baggage size limit is now enforced during extraction/parsing (`otel/baggage`, `otel/propagation`): baggage strings over the limit are rejected outright, while malformed members are skipped — valid members are retained and an error is reported.
 
+## Log value API replacement (log API/SDK v0.21.0; core v1.45.0 release)
+
+- Log bodies and record attributes now use `go.opentelemetry.io/otel/attribute.Value` and `attribute.KeyValue`. The former `log.Kind`, `log.Value`, `log.KeyValue`, their constructors, and conversion helpers were removed. Replace `log.StringValue(...)` / `log.String(...)` with `attribute.StringValue(...)` / `attribute.String(...)` (and the corresponding typed constructors).
+- `sdk/log/logtest.RecordFactory` no longer has `AttributeValueLengthLimit` or `AttributeCountLimit`; test records now keep attribute limits disabled.
+
+## OTLP HTTP endpoint URLs (core v1.45.0)
+
+- `otlptracehttp.WithEndpointURL` and `otlpmetrichttp.WithEndpointURL` no longer append `/v1/traces` or `/v1/metrics` when the URL has no path. They now use `/`, matching signal-specific endpoint environment variables and the log exporter. Join the signal path explicitly to preserve the old behavior.
+
 ## HTTP instrumentation behaviour (instrumentation v0.69.0; contrib v1.44.0 release)
 
 - Unknown or empty HTTP methods now report `_OTHER` instead of `GET` across all HTTP instrumentations (otelhttp, otelmux).
 - The default server span name is now `{method} {route}` (e.g. `GET /foo/{id}`) when a route is available, or `{method}` otherwise — conforming to HTTP semconv.
+
+In otelhttp v0.70.0 (contrib v1.45.0), client spans and request metrics derive `network.protocol.name` / `network.protocol.version` from the negotiated response protocol rather than the request's initial `Proto` value.
 
 ## Removed / renamed contrib APIs (v1.43.0–v1.44.0 release lines)
 
 - otelgrpc removed the deprecated `WithSpanOptions` option in v0.69.0.
 - `otelconf`: experimental config types moved from `otelconf` to the `otelconf/x` subpackage in v0.23.0. The `host` resource detector no longer sets `host.id` in v0.23.0.
 - otelgrpc added `OTEL_SEMCONV_STABILITY_OPT_IN` (values `rpc` default, `rpc/dup`, `rpc/old`) in v0.68.0 to stage RPC semconv migration.
+- Contrib v1.45.0 updates instrumentation and detectors to semconv v1.43.0; use the exact versioned semconv package and its generated migration file rather than mixing helpers from older versions.
 
 ## Log bridges attach errors via SetErr (bridge v0.18.0–v0.19.0)
 

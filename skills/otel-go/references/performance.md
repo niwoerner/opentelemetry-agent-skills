@@ -337,9 +337,9 @@ The OTLP exporters use exponential backoff with jitter:
 | Max interval | 30s |
 | Max elapsed time | 1min |
 
-gRPC retries honor server pushback. In the current v1.44.0 HTTP exporters, integer
-`Retry-After` values are mistakenly treated as nanoseconds rather than seconds, and HTTP-date
-values are ignored; do not rely on server-directed HTTP backoff in this release.
+gRPC retries honor server pushback. Since v1.45.0 the HTTP exporters correctly interpret
+integer `Retry-After` values as seconds and also support HTTP-date values. On v1.44.0, integer
+values were mistakenly treated as nanoseconds and HTTP-date values were ignored.
 
 ### Request Size Cap (v1.44.0+)
 
@@ -375,7 +375,7 @@ logger := otellog.GetLoggerProvider().Logger("my-service")
 
 if logger.Enabled(ctx, log.EnabledParameters{Severity: log.SeverityInfo}) {
     var rec log.Record
-    rec.SetBody(log.StringValue(expensiveStringBuild()))
+    rec.SetBody(attribute.StringValue(expensiveStringBuild()))
     rec.SetSeverity(log.SeverityInfo)
     logger.Emit(ctx, rec)
 }
@@ -387,9 +387,9 @@ if logger.Enabled(ctx, log.EnabledParameters{Severity: log.SeverityInfo}) {
 
 ```go
 var rec log.Record
-rec.SetBody(log.StringValue("operation completed"))
+rec.SetBody(attribute.StringValue("operation completed"))
 rec.SetSeverity(log.SeverityInfo)
-rec.AddAttributes(log.String("component", "handler"))
+rec.AddAttributes(attribute.String("component", "handler"))
 logger.Emit(ctx, rec)
 ```
 

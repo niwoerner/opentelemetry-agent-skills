@@ -187,6 +187,7 @@ attribute.Int64Slice("ids", []int64{1, 2, 3})
 attribute.Float64Slice("values", []float64{1.1, 2.2})
 attribute.BoolSlice("flags", []bool{true, false})
 attribute.Slice("nested", attribute.StringValue("a"), attribute.Int64Value(1)) // v1.44.0+
+attribute.Map("labels", attribute.String("region", "eu")) // v1.45.0+
 ```
 
 ### Attribute Sets
@@ -226,7 +227,7 @@ propagator.Inject(ctx, propagation.HeaderCarrier(w.Header()))
 ## Logs API
 
 The Logs API and SDK are versioned on a **separate v0.x line** (currently `otel/log` and
-`otel/sdk/log` v0.20.0, released alongside core v1.44.0) and are **Beta** — interfaces may
+`otel/sdk/log` v0.21.0, released alongside core v1.45.0) and are **Beta** — interfaces may
 still change without a major bump. They primarily provide a bridge for existing logging
 libraries. Track their version independently from the stable v1.x traces/metrics
 signals (see the module-versioning table in SKILL.md).
@@ -236,7 +237,7 @@ signals (see the module-versioning table in SKILL.md).
 log.LoggerProvider     // Creates Loggers
 log.Logger             // Emits log records
 log.Record             // Log record with attributes
-log.Value              // Typed attribute value
+attribute.Value        // Log body value (v0.21.0+)
 log.Severity           // Log severity level
 ```
 
@@ -251,10 +252,10 @@ if logger.Enabled(ctx, params) {
     var rec log.Record
     rec.SetTimestamp(time.Now())
     rec.SetSeverity(log.SeverityInfo)
-    rec.SetBody(log.StringValue("User logged in"))
+    rec.SetBody(attribute.StringValue("User logged in"))
     rec.AddAttributes(
-        log.String("user.id", userID),
-        log.String("session.id", sessionID),
+        attribute.String("user.id", userID),
+        attribute.String("session.id", sessionID),
     )
     logger.Emit(ctx, rec)
 }
@@ -263,7 +264,7 @@ if logger.Enabled(ctx, params) {
 // The SDK automatically sets exception attributes (exception.type, exception.message)
 var rec log.Record
 rec.SetSeverity(log.SeverityError)
-rec.SetBody(log.StringValue("operation failed"))
+rec.SetBody(attribute.StringValue("operation failed"))
 rec.SetErr(err) // Attaches error; SDK sets exception attributes automatically
 logger.Emit(ctx, rec)
 
@@ -285,14 +286,14 @@ log.SeverityFatal1 through log.SeverityFatal4
 
 ### Log Values
 ```go
-log.StringValue("text")
-log.IntValue(42)
-log.Int64Value(int64(42))
-log.Float64Value(3.14)
-log.BoolValue(true)
-log.BytesValue([]byte("data"))
-log.SliceValue(log.StringValue("a"), log.StringValue("b"))
-log.MapValue(log.String("key", "value"))
+attribute.StringValue("text")
+attribute.IntValue(42)
+attribute.Int64Value(int64(42))
+attribute.Float64Value(3.14)
+attribute.BoolValue(true)
+attribute.ByteSliceValue([]byte("data"))
+attribute.SliceValue(attribute.StringValue("a"), attribute.StringValue("b"))
+attribute.MapValue(attribute.String("key", "value"))
 ```
 
 ## Logging Bridges

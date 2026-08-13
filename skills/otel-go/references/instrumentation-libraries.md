@@ -280,7 +280,7 @@ func (c *CustomClient) CallExternalAPI(ctx context.Context, endpoint string) err
 
 ```go
 func (r *Repository) CreateUser(ctx context.Context, userData *UserData) (*User, error) {
-    // semconv helpers below track go.opentelemetry.io/otel/semconv/v1.41.0
+    // semconv helpers below track go.opentelemetry.io/otel/semconv/v1.43.0
     ctx, span := r.tracer.Start(ctx, "INSERT users",
         trace.WithAttributes(
             semconv.DBSystemNamePostgreSQL,        // db.system.name (was DBSystem/db.system)
@@ -394,10 +394,10 @@ func (w *Worker) ProcessBatch(ctx context.Context, batchID string) error {
             var rec log.Record
             rec.SetTimestamp(time.Now())
             rec.SetSeverity(log.SeverityWarn)
-            rec.SetBody(log.StringValue("item processing failed"))
+            rec.SetBody(attribute.StringValue("item processing failed"))
             rec.AddAttributes(
-                log.String("item.id", item.ID),
-                log.String("error", err.Error()),
+                attribute.String("item.id", item.ID),
+                attribute.String("error", err.Error()),
             )
             w.logger.Emit(ctx, rec)
             continue
