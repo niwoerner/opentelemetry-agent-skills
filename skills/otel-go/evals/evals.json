@@ -1,0 +1,20 @@
+{
+  "skill": "otel-go",
+  "runtime": "Claude Code",
+  "model": "opus",
+  "cases": [
+    {
+      "id": "go-v145-upgrade-review",
+      "prompt": "Review skills/otel-go/evals/files/go-v145-upgrade.md and give the exact code/configuration changes needed for the OpenTelemetry Go v1.45.0 upgrade. Explain each behavior change and distinguish it from v1.44.0. Do not modify files or contact an endpoint.",
+      "files": [
+        "skills/otel-go/evals/files/go-v145-upgrade.md"
+      ],
+      "expectations": [
+        "Replaces log.StringValue and log.String with attribute.StringValue and attribute.String, and identifies the log API/SDK v0.21.0 migration from log.Value/log.KeyValue to attribute.Value/attribute.KeyValue.",
+        "States that pathless otlptracehttp.WithEndpointURL uses the root path / in v1.45.0 and explicitly includes /v1/traces in the configured URL (or uses WithURLPath) to preserve the intended OTLP trace route.",
+        "States that v1.45.0 HTTP exporters interpret integer Retry-After values as seconds and support HTTP-date values, while v1.44.0 mistakenly treated integers as nanoseconds and ignored HTTP dates.",
+        "Does not claim that the code was compiled, an exporter contacted, or live behavior validated; proposes a safe local compile or test path instead."
+      ]
+    }
+  ]
+}
