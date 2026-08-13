@@ -41,11 +41,11 @@ logger.Emit(ctx, record)
 span.SetStatus(codes.Error, err.Error())
 ```
 
-Go log SDK 0.20.0 derives `exception.type` and `exception.message` from
-`SetErr`. If `exception.type`, `exception.message`, or `exception.stacktrace`
-is supplied explicitly, this SDK release suppresses all automatic exception
-derivation. When an error library preserves the origin stack, set all three
-attributes together instead of adding only the stacktrace.
+Go log SDK 0.21.0 derives `exception.type` and `exception.message` from
+`SetErr`. An explicitly supplied exception attribute is preserved, while each
+missing `exception.type` or `exception.message` attribute is derived independently.
+When an error library preserves the origin stack, add `exception.stacktrace` and
+let the SDK derive whichever of type or message you did not set explicitly.
 
 Prefer `record.SetEventName(name)` over adding an `event.name` attribute in Go: it is a first-class field on `log.Record` and produces cleaner output in backends that special-case event records.
 

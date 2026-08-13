@@ -63,8 +63,9 @@ lag a merged convention; [`references/instrumentation.md`](references/instrument
 known mismatches. If no convention exists, use bounded, low-cardinality custom names rather than
 guessing a released-looking name.
 
-The authoritative package map is the upstream
-[`opentelemetry-browser` Browser Packages table](https://github.com/open-telemetry/opentelemetry-browser#browser-packages).
+The reviewed package-map snapshot is the upstream
+[`opentelemetry-browser` Browser Packages table at `browser-instrumentation-v0.7.0`](https://github.com/open-telemetry/opentelemetry-browser/tree/browser-instrumentation-v0.7.0#browser-packages).
+For current versions, select the matching release tag as described below.
 Use [`references/instrumentation.md`](references/instrumentation.md) for task routing instead of
 copying volatile package inventories.
 
@@ -86,8 +87,8 @@ Fetch current versions and status before answering version-sensitive questions.
 | Latest `@opentelemetry/browser-sdk` (0.x, published) | `npm view @opentelemetry/browser-sdk version` |
 | Latest `@opentelemetry/sdk-trace-web` | `npm view @opentelemetry/sdk-trace-web version` |
 | Latest `@opentelemetry/auto-instrumentations-web` | `npm view @opentelemetry/auto-instrumentations-web version` |
-| Authoritative browser package map | `WebFetch https://github.com/open-telemetry/opentelemetry-browser#browser-packages` |
-| `browser-instrumentation` README / config | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-browser/main/packages/instrumentation/README.md` |
+| Authoritative browser package map | Match the release tag, then read its repository `README.md#browser-packages` |
+| `browser-instrumentation` README / config | Match the `browser-instrumentation-v*` release tag, then read `packages/instrumentation/README.md` |
 | `browser.*` event semantic-convention status | `WebFetch https://opentelemetry.io/docs/specs/semconv/browser/` |
 
 ## Cross-References

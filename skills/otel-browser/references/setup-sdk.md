@@ -228,7 +228,7 @@ session manager under `@opentelemetry/browser-sdk/session` (`createSessionManage
 > `exportConfig`.
 
 `session.*` follows the
-[session semantic conventions](https://github.com/open-telemetry/semantic-conventions/blob/main/docs/general/session.md).
+[session semantic conventions](https://github.com/open-telemetry/semantic-conventions/blob/v1.44.0/docs/general/session.md).
 
 ## Connecting frontend to backend traces
 

@@ -11,7 +11,7 @@ An SDK-based log processor that:
 
 This means the log-based event appears as a traditional span event in the exported span data, while also being available as a log record if a log exporter is configured. Bridging does not remove the record from the normal log pipeline.
 
-The bridge is now specified in the OpenTelemetry Specification as the "Event to span event bridge" [LogRecordProcessor](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/logs/sdk.md#event-to-span-event-bridge) (Status: Development), which defines these exact bridging conditions.
+The bridge is now specified in the OpenTelemetry Specification as the "Event to span event bridge" [LogRecordProcessor](https://github.com/open-telemetry/opentelemetry-specification/blob/v1.60.0/specification/logs/sdk.md#event-to-span-event-bridge) (Status: Development), which defines these exact bridging conditions.
 
 ## When to Use It
 
@@ -30,7 +30,7 @@ Do NOT use the bridge when:
 
 ### Via Declarative Configuration
 
-When available for the language SDK, add the bridge processor to the log pipeline in the declarative config. The processor key is defined in the [opentelemetry-configuration](https://github.com/open-telemetry/opentelemetry-configuration/blob/main/schema/logger_provider.yaml) schema as `event_to_span_event_bridge/development` (the `/development` suffix marks it experimental):
+When available for the language SDK, add the bridge processor to the log pipeline in the declarative config. The processor key is defined in the [opentelemetry-configuration v1.1.0 schema](https://github.com/open-telemetry/opentelemetry-configuration/blob/v1.1.0/schema/logger_provider.yaml) as `event_to_span_event_bridge/development` (the `/development` suffix marks it experimental):
 
 ```yaml
 # OpenTelemetry SDK declarative configuration
@@ -50,7 +50,7 @@ the target language SDK to the LoggerProvider alongside any export processors.
 Do not infer support from the specification alone: the specification says SDKs
 SHOULD provide the processor, and implementation availability varies by language.
 
-For example, OpenTelemetry Java 1.64.0 provides the bridge in the incubator SDK
+For example, OpenTelemetry Java 1.65.0 provides the bridge in the incubator SDK
 extension:
 
 ```java
@@ -75,6 +75,6 @@ the bridge where the SDK permits that pipeline.
 
 ## Reference Implementations
 
-- Specification: [Event to span event bridge](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/logs/sdk.md#event-to-span-event-bridge)
+- Specification: [Event to span event bridge](https://github.com/open-telemetry/opentelemetry-specification/blob/v1.60.0/specification/logs/sdk.md#event-to-span-event-bridge)
 - Java: `io.opentelemetry.sdk.extension.incubator.logs.EventToSpanEventBridge` in `opentelemetry-sdk-extension-incubator`
-- Historical Java contrib bridge: [opentelemetry-java-contrib processors](https://github.com/open-telemetry/opentelemetry-java-contrib/blob/main/processors/README.md#event-to-spanevent-bridge) is deprecated and points to the SDK incubator extension.
+- Java bridge source: [`EventToSpanEventBridge`](https://github.com/open-telemetry/opentelemetry-java/blob/v1.65.0/sdk-extensions/incubator/src/main/java/io/opentelemetry/sdk/extension/incubator/logs/EventToSpanEventBridge.java). The older Java contrib bridge is deprecated.

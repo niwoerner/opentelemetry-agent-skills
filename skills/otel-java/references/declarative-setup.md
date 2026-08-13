@@ -48,9 +48,11 @@ Declarative config has been supported since Javaagent 2.9.0; the property is now
 SDK 1.63.0 bundled with Javaagent 2.29.0). Newer agent versions track newer schema versions.
 Confirm both the accepted range and preferred `file_format` from the tag-matched parser, then use
 the preferred value from that release's fixture to avoid compatibility warnings for experimental
-properties. As of 2026-07-29, SDK BOM 1.64.0 and Javaagent/Spring Boot Starter 2.30.0 use SDK
-1.64.0: the parser accepts `0.4` and `1.*`, prefers `"1.1"`, and both released instrumentation
-fixtures use `1.1`. Do not infer this from `main` or the generic language support matrix alone.
+properties. As of 2026-08-13, the latest SDK BOM is 1.65.0, while Javaagent/Spring Boot Starter
+2.30.0 still target SDK 1.64.0. Both released SDK parsers accept `0.4` and `1.*` and prefer
+`"1.1"`; both 2.30.0 instrumentation fixtures use `1.1`. Keep the selected distribution's
+embedded SDK distinct from the independently released BOM, and do not infer either from `main` or
+the generic language support matrix alone.
 
 When `otel.config.file` / `OTEL_CONFIG_FILE` is set, all other SDK autoconfigure properties are
 ignored except agent-only properties (see Key API Facts).
@@ -110,6 +112,9 @@ AutoConfiguredOpenTelemetrySdk sdk =
   selected release fixture). The presence of `otel.file_format` is what switches the starter into
   declarative-config mode.
 - **Shutdown hook**: The Javaagent and autoconfigure both register a JVM shutdown hook automatically — no manual `sdk.close()` needed.
+- **Zipkin exporter removal**: SDK/BOM 1.65.0 no longer publishes
+  `opentelemetry-exporter-zipkin`. It was previously deprecated; migrate direct Zipkin export to
+  OTLP or send OTLP to a Collector with a Zipkin-compatible exporter before upgrading.
 - **Agent-only properties**: `otel.javaagent.extensions`, `otel.javaagent.enabled`, and
   `otel.javaagent.debug` cannot be set via declarative config. Set them as system properties or
   their corresponding environment variables instead.

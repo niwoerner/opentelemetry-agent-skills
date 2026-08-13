@@ -35,7 +35,7 @@ covered.
 
 ## What a data file contains
 
-Frontmatter (`repo`, `path`, `version`, `scope_name`, `source_commit`,
+Frontmatter (`repo`, `path`, `version`, `scope_name`, `commit_sha`,
 `last_verified`), then per-signal tables:
 
 - **Traces** — span name, kind, attributes, notes
