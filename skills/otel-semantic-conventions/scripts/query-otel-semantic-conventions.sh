@@ -154,8 +154,14 @@ model_records() {
       file = tolower(parts[count])
       if (index(file, "deprecated")) next
       kind = kind_for_file(file)
-      if (kind == "") next
-      printf "%s\t%s\t%s\t%s\n", parts[2], kind, path, parts[count]
+      if (kind != "") {
+        printf "%s\t%s\t%s\t%s\n", parts[2], kind, path, parts[count]
+      } else if (path ~ /^model\/messaging\/[^/]+\.ya?ml$/) {
+        # v1.44 definition/2 provider files can contain both span definitions
+        # and cross-signal attribute groups, despite neutral filenames.
+        printf "%s\tspans\t%s\t%s\n", parts[2], path, parts[count]
+        printf "%s\tcommon\t%s\t%s\n", parts[2], path, parts[count]
+      }
     }
   ' <<<"$model_paths"
 }
@@ -324,6 +330,101 @@ extract_entries() {
   ' <<<"$content"
 }
 
+extract_v2_entries() {
+  local content="$1"
+  local requested_kind="$2"
+  local width="$3"
+
+  awk -v requested_kind="$requested_kind" -v width="$width" '
+    function trim(value) {
+      sub(/^[[:space:]]+/, "", value)
+      sub(/[[:space:]]+$/, "", value)
+      return value
+    }
+    function squish(value) {
+      gsub(/[[:space:]]+/, " ", value)
+      return trim(value)
+    }
+    function section_kind(value) {
+      if (value == "spans" || value == "span_refinements") return "spans"
+      if (value == "events" || value == "event_refinements") return "events"
+      if (value == "metrics" || value == "metric_refinements") return "metrics"
+      if (value == "entities" || value == "entity_refinements") return "entities"
+      if (value == "logs" || value == "log_refinements") return "logs"
+      if (value == "attribute_groups") return "common"
+      return ""
+    }
+    function emit() {
+      if (id != "") {
+        printf "%-*s %-12s %s\n", width, id, stability == "" ? "-" : stability, squish(brief)
+      }
+      id = stability = brief = ""
+      collecting_brief = 0
+    }
+    /^[A-Za-z_][A-Za-z0-9_]*:$/ {
+      emit()
+      section = $0
+      sub(/:$/, "", section)
+      active = section_kind(section) == requested_kind
+      next
+    }
+    active && /^  - (id|type): / {
+      emit()
+      id = $0
+      sub(/^  - (id|type): /, "", id)
+      next
+    }
+    active && id != "" && /^    stability: / {
+      stability = $0
+      sub(/^    stability: /, "", stability)
+      sub(/[[:space:]]+#.*/, "", stability)
+      next
+    }
+    active && id != "" && /^    brief:/ {
+      line = $0
+      sub(/^    brief:[[:space:]]*/, "", line)
+      if (line == "" || line ~ /^[>|][-+]?$/) collecting_brief = 1
+      else brief = line
+      next
+    }
+    collecting_brief {
+      if ($0 ~ /^      /) {
+        line = $0
+        sub(/^      /, "", line)
+        brief = brief " " line
+      } else {
+        collecting_brief = 0
+      }
+    }
+    END { emit() }
+  ' <<<"$content"
+}
+
+extract_exact_v2_entry() {
+  local content="$1"
+  local entry_id="$2"
+  local tag="$3"
+  local path="$4"
+
+  awk -v entry_id="$entry_id" -v tag="$tag" -v path="$path" '
+    /^  - (id|type): / {
+      if (found) exit
+      candidate = $0
+      sub(/^  - (id|type): /, "", candidate)
+      if (candidate == entry_id) {
+        found = 1
+        start_line = NR
+        print "source: https://github.com/open-telemetry/semantic-conventions/blob/" tag "/" path "#L" start_line
+      }
+    }
+    found {
+      if (NR > start_line && $0 ~ /^[A-Za-z_][A-Za-z0-9_]*:$/) exit
+      print
+    }
+    END { if (!found) exit 1 }
+  ' <<<"$content"
+}
+
 extract_exact_entry() {
   local content="$1"
   local id_prefix="$2"
@@ -485,7 +586,11 @@ main() {
     while IFS=$'\t' read -r file_path _; do
       [[ -n "$file_path" ]] || continue
       file_content="$(fetch_group_file "$tag" "$file_path")"
-      kind_entries+="$(extract_entries "$file_content" "  - id: " "    " 36)"$'\n'
+      if [[ "$file_content" == file_format:\ definition/2* ]]; then
+        kind_entries+="$(extract_v2_entries "$file_content" "$requested_kind" 36)"$'\n'
+      else
+        kind_entries+="$(extract_entries "$file_content" "  - id: " "    " 36)"$'\n'
+      fi
     done <<<"$kind_files"
 
     print_kind_listing "$resolved_group" "$version" "$kinds" "$source_url" "$requested_kind" "$kind_entries"
@@ -507,6 +612,11 @@ main() {
     while IFS=$'\t' read -r file_path _; do
       [[ -n "$file_path" ]] || continue
       file_content="$(fetch_group_file "$tag" "$file_path")"
+      if [[ "$file_content" == file_format:\ definition/2* ]] &&
+          matched_entry="$(extract_exact_v2_entry "$file_content" "$second_arg" "$tag" "$file_path")"; then
+        printf '%s\n' "$matched_entry"
+        return 0
+      fi
       if matched_entry="$(extract_exact_entry "$file_content" "  - id: " "$second_arg" "$tag" "$file_path")"; then
         printf '%s\n' "$matched_entry"
         return 0

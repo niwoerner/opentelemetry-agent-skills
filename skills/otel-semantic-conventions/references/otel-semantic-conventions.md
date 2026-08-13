@@ -19,6 +19,7 @@ Rules:
 - pass a listed kind as the second argument to list the released entries of that kind
 - pass an exact entry id as the second argument to return its upstream definition block
 - the script resolves the latest released semantic conventions version and reads released YAML model files under `model/<group>/` from that tag
+- definition/2 provider refinement files introduced in v1.44 are included under their signal kind even when their filenames do not contain `spans`, `metrics`, or `events`
 - deprecated model files and directories are excluded from lookup results
 - the core semantic-conventions repository added `model/manifest.yaml` in v1.43.0; use it as release metadata, not as a convention group
 - `gen_ai.*`, OpenAI, and MCP conventions moved to the dedicated OpenTelemetry GenAI semantic conventions repository in v1.42.0; do not treat deprecated stubs under the core repository as current guidance

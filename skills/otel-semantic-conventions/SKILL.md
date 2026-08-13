@@ -27,6 +27,7 @@ Use this skill when you need released semantic convention guidance for naming, a
 - inspect one kind: `./scripts/query-otel-semantic-conventions.sh http spans`
 - inspect one exact attribute or entry: `./scripts/query-otel-semantic-conventions.sh http http.request.method`
 - see `references/otel-semantic-conventions.md`
+- after changing the parser, run `OTEL_SEMCONV_REPO=/path/to/semantic-conventions bash ./scripts/test-query-otel-semantic-conventions.sh`
 
 4. Apply the released naming and attribute rules directly.
 - use required and recommended attributes before optional ones
