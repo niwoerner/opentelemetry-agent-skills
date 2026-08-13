@@ -4,7 +4,7 @@
 
 If a configured detector fails during detection, the error **propagates and prevents the Collector from starting** — it is not a warning you can ignore. This bites when you configure a cloud detector for a platform the Collector is not actually running on, or when a metadata service is unreachable. Only configure detectors for the environment you are in.
 
-Some metadata-service detectors soften this with a `fail_on_missing_metadata` flag (default `false`): when the endpoint is unavailable they log an error and return an empty resource instead of failing. Detectors that expose it include `ec2`, `upcloud`, `vultr`, `nova`, `alibaba_ecs`, and `tencent_cvm`. The `oraclecloud` detector uses a fast-probe approach instead — it returns an empty resource (no error) if the IMDS probe fails, and only errors if the probe succeeds but the follow-up fetch fails.
+Since v0.158.0, the top-level `fail_on_missing_metadata` flag (default `false`) controls supported network metadata detectors: enable it when an unreachable metadata service should be a hard error that participates in processor retry rather than returning an empty resource. The older per-detector fields on `ec2`, `upcloud`, `vultr`, `nova`, `alibaba_ecs`, and `tencent_cvm` are deprecated; migrate to the top-level key. The `oraclecloud` detector uses a fast-probe approach instead — it returns an empty resource (no error) if the IMDS probe fails, and only errors if the probe succeeds but the follow-up fetch fails.
 
 ## `override: true` is the default — and it overwrites SDK-set attributes
 

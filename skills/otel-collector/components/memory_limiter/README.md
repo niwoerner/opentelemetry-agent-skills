@@ -30,11 +30,11 @@ Avoid it when:
 
 - `batch` / exporter `sending_queue.batch` — batching allocates buffers; `memory_limiter` must sit **before** it so refusal happens before data is buffered.
 - `tail_sampling`, `transform`, `log_dedup` — stateful/allocating processors; place them after `memory_limiter` so memory pressure refuses data before it reaches them.
-- The **`memory_limiter` extension** — same checker exposed as gRPC/HTTP middleware (experimental); see [Known quirks](quirks.md).
+- The **`memory_limiter` extension** — same checker exposed as gRPC/HTTP middleware (Beta since v0.158.0, but not included in stock distributions); see [Known quirks](quirks.md).
 
 ## Details
 
 - [Configuration](configuration.md) — full config table (`check_interval`, `limit_mib` vs `limit_percentage`, spike limits, min/max GC intervals), validation rules, and the soft/hard-limit mechanism with GC backoff.
 - [Verification](verification.md) — telemetrygen recipe that forces refusal with a deliberately tiny limit and shows `ErrDataRefused` in the logs.
 - [Advanced use-cases](advanced.md) — `GOMEMLIMIT` pairing, percentage mode for Kubernetes, spike sizing for bursty traffic, multi-pipeline singleton behavior.
-- [Known quirks](quirks.md) — heap-vs-RSS, required fields, `limit_percentage` cgroup detection, GC-interval ordering, the singleton checker, the experimental extension variant, stability caveats.
+- [Known quirks](quirks.md) — heap-vs-RSS, required fields, `limit_percentage` cgroup detection, GC-interval ordering, the singleton checker, the extension variant, stability caveats.

@@ -7,11 +7,12 @@
 | `detectors` | `[]string` | `[env]` | Ordered list of detectors to run. Valid values: `env`, `system`, `docker`, `heroku`, `gcp`, `ec2`, `ecs`, `elastic_beanstalk`, `eks`, `lambda`, `azure`, `aks`, `consul`, `kubeadm`, `oraclecloud`, `k8s_api`, `k8snode` (deprecated → `k8s_api`), `openshift`, `dynatrace`, `hetzner`, `akamai`, `scaleway`, `upcloud`, `vultr`, `digitalocean`, `nova`, `alibaba_ecs`, `tencent_cvm`, `ibmcloud_vpc`, `ibmcloud_classic`. |
 | `override` | `bool` | `true` | Whether detected attributes overwrite resource attributes already present on incoming telemetry. `true` overwrites; `false` keeps existing values and only adds missing ones. |
 | `refresh_interval` | `duration` | `0` | If `> 0`, re-runs all detectors on this interval. `0` (default) means detect once at startup and cache. |
+| `fail_on_missing_metadata` | `bool` | `false` | For supported network metadata detectors, make an unreachable metadata service a hard error that participates in processor retry instead of producing an empty resource. Added in v0.158.0. |
 | `timeout` | `duration` | `5s` | HTTP client timeout for detectors that call a metadata service. Inherited from the embedded `confighttp.ClientConfig`. |
 
 The component embeds the standard `confighttp.ClientConfig`, so other HTTP client knobs (proxy, TLS, headers) are available for the metadata-service detectors; `timeout` is the one you will usually touch.
 
-> Defaults verified against `factory.go` (`createDefaultConfig`) and `config.go` on contrib v0.157.0: `Detectors: [env]`, `Override: true`, `RefreshInterval: 0`, client `Timeout: 5s`.
+> Defaults verified against `factory.go` (`createDefaultConfig`) and `config.go` on contrib v0.158.0: `Detectors: [env]`, `Override: true`, `RefreshInterval: 0`, `FailOnMissingMetadata: false`, client `Timeout: 5s`.
 
 ## Per-detector configuration
 

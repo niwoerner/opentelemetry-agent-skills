@@ -4,7 +4,7 @@ See [Verification harness](../../SKILL.md#verification-harness) for how to run t
 
 Unlike the pull-based [`prometheus`](../prometheus_exporter/verification.md) exporter (where you scrape the exporter's own `/metrics`), here you **push** to a real backend and query the series back from it. The recipe runs two containers on a shared Docker network: a Prometheus server with the remote-write receiver enabled, and a collector that pushes into it. This is a **minimal repro** — it omits `memory_limiter` and `batch` on purpose, to isolate the exporter's behavior.
 
-**Verified on `otel/opentelemetry-collector-contrib:0.154.0` (2026-06-14);** the exporter's config shape and data-path behavior are unchanged through **v0.157.0**, so the recipe still applies (bump the image tag to `0.157.0` to run it against the latest release). A `telemetrygen` cumulative Sum named `gen` (datapoints 0/1/2) pushed via RW1 landed in Prometheus as `testns_gen_total{job="telemetrygen", verified_by="ollygarden"} 2` — confirming the `testns_` namespace prefix, the `_total` counter suffix (`add_metric_suffixes` defaults to `true`), the `service.name`→`job` mapping, the `external_labels` entry, RW1 (`ProtoMsg: prometheus.WriteRequest`), and that `tls.insecure: true` lets the plaintext push succeed. The deprecated alias `prometheusremotewrite` logs `"prometheusremotewrite" alias is deprecated; use "prometheus_remote_write" instead` and otherwise behaves identically.
+**Verified on `otel/opentelemetry-collector-contrib:0.154.0` (2026-06-14);** the base RW1 config and data path used by this recipe are unchanged through **v0.158.0**, so the recipe still applies (bump the image tag to `0.158.0` to run it against the latest release). A `telemetrygen` cumulative Sum named `gen` (datapoints 0/1/2) pushed via RW1 landed in Prometheus as `testns_gen_total{job="telemetrygen", verified_by="ollygarden"} 2` — confirming the `testns_` namespace prefix, the `_total` counter suffix (`add_metric_suffixes` defaults to `true`), the `service.name`→`job` mapping, the `external_labels` entry, RW1 (`ProtoMsg: prometheus.WriteRequest`), and that `tls.insecure: true` lets the plaintext push succeed. The deprecated alias `prometheusremotewrite` logs `"prometheusremotewrite" alias is deprecated; use "prometheus_remote_write" instead` and otherwise behaves identically.
 
 Create a network:
 
@@ -53,7 +53,7 @@ Run the collector on the same network:
 ```bash
 docker run -d --name prw-col --network prw-net \
   -v "$PWD/config.yaml:/etc/otelcol-contrib/config.yaml" \
-  otel/opentelemetry-collector-contrib:0.157.0
+  otel/opentelemetry-collector-contrib:0.158.0
 ```
 
 Drive it with `telemetrygen` — see the `otel-telemetrygen` skill. Run it as a container **on the same network** targeting the collector's alias (this avoids a host-port-mapped gRPC stall some Docker Desktop setups hit). This emits one **cumulative Sum** named `gen`; `telemetrygen` already defaults to cumulative temporality, which is required here — the exporter **drops non-cumulative (delta) monotonic sums** (see [quirks](quirks.md)). `--metrics N` is **per worker** and is **ignored when `--duration` is set**, so use `--workers 1` and no `--duration`:

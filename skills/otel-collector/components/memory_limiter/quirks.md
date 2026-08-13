@@ -49,7 +49,7 @@ When refusing, the processor returns a **non-permanent** error (gRPC `Unavailabl
 
 Pipelines referencing the same `memory_limiter` config share one background goroutine and timer (keyed on the config), so GC isn't triggered redundantly per pipeline. Two *differently named* instances with different limits run independent checkers — intentional, but watch that their limits don't sum past the container budget.
 
-## The experimental extension variant
+## The extension variant
 
 Since v0.142.0 the memory limiter is also available as an **extension** that acts as gRPC/HTTP middleware on a receiver (v0.147.0 added streaming support and fixed a multi-interceptor startup panic):
 
@@ -67,7 +67,7 @@ service:
   extensions: [memory_limiter]
 ```
 
-It is **experimental** — use the processor form for production. Note: the extension is **not compiled into the stock `otelcol-contrib` distribution** (verified on v0.156.0, which rejects it with `'extensions' unknown type: "memory_limiter"`); it requires a custom build.
+The extension reached **Beta** stability in v0.158.0. It is still **not compiled into the stock core or contrib distributions** (`metadata.yaml` lists no distributions), so it requires a custom build. The processor form remains the bundled pipeline component; choose between them based on whether refusal should happen as receiver middleware or in a pipeline.
 
 ## Stability caveats
 

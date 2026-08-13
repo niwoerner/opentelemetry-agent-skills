@@ -8,7 +8,7 @@ The default `max_clusters: 0` means *unlimited* — active clusters and tree nod
 
 When `warmup_min_clusters > 0`, the template attribute does not appear until that many clusters have been observed. If the attribute "never shows up", check `otelcol_processor_drain_clusters_active` against the threshold, or lower `warmup_min_clusters`. The warmup window is observable as `otelcol_processor_incoming_items - otelcol_processor_drain_log_records_annotated`.
 
-When `extract_parameters: true`, warmup also withholds the parameter attribute. Even after warmup, a fully literal template has no `<*>` positions and therefore emits no parameter slice; this is not an extraction failure.
+Warmup also withholds named-mask and wildcard attributes. Even after warmup, a template with no `<*>` positions emits no wildcard slice; this is not an extraction failure.
 
 ## Templates reset on restart without persistence
 
@@ -20,7 +20,7 @@ If the body is a map, the full serialized form is templated by default, which yi
 
 ## Alpha stability and provisional attribute name
 
-The processor is **Alpha** — keys and behavior may change. The default `log.record.template` tracks a *proposed* (not yet adopted) semantic convention ([semantic-conventions#1283](https://github.com/open-telemetry/semantic-conventions/issues/1283), [#2064](https://github.com/open-telemetry/semantic-conventions/issues/2064)); pin `template_attribute` explicitly if you depend on the value. The internal metrics `otelcol_processor_drain_clusters_active` and `otelcol_processor_drain_log_records_annotated` are Development stability and may change or be removed.
+The processor is **Alpha** — keys and behavior may change. This happened in v0.158.0: the v0.157.0-only `extract_parameters` / `params_attribute` keys became `emit_wildcards` / `wildcards_attribute`. The default `log.record.template` tracks a *proposed* (not yet adopted) semantic convention ([semantic-conventions#1283](https://github.com/open-telemetry/semantic-conventions/issues/1283), [#2064](https://github.com/open-telemetry/semantic-conventions/issues/2064)); pin output keys explicitly if you depend on them. The internal `otelcol_processor_drain_*` metrics are Development stability and may change or be removed.
 
 ## Drain does not reduce volume
 

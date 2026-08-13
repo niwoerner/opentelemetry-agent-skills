@@ -39,7 +39,7 @@ Avoid when:
 
 ## Details
 
-- [Configuration](configuration.md) — `endpoint`, `namespace`, `external_labels`, `add_metric_suffixes`, `translation_strategy`, `send_metadata`, `remote_write_queue`, `resource_to_telemetry_conversion`, `wal`, `target_info`, `disable_scope_info`, `max_batch_size_bytes`, `max_batch_request_parallelism`, `protobuf_message`, the embedded confighttp / TLS / retry / timeout options, and validation rules.
-- [Verification](verification.md) — push to a Prometheus container with the remote-write receiver enabled and query the series back, proving `namespace` and `external_labels`. Verified on contrib v0.154.0; config shape and data-path behavior unchanged through v0.157.0.
+- [Configuration](configuration.md) — `endpoint`, naming/metadata options, histogram conversion, `remote_write_queue`, resource conversion, WAL, RW version, embedded HTTP/TLS/retry options, and validation rules.
+- [Verification](verification.md) — push to a Prometheus container with the remote-write receiver enabled and query the series back, proving `namespace` and `external_labels`. Verified on contrib v0.154.0; base RW1 behavior unchanged through v0.158.0.
 - [Advanced use-cases](advanced.md) — the WAL, RW2 / `protobuf_message` and its feature gate, `resource_to_telemetry_conversion` vs `target_info`, `external_labels`, the multi-worker feature gate with `num_consumers` / `max_batch_request_parallelism`, the `RetryOn429` gate, and `translation_strategy` choices.
 - [Known quirks](quirks.md) — push-not-pull, the type rename, required `endpoint`, TLS-on-by-default, snappy-only, dropped metric types, the `remote_write_queue` (not `sending_queue`) distinction, the `add_metric_suffixes` deprecation discrepancy, RW2 readiness, and per-signal stability.

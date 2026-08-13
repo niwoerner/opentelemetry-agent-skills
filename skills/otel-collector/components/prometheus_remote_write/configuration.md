@@ -1,6 +1,6 @@
 # `prometheus_remote_write` exporter: configuration
 
-All keys live under the exporter instance — `exporters: { prometheus_remote_write: { … } }` (the deprecated alias `prometheusremotewrite` also works). Facts below trace to contrib **v0.157.0** source (`exporter/prometheusremotewriteexporter/config.go` + `factory.go` + `wal.go`, with the embedded `confighttp.ClientConfig`, `exporterhelper.TimeoutConfig`, and `configretry.BackOffConfig`). The config shape is unchanged since v0.154.0; v0.157.0 corrected the field name in one validation error.
+All keys live under the exporter instance — `exporters: { prometheus_remote_write: { … } }` (the deprecated alias `prometheusremotewrite` also works). Facts below trace to contrib **v0.158.0** source (`exporter/prometheusremotewriteexporter/config.go` + `factory.go` + `wal.go`, with the embedded `confighttp.ClientConfig`, `exporterhelper.TimeoutConfig`, and `configretry.BackOffConfig`).
 
 ## Top-level keys
 
@@ -16,6 +16,9 @@ All keys live under the exporter instance — `exporters: { prometheus_remote_wr
 | `max_batch_size_bytes` | int | `3000000` (≈ 2.86 MB) | Batches larger than this are split into multiple requests. **Ignored when the WAL is enabled** (the WAL `buffer_size` / `truncate_frequency` govern instead). |
 | `max_batch_request_parallelism` | int (pointer) | unset (documented as `5`) | Parallel requests when splitting a single oversized batch. When unset (the default), request parallelism is governed by `remote_write_queue.num_consumers`; this key only takes over once the `EnableMultipleWorkers` gate is on. Set to `1` if the backend cannot ingest out-of-order samples. See validation below. |
 | `protobuf_message` | string | `prometheus.WriteRequest` (RW1) | `prometheus.WriteRequest` = Remote Write 1.0; `io.prometheus.write.v2.Request` = Remote Write 2.0. RW2 requires the `enableSendingRW2` feature gate (see [advanced.md](advanced.md)). |
+| `include_metadata_keys` | []string | `[]` | Forward selected incoming client-metadata values as HTTP request headers. Reserved Remote Write protocol headers are rejected. Added in v0.158.0. |
+| `convert_explicit_histograms_to_nhcb` | bool | `false` | Convert explicit-bucket histograms to Native Histograms with Custom Buckets (schema -53), for RW1 or RW2. Added in v0.158.0. |
+| `keep_classic_histograms` | bool | `false` | Also emit classic histogram series during NHCB migration; no effect unless conversion is enabled. |
 | `remote_write_queue` | object | see below | Outgoing-request queue. This exporter does **not** use `sending_queue`. |
 | `resource_to_telemetry_conversion` | object | see below | Convert resource attributes to metric labels. |
 | `wal` | object | off unless `directory` set | Write-ahead log. See [wal](#wal). |
@@ -88,5 +91,6 @@ When set, this enum takes precedence over the deprecated `add_metric_suffixes`. 
 | `protobuf_message` = `io.prometheus.write.v2.Request` without the `enableSendingRW2` gate | `remote write v2 is only supported with the feature gate exporter.prometheusremotewritexporter.enableSendingRW2` |
 | `translation_strategy` not one of the four valid values | `invalid translation_strategy: <v>` |
 | `translation_strategy` = `NoUTF8EscapingWithSuffixes` or `NoTranslation` under RW1 | `translation strategy <v> requires Prometheus Remote Write 2.0 (UTF-8 support)` |
+| `include_metadata_keys` contains `Content-Encoding`, `Content-Type`, `User-Agent`, or `X-Prometheus-Remote-Write-Version` (case-insensitive) | rejected because it collides with a reserved Remote Write header |
 
 > Note: `Validate()` does **not** catch an unset `endpoint` — the factory ships a non-empty placeholder default, so the failure surfaces at send time, not config validation.

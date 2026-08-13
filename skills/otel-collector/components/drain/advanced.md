@@ -51,18 +51,20 @@ processors:
 
 Useful when values you want abstracted are glued to neighboring tokens by punctuation rather than whitespace.
 
-## Extract wildcard parameters
+## Mask named values and emit remaining wildcards
 
-Since v0.157.0, `extract_parameters` exposes the tokens occupying `<*>` positions as a string slice, in template order:
+Since v0.158.0, `masking_rules` extracts selected regex matches under stable names, while `emit_wildcards` exposes any remaining Drain `<*>` positions in template order:
 
 ```yaml
 processors:
   drain:
-    extract_parameters: true
-    params_attribute: log.record.template.params
+    masking_rules:
+      - name: ip
+        pattern: '\b(?:\d{1,3}\.){3}\d{1,3}\b'
+    emit_wildcards: true
 ```
 
-For template `user <*> logged in from <*>`, a matching body such as `user alice logged in from 10.0.0.1` produces `["alice", "10.0.0.1"]`. The slice appears only after the cluster template has wildcard positions; a fully literal template produces no parameter attribute.
+For body `user alice logged in from 10.0.0.1`, this can produce template `user <*> logged in from <ip>`, `log.record.template.parameter.ip: 10.0.0.1`, and `log.record.template.wildcards: ["alice"]`. A fully literal or fully named template produces no wildcard attribute.
 
 ## Combine templates with downstream components
 
