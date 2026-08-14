@@ -19,6 +19,10 @@ task; each reference is self-contained.
 | [`references/breaking-changes.md`](references/breaking-changes.md) | Auditing existing code for deprecated calls, renamed semantic conventions, and removed APIs across recent SDK / contrib releases. |
 | [`references/compile-time-instrumentation.md`](references/compile-time-instrumentation.md) | Zero-code, compile-time instrumentation with `otelc`: usage modes (`otelc go build`, tool dependency, toolexec drop-in), subcommands, supported libraries, rule sources/precedence, and pinning via `otel.instrumentation.go`. |
 
+For upgrade reviews, always finish with a safe local verification path (`go mod tidy -diff`,
+`go build ./...`, and `go test ./...`). Test exporter URL or retry changes against a disposable
+local receiver, never a deployment endpoint.
+
 ## Module versioning — read before adding dependencies
 
 opentelemetry-go is split into **independently versioned module groups**. They do NOT

@@ -4,6 +4,11 @@ Audit reference for upgrading existing Go OpenTelemetry code. For current SDK/co
 version selection, fetch from the Sources of Truth table in the `otel-go` skill (or
 `go.opentelemetry.io/otel` and `go.opentelemetry.io/contrib` release tags directly).
 
+After applying an upgrade, verify it locally with `go mod tidy -diff`, `go build ./...`,
+and `go test ./...`. For exporter URL or retry behavior, use an `httptest.Server` or
+another disposable local receiver; never probe a deployment endpoint merely to confirm
+the SDK migration.
+
 ## API Deprecations
 
 - `go.opentelemetry.io/contrib/config` was removed in contrib v1.35.0. Use `go.opentelemetry.io/contrib/otelconf` instead.
