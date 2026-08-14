@@ -13,7 +13,7 @@ fresh repetitions for each arm and were not chosen by outcome.
 |---|---|---:|---:|---:|
 | Target skill withheld | `withheld-4`, `withheld-5`, `withheld-6` | 0 | 3 | 0 |
 | Current `origin/main` skill | `current-1`, `current-2`, `current-5` | 1 | 2 | 0 |
-| Proposed skill | `proposed-9`, `proposed-10`, `proposed-12` | 3 | 0 | 0 |
+| Proposed skill | `proposed-14`, `proposed-15`, `proposed-16` | 3 | 0 | 0 |
 
 ## Per-attempt grading
 
@@ -28,9 +28,9 @@ fresh repetitions for each arm and were not chosen by outcome.
 | `current-1` | pass | pass | pass | pass | pass |
 | `current-2` | pass | pass | pass | fail | fail |
 | `current-5` | pass | pass | pass | fail | fail |
-| `proposed-9` | pass | pass | pass | pass | pass |
-| `proposed-10` | pass | pass | pass | pass | pass |
-| `proposed-12` | pass | pass | pass | pass | pass |
+| `proposed-14` | pass | pass | pass | pass | pass |
+| `proposed-15` | pass | pass | pass | pass | pass |
+| `proposed-16` | pass | pass | pass | pass | pass |
 
 The three factual upgrade expectations were saturated in every arm. The measurable lift was
 safe verification: the proposed skill consistently concluded with `go mod tidy -diff`,
@@ -42,8 +42,9 @@ safe verification: the proposed skill consistently concluded with `go mod tidy -
 - `withheld-2`: invalid; harness initialization failed before a model turn due temporary quota.
 - `current-3`: invalid; no final answer was retained.
 - `current-4`: invalid; harness initialization failed before a model turn due temporary quota.
-- `proposed-2` and `proposed-11`: invalid; temporary quota interrupted output before a final answer.
-- `proposed-1`, `proposed-3`, `proposed-4`, `proposed-6`, `proposed-7`, and `proposed-8`:
+- `proposed-2`, `proposed-11`, and `proposed-13`: invalid; temporary quota interrupted output before a final answer.
+- `proposed-1`, `proposed-3`, `proposed-4`, `proposed-6`, `proposed-7`, `proposed-8`,
+  `proposed-9`, `proposed-10`, and `proposed-12`:
   valid results against superseded proposed revisions, retained during iteration but excluded
   because they do not describe the final head.
 - `proposed-5`: invalidated because the revised skill copy was not loaded.

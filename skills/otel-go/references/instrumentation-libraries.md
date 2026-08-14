@@ -397,8 +397,8 @@ func (w *Worker) ProcessBatch(ctx context.Context, batchID string) error {
             rec.SetBody(attribute.StringValue("item processing failed"))
             rec.AddAttributes(
                 attribute.String("item.id", item.ID),
-                attribute.String("error", err.Error()),
             )
+            rec.SetErr(err)
             w.logger.Emit(ctx, rec)
             continue
         }
