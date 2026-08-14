@@ -1,10 +1,10 @@
 # `resource_detection` — known quirks
 
-## A failed detector stops the Collector from starting
+## Fatal detector errors can stop startup
 
-If a configured detector fails during detection, the error **propagates and prevents the Collector from starting** — it is not a warning you can ignore. This bites when you configure a cloud detector for a platform the Collector is not actually running on, or when a metadata service is unreachable. Only configure detectors for the environment you are in.
+Fatal errors from a configured detector **propagate and can prevent the Collector from starting**. For supported network metadata detectors, an unreachable service is fatal when `fail_on_missing_metadata` is enabled; otherwise it produces an empty resource. Only configure detectors for the environment you are in.
 
-Since v0.158.0, the top-level `fail_on_missing_metadata` flag (default `false`) controls supported network metadata detectors: enable it when an unreachable metadata service should be a hard error that participates in processor retry rather than returning an empty resource. The older per-detector fields on `ec2`, `upcloud`, `vultr`, `nova`, `alibaba_ecs`, and `tencent_cvm` are deprecated; migrate to the top-level key. The `oraclecloud` detector uses a fast-probe approach instead — it returns an empty resource (no error) if the IMDS probe fails, and only errors if the probe succeeds but the follow-up fetch fails.
+Since v0.158.0, the top-level `fail_on_missing_metadata` flag (default `false`) controls supported network metadata detectors: enable it when an unreachable metadata service should be a hard error that participates in processor retry rather than returning an empty resource. The older per-detector fields on `ec2`, `upcloud`, `vultr`, `nova`, `alibaba_ecs`, and `tencent_cvm` are deprecated; migrate to the top-level key. The `oraclecloud` detector uses a fast probe: a failed probe returns an empty resource; if the probe succeeds but the follow-up fetch fails, it errors only when `fail_on_missing_metadata: true` and otherwise returns an empty resource.
 
 ## `override: true` is the default — and it overwrites SDK-set attributes
 

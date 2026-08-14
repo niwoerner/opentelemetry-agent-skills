@@ -61,7 +61,7 @@ Every detector reports `cloud.provider`/`cloud.platform` plus a platform-specifi
 | `env` | `OTEL_RESOURCE_ATTRIBUTES` env var (falls back to deprecated `OTEL_RESOURCE`), `k=v,k=v` format | whatever you put in the variable |
 | `system` | host machine | `host.name`, `os.type` (default); `host.id`, `host.arch`, `host.cpu.*`, `os.description`, … (opt-in). `hostname_sources` (`["dns","os"]` default; also `cname`, `lookup`) controls how `host.name` is resolved |
 | `docker` | Docker daemon (mount the socket) | `host.name`, `os.type`. Use instead of `system` when the Collector runs as a container; **does not work on macOS** |
-| `ec2` | EC2 IMDS | `cloud.*`, `host.id`, `host.name`, `host.type`. Optional `tags` (regex list; needs `ec2:DescribeTags` IAM, or `tags_from_imds: true`). `fail_on_missing_metadata`, `max_attempts`, `max_backoff` |
+| `ec2` | EC2 IMDS | `cloud.*`, `host.id`, `host.name`, `host.type`. Optional `tags` (regex list; needs `ec2:DescribeTags` IAM, or `tags_from_imds: true`). Deprecated per-detector `fail_on_missing_metadata` (use the top-level key), plus `max_attempts`, `max_backoff` |
 | `ecs` | ECS Task Metadata Endpoint (V4/V3) | `cloud.*`, `aws.ecs.*` |
 | `eks` | EC2 IMDS + k8s/EC2 API fallback | `cloud.*`; `k8s.cluster.name` opt-in (needs `EC2:DescribeInstances`). `node_from_env_var` |
 | `lambda` | Lambda runtime env vars | `cloud.*`, `faas.*` |
@@ -75,6 +75,6 @@ Every detector reports `cloud.provider`/`cloud.platform` plus a platform-specifi
 | `dynatrace` | `dt_host_metadata.properties` file | `dt.entity.host`, `host.name`, `dt.smartscape.host` |
 | `consul` | Consul agent | node + exploded `_node_meta` |
 
-Additional metadata-service detectors follow the same shape (a `fail_on_missing_metadata` flag, sometimes a `labels`/`tags` regex list): `hetzner`, `akamai`, `scaleway`, `upcloud`, `vultr`, `digitalocean`, `nova` (OpenStack), `alibaba_ecs`, `tencent_cvm`, `ibmcloud_vpc` (`protocol: http|https`), `ibmcloud_classic`, `oraclecloud`, `elastic_beanstalk`, `consul`.
+Additional metadata-service detectors have detector-specific settings, sometimes including a `labels`/`tags` regex list: `hetzner`, `akamai`, `scaleway`, `upcloud`, `vultr`, `digitalocean`, `nova` (OpenStack), `alibaba_ecs`, `tencent_cvm`, `ibmcloud_vpc` (`protocol: http|https`), `ibmcloud_classic`, `oraclecloud`, `elastic_beanstalk`, `consul`. The per-detector `fail_on_missing_metadata` fields on `upcloud`, `vultr`, `nova`, `alibaba_ecs`, and `tencent_cvm` are deprecated; use the top-level key instead.
 
 For the exact attribute list any detector emits, read its `internal/<detector>/documentation.md` in the upstream source — do not assume.
