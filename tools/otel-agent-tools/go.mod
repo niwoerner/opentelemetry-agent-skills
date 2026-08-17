@@ -1,3 +1,3 @@
 module otel-agent-tools
 
-go 1.24.5
+go 1.26.6
