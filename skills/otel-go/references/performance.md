@@ -326,7 +326,7 @@ exporter, err := otlptracehttp.New(ctx,
 )
 ```
 
-### OTLP/HTTP trace encoding (v1.46.0+)
+### OTLP/HTTP trace encoding
 
 The trace HTTP exporter supports both OTLP protobuf (the default) and OTLP JSON. Select JSON
 with `otlptracehttp.WithEncoding(otlptracehttp.EncodingJSON)` or set

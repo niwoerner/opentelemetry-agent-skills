@@ -205,7 +205,7 @@ filtered, excluded := attrs.Filter(func(kv attribute.KeyValue) bool {
 _ = excluded // attributes removed by the filter
 ```
 
-For incremental filtering or deduplication in v1.46.0+, `attribute.NewHasher()` computes the same
+For incremental filtering or deduplication, `attribute.NewHasher()` computes the same
 `Distinct` identifier as `Set.Equivalent()` without first constructing a set. Supply attributes
 to `Write` in ascending key order with no duplicates (retain the last value for duplicate keys),
 call `Distinct`, and use `Reset` before reusing the hasher. Its zero value is not usable.

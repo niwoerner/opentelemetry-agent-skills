@@ -62,10 +62,6 @@ RPC attribute changes:
 
 - `sdk/log` adds `ErrExporterShutdown`. The built-in stdout and OTLP log exporters now return it when `Export` is called after `Shutdown`; custom exporters should do the same. Calls to `Shutdown` or `ForceFlush` after shutdown remain no-ops that return `nil`.
 
-## Go version support (core v1.46.0)
-
-- v1.46.0 is the final core release supporting Go 1.25 and its modules still declare `go 1.25.0`. The following core release will require at least Go 1.26.
-
 ## HTTP instrumentation behaviour (instrumentation v0.69.0; contrib v1.44.0 release)
 
 - Unknown or empty HTTP methods now report `_OTHER` instead of `GET` across all HTTP instrumentations (otelhttp, otelmux).

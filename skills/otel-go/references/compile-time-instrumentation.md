@@ -129,7 +129,7 @@ is not a Go package; the client and server are separate instrumentation modules.
 [OTel SDK env vars](https://opentelemetry.io/docs/specs/otel/configuration/sdk-environment-variables/)
 (`OTEL_EXPORTER_OTLP_ENDPOINT`, `OTEL_TRACES_SAMPLER`, `OTEL_SERVICE_NAME`, …). There is no
 `otelc`-specific exporter or sampler destination config. `OTEL_SDK_DISABLED=true` (case-insensitive)
-disables the injected SDK. `otelc` v1.1.0 also exposes these runtime controls:
+disables the injected SDK. `otelc` exposes these runtime controls:
 
 | Variable | Behavior |
 |---|---|
