@@ -21,7 +21,7 @@ high-volume live logs where you don't want to re-read history on every restart (
 ## The type was renamed `filelog` → `file_log` in v0.149.0
 
 New configs should use `file_log`. The old `filelog` name still works as a deprecated alias but
-logs a startup warning (verified on 0.154.0):
+logs a startup warning:
 
 ```
 warn  "filelog" alias is deprecated; use "file_log" instead  {"otelcol.component.id": "filelog", ...}
@@ -47,7 +47,7 @@ Some keys do nothing (or error) unless a feature gate is enabled at startup
 
 `delete_after_read: true` reads a file then deletes it; it must be paired with
 `start_at: beginning` (it is invalid with `start_at: end`) and requires the
-`filelog.allowFileDeletion` gate to remain enabled (the v0.159 default).
+`filelog.allowFileDeletion` gate to remain enabled.
 
 ## Fingerprinting and re-ingestion
 

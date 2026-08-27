@@ -14,7 +14,7 @@
 
 Tail sampling buffers **all spans of a trace** (grouped automatically by `trace_id` — no `groupbytrace` needed), waits a configurable `decision_wait` for the trace to complete, then evaluates a set of policies against the **whole trace** to make a single keep/drop decision. Because the decision is made after the trace is (mostly) assembled, it can act on trace-wide signals: presence of an error on any span, total latency, span count, specific attributes, etc.
 
-Since v0.159.0, `num_shards` can split that in-process work across parallel event loops while
+`num_shards` can split that in-process work across parallel event loops while
 keeping each trace on one shard. This improves concurrency inside one Collector; it does not replace
 trace-affinity routing when scaling across Collector instances.
 

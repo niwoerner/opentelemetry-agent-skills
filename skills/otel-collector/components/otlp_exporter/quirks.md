@@ -6,8 +6,8 @@ The canonical type was renamed from `otlp` to **`otlp_grpc`** in core **v1.50.0*
 
 ## Exporter batching vs. the `batch` processor
 
-This exporter's `sending_queue` is enabled by default, but queue batching is **disabled by default**
-in v0.159.0. Add `sending_queue.batch: {}` to activate the 200ms / 8192-item defaults, or enable the
+This exporter's `sending_queue` is enabled by default, but queue batching is **disabled by default**.
+Add `sending_queue.batch: {}` to activate the 200ms / 8192-item defaults, or enable the
 alpha `pkg.exporterhelper.queueBatchEnabled` migration gate. The separate `batch` processor is still
 Beta and supported; use it when batching must happen at pipeline level (for example, once before
 fan-out to several exporters), and place it after processors that may drop data. If both layers are

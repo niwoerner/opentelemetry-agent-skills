@@ -4,6 +4,10 @@ See [Verification harness](../../SKILL.md#verification-harness) for how to run t
 
 `tail_sampling` ships in the `contrib` and `k8s` distributions.
 
+Verified on `otel/opentelemetry-collector-contrib:0.159.0` with
+`ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:v0.159.0`
+(2026-08-27).
+
 Config (`tailsampling-verify.yaml`):
 
 ```yaml
@@ -36,11 +40,12 @@ Generate traces, some with error status (see the `otel-telemetrygen` skill):
 
 ```bash
 # OK traces — expect these to be dropped by the errors-only policy
-telemetrygen traces --otlp-insecure --otlp-endpoint localhost:4317 --traces 20
+telemetrygen traces --otlp-insecure --otlp-endpoint localhost:4317 \
+  --traces 20 --status-code Ok
 # Error traces — expect these to survive
 telemetrygen traces --otlp-insecure --otlp-endpoint localhost:4317 --traces 20 --status-code Error
 ```
 
-The `--status-code Error` flag is confirmed in the `otel-telemetrygen` skill (accepted values: `Unset`/`0`, `Error`/`1`, `Ok`/`2`). It sets the span status to ERROR, which the `status_code` policy matches. Note telemetrygen's own integer mapping (`1`=Error, `2`=Ok) intentionally differs from the OpenTelemetry status-code enum (`1`=Ok, `2`=Error) — pass the string `Error` to avoid ambiguity.
+The `--status-code` flag is confirmed in the `otel-telemetrygen` skill (accepted values: `Unset`/`0`, `Error`/`1`, `Ok`/`2`). It sets the span status that the `status_code` policy evaluates. telemetrygen's integer mapping (`1`=Error, `2`=Ok) intentionally differs from the OpenTelemetry status-code enum (`1`=Ok, `2`=Error), so pass the strings shown above.
 
-**What proves it worked:** after `decision_wait`, the `debug` exporter shows the error traces and not the OK traces.
+**What proves it worked:** after `decision_wait`, the `debug` exporter shows the 20 error traces and none of the 20 OK traces. telemetrygen emits two spans per generated trace, so the verified debug output contained 40 Error spans and no Ok spans.

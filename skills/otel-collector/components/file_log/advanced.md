@@ -126,7 +126,7 @@ receivers:
           ascending: false         # track only the highest-numbered file
 ```
 
-Since v0.159.0, an explicit `top_n: 0` means "match all files." Omitting `top_n` still falls
+An explicit `top_n: 0` means "match all files." Omitting `top_n` still falls
 back to the legacy value `1` unless the alpha `filelog.requireExplicitTopN` gate is enabled; with
 that gate, a sorted configuration must state either `0` or a positive limit.
 

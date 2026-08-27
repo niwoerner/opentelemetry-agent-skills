@@ -4,7 +4,7 @@ See [Verification harness](../../SKILL.md#verification-harness) for how to run t
 
 `load_balancing` ships in the `contrib` and `k8s` distributions. This recipe needs **three** collectors — one front-end running the exporter and **two** backends — so they can talk over a shared network. The idea: route by `service`, send four distinct `service.name`s, and confirm each service's spans always land on **exactly one** backend (affinity), with the services spread across both.
 
-> Use **v0.153.0 or newer** — the type is `loadbalancing` (one word) in v0.152.0 and earlier; it was renamed to `load_balancing` in v0.153.0. This was verified on `otel/opentelemetry-collector-contrib:0.154.0`.
+> Use **v0.153.0 or newer** — the type is `loadbalancing` (one word) in v0.152.0 and earlier; it was renamed to `load_balancing` in v0.153.0. Verified on `otel/opentelemetry-collector-contrib:0.159.0` (2026-08-27).
 
 Front-end config (`front.yaml`) — the exporter under test, with a `static` resolver listing the two backends:
 
@@ -55,7 +55,7 @@ Start all three on one Docker network (unique names; only the front-end publishe
 
 ```bash
 docker network create lbnet
-IMG=otel/opentelemetry-collector-contrib:0.154.0
+IMG=otel/opentelemetry-collector-contrib:0.159.0
 docker run -d --name lb-backend-a --network lbnet -v "$PWD/backend.yaml:/etc/otelcol-contrib/config.yaml" $IMG
 docker run -d --name lb-backend-b --network lbnet -v "$PWD/backend.yaml:/etc/otelcol-contrib/config.yaml" $IMG
 docker run -d --name lb-front     --network lbnet -p 14317:4317 \
@@ -66,11 +66,13 @@ Send four services (and `delta` twice, to prove the route is stable) — see the
 
 ```bash
 for svc in alpha beta gamma delta; do
-  telemetrygen traces --otlp-endpoint localhost:14317 --otlp-insecure \
+  go run github.com/open-telemetry/opentelemetry-collector-contrib/cmd/telemetrygen@v0.159.0 \
+    traces --otlp-endpoint localhost:14317 --otlp-insecure \
     --traces 30 --workers 1 --service "$svc"
 done
 # repeat delta -> must hit the same backend as the first delta batch
-telemetrygen traces --otlp-endpoint localhost:14317 --otlp-insecure \
+go run github.com/open-telemetry/opentelemetry-collector-contrib/cmd/telemetrygen@v0.159.0 \
+  traces --otlp-endpoint localhost:14317 --otlp-insecure \
   --traces 30 --workers 1 --service delta
 ```
 
@@ -85,18 +87,18 @@ for c in lb-backend-a lb-backend-b; do
 done
 ```
 
-Each service must appear in **exactly one** backend — never both. Verified end-to-end on `otel/opentelemetry-collector-contrib:0.154.0`:
+Each service must appear in **exactly one** backend — never both:
 
 ```
 --- lb-backend-a ---
+  30 service.name: Str(alpha)
   30 service.name: Str(beta)
-  39 service.name: Str(gamma)
 --- lb-backend-b ---
-  80 service.name: Str(alpha)
-  34 service.name: Str(delta)
+  61 service.name: Str(delta)
+  30 service.name: Str(gamma)
 ```
 
-`alpha`/`delta` reached only `lb-backend-b`, `beta`/`gamma` only `lb-backend-a` — clean per-service affinity, with the four services split across both backends. (The counts are per-export-batch occurrences, not span totals — they vary with batching; what matters is which backend each service appears in.) The repeated `delta` batch landed on `lb-backend-b` again, confirming the routing is a deterministic hash of `service.name`, not round-robin. Which service maps to which backend depends on the hash and the backend list, so the exact split varies; what is invariant is that **a given service never appears in more than one backend**.
+`alpha`/`beta` reached only `lb-backend-a`, `gamma`/`delta` only `lb-backend-b` — clean per-service affinity, with the four services split across both backends. (The counts are per-export-batch occurrences, not span totals — they vary with batching; what matters is which backend each service appears in.) The repeated `delta` batch landed on `lb-backend-b` again, confirming the routing is a deterministic hash of `service.name`, not round-robin. Which service maps to which backend depends on the hash and the backend list, so the exact split varies; what is invariant is that **a given service never appears in more than one backend**.
 
 Tear down:
 

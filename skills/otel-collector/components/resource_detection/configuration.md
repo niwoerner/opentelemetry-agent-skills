@@ -95,7 +95,7 @@ Additional metadata-service detectors have detector-specific settings, sometimes
 
 For the exact attribute list any detector emits, read its `internal/<detector>/documentation.md` in the upstream source — do not assume.
 
-## v0.159.0 detector migration gates
+## Detector migration gates
 
 - `processor.resourcedetection.elasticbeanstalk.EmitV1DeploymentConventions` (Alpha, off by
   default) adds `deployment.environment.name` and `deployment.id` alongside the legacy attributes.

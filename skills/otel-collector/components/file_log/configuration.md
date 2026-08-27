@@ -92,7 +92,7 @@ Tracks only the top-N files after grouping and sorting — useful when many rota
 |-----|------|---------|-------|
 | `ordering_criteria.regex` | regex | — | Must contain named capture groups referenced by `sort_by.regex_key`. |
 | `ordering_criteria.group_by` | regex | — | Named-capture regex for pre-sort grouping. |
-| `ordering_criteria.top_n` | int | unset → `1` | Number of files to track after ordering. In v0.159.0+, explicit `0` means match all files; negative values are rejected. With the alpha `filelog.requireExplicitTopN` gate enabled, omitting this key while `sort_by` is set is a startup error. |
+| `ordering_criteria.top_n` | int | unset → `1` | Number of files to track after ordering. Explicit `0` means match all files; negative values are rejected. With the alpha `filelog.requireExplicitTopN` gate enabled, omitting this key while `sort_by` is set is a startup error. Added in v0.159.0. |
 | `ordering_criteria.sort_by.regex_key` | string | — | Named group (from `ordering_criteria.regex`) to sort on. |
 | `ordering_criteria.sort_by.sort_type` | `numeric` \| `alphabetical` \| `timestamp` \| `mtime` | — | Sort strategy. `mtime` requires the `filelog.mtimeSortType` feature gate (Alpha, off by default). |
 | `ordering_criteria.sort_by.location` | string | — | Timestamp location (when `sort_type: timestamp`). |

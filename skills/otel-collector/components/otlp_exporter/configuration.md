@@ -54,8 +54,8 @@ All keys live under the exporter instance — `exporters: { otlp_grpc: { … } }
 ## `sending_queue`
 
 The buffer between the pipeline and the gRPC sender. **Enabled by default.** Its optional `batch`
-sub-block uses defaults from `NewDefaultQueueConfig`, but batching itself is disabled by default in
-v0.159.0 unless the `pkg.exporterhelper.queueBatchEnabled` feature gate is enabled.
+sub-block uses defaults from `NewDefaultQueueConfig`, but batching itself is disabled by default
+unless the `pkg.exporterhelper.queueBatchEnabled` feature gate is enabled.
 
 | Key | Type | Default | Meaning |
 |-----|------|---------|---------|

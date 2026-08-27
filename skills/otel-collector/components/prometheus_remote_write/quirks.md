@@ -36,7 +36,7 @@ This exporter does **not** use the standard `exporterhelper` `sending_queue`. Qu
 
 The factory default for `http.endpoint` is `http://some.url:9411/api/prom/push` — a non-functional placeholder. `Validate()` does **not** catch it, so if you forget to override it the failure surfaces only when the exporter tries to send. Always set your real backend URL.
 
-## HTTP client settings moved under `http` in v0.159.0
+## HTTP client settings belong under `http`
 
 Put `endpoint`, `tls`, `headers`, `compression`, and the other `confighttp.ClientConfig` fields under
 `http`. Deprecated flat settings still work by default when `http` is absent, and a configured
@@ -46,7 +46,7 @@ startup error, which is useful for validating a migration.
 
 ## `add_metric_suffixes` deprecation — version discrepancy
 
-`add_metric_suffixes` (default `true`) is **deprecated** in favor of `translation_strategy`. The factory logs a deprecation warning when it is `false` (`add_metric_suffixes is deprecated. Please use translation_strategy: UnderscoreEscapingWithoutSuffixes instead.`). Note a documentation/source discrepancy: the `config.go` comment claims it will be removed in **v0.153.0**, but it is **still present in v0.159.0**. Treat it as live-but-deprecated; migrate to `translation_strategy` for new configs.
+`add_metric_suffixes` (default `true`) is **deprecated** in favor of `translation_strategy`. The factory logs a deprecation warning when it is `false` (`add_metric_suffixes is deprecated. Please use translation_strategy: UnderscoreEscapingWithoutSuffixes instead.`). The `config.go` comment claims it would be removed in **v0.153.0**, but the key remains present. Treat it as live-but-deprecated; migrate to `translation_strategy` for new configs.
 
 ## RW2 is not production-ready
 

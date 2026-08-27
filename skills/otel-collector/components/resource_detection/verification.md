@@ -2,6 +2,9 @@
 
 Confirms that detected attributes appear in the **Resource attributes** block of telemetry. Uses the two detectors that work without a cloud/metadata service: `env` (reads `OTEL_RESOURCE_ATTRIBUTES` from the Collector's environment) and `system` (reads the host machine).
 
+Verified on `otel/opentelemetry-collector-contrib:0.159.0` with telemetrygen v0.159.0
+(2026-08-27).
+
 See the `otel-collector` SKILL.md **Verification harness** note: this config is a minimal repro and omits `memory_limiter` and other production scaffolding on purpose.
 
 ## Config (`rdcol.yaml`)
@@ -40,10 +43,11 @@ The `env` detector reads the **Collector's** environment, so set `OTEL_RESOURCE_
 docker run --rm --name rdcol -p 4317:4317 \
   -e OTEL_RESOURCE_ATTRIBUTES='deployment.environment.name=prod,my.detector.test=hello' \
   -v "$PWD/rdcol.yaml:/etc/otelcol-contrib/config.yaml" \
-  otel/opentelemetry-collector-contrib:0.154.0
+  otel/opentelemetry-collector-contrib:0.159.0
 
 # in another shell — telemetrygen emits 2 spans per trace
-telemetrygen traces --otlp-insecure --otlp-endpoint localhost:4317 --traces 5 --workers 1
+go run github.com/open-telemetry/opentelemetry-collector-contrib/cmd/telemetrygen@v0.159.0 \
+  traces --otlp-insecure --otlp-endpoint localhost:4317 --traces 5 --workers 1
 ```
 
 ## Expected output
@@ -61,8 +65,8 @@ Resource attributes:
 
 10 spans total reach the exporter (5 traces × 2 spans). Tear down with `docker rm -f rdcol`.
 
-## Verified result (contrib 0.154.0)
+## Verified result
 
-Run end-to-end on `otel/opentelemetry-collector-contrib:0.154.0`. The `env` detector populated `deployment.environment.name=prod` and `my.detector.test=hello` from `OTEL_RESOURCE_ATTRIBUTES`; the `system` detector populated `host.name` (the container ID, via `hostname_sources: ["os"]`) and `os.type=linux`. All 10 spans carried the merged resource, and telemetrygen's own `service.name=telemetrygen` was kept (neither detector produces it).
+The `env` detector populated `deployment.environment.name=prod` and `my.detector.test=hello` from `OTEL_RESOURCE_ATTRIBUTES`; the `system` detector populated `host.name` (the container ID, via `hostname_sources: ["os"]`) and `os.type=linux`. All 10 spans carried the merged resource, and telemetrygen's own `service.name=telemetrygen` was kept (neither detector produces it).
 
 `override` was confirmed separately by setting `OTEL_RESOURCE_ATTRIBUTES=service.name=fromenv` (which collides with telemetrygen's `service.name=telemetrygen`): with `override: true` the resource showed `service.name=fromenv` (detector wins); with `override: false` it showed `service.name=telemetrygen` (incoming value preserved).

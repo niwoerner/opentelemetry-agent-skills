@@ -8,9 +8,9 @@ See [Verification harness](../../SKILL.md#verification-harness) for how to run t
 
 The `file_log` receiver ships in the `contrib` and `k8s` distributions. This recipe runs **one**
 collector — `file_log` tailing a mounted directory, feeding a `debug` exporter — and proves the
-pipeline by writing three pre-formatted lines and reading them back parsed. Verified on
-`otel/opentelemetry-collector-contrib:0.154.0`; the config schema and debug output are unchanged
-through v0.157.0.
+pipeline by writing three pre-formatted lines and reading them back parsed.
+
+Verified on `otel/opentelemetry-collector-contrib:0.159.0` (2026-08-27).
 
 Config (`file_log.yaml`) — note `start_at: beginning`, without which an existing idle file is
 skipped (the receiver's top gotcha):
@@ -43,16 +43,16 @@ Create the log file the receiver will tail:
 ```bash
 mkdir -p /tmp/filelog-verify/logs
 cat > /tmp/filelog-verify/logs/app.log <<'EOF'
-2026-06-13 09:00:01 INFO service started
-2026-06-13 09:00:02 WARN cache miss for key=42
-2026-06-13 09:00:03 ERROR failed to connect to upstream
+2026-08-27 09:00:01 INFO service started
+2026-08-27 09:00:02 WARN cache miss for key=42
+2026-08-27 09:00:03 ERROR failed to connect to upstream
 EOF
 ```
 
 Start the collector, mounting both the config and the log directory:
 
 ```bash
-IMG=otel/opentelemetry-collector-contrib:0.154.0
+IMG=otel/opentelemetry-collector-contrib:0.159.0
 docker run -d --name fcol \
   -v "$PWD/file_log.yaml:/etc/otelcol-contrib/config.yaml" \
   -v /tmp/filelog-verify/logs:/logs \
@@ -67,7 +67,7 @@ docker logs fcol 2>&1 | grep -c 'LogRecord #'
 docker logs fcol 2>&1 | grep -E 'SeverityText|-> msg:'
 ```
 
-Verified output on `otel/opentelemetry-collector-contrib:0.154.0` — **3 records**, each with the
+Expected output — **3 records**, each with the
 raw line in the body, a parsed `msg` attribute, the default `log.file.name=app.log` attribute,
 and severity mapped from the text:
 
@@ -88,7 +88,7 @@ a new line *after* the collector is running.
 To watch live tailing instead, leave the collector running and append a line:
 
 ```bash
-echo "2026-06-13 09:00:04 INFO new line after startup" >> /tmp/filelog-verify/logs/app.log
+echo "2026-08-27 09:00:04 INFO new line after startup" >> /tmp/filelog-verify/logs/app.log
 docker logs fcol 2>&1 | grep -c 'LogRecord #'     # now 4
 ```
 
@@ -102,7 +102,7 @@ rm -rf /tmp/filelog-verify
 ## Note on the deprecated alias
 
 Using `filelog:` (the pre-v0.149.0 name) instead of `file_log:` still works but logs a warning
-at startup — verified on 0.154.0:
+at startup:
 
 ```
 warn  builders/builders.go:40  "filelog" alias is deprecated; use "file_log" instead  {"otelcol.component.id": "filelog", ...}

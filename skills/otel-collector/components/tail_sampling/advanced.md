@@ -53,7 +53,7 @@ Allocate a total spans-per-second budget across policies in priority order:
 
 Each sub-policy gets `(percent/100) * max_total_spans_per_second`; the first matching policy under budget samples the trace. Put an `always_sample` last to use leftover capacity.
 
-Since v0.159.0, a sub-policy omitted from `rate_allocation` receives the default equal share
+A sub-policy omitted from `rate_allocation` receives the default equal share
 (`max_total_spans_per_second / number of sub-policies`) instead of an accidental zero rate. That
 default is not the unallocated remainder; list every policy explicitly when exact percentages matter.
 

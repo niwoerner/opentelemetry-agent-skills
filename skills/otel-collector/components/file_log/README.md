@@ -18,8 +18,8 @@ The raw line lands in the log record `Body` and a few file attributes (`log.file
 
 The single most common surprise: **`start_at` defaults to `end`**, so a file that already exists and is not being actively appended to yields **no records**. Set `start_at: beginning` to read existing content. See [quirks.md](quirks.md).
 
-For ordered discovery, v0.159.0 made explicit `ordering_criteria.top_n: 0` mean "match all" and
-added the `filelog.requireExplicitTopN` migration gate for rejecting an omitted `top_n`.
+For ordered discovery, explicit `ordering_criteria.top_n: 0` means "match all." The
+`filelog.requireExplicitTopN` migration gate rejects an omitted `top_n`.
 
 ## Main use-cases
 
@@ -43,8 +43,8 @@ Avoid when:
 
 ## Details
 
-- [Configuration](configuration.md) — every top-level config key (include/exclude, `start_at`, fingerprinting, sizing, rotation, `storage`, `header`, `ordering_criteria`) with defaults and validation, including v0.159.0 `top_n` semantics.
+- [Configuration](configuration.md) — every top-level config key (include/exclude, `start_at`, fingerprinting, sizing, rotation, `storage`, `header`, `ordering_criteria`) with defaults and validation, including `top_n: 0` semantics.
 - [Operators](operators.md) — the stanza operator pipeline: the available inputs/parsers/general-purpose operators, the `id`/`output` wiring rules, and embedded timestamp/severity parsing.
-- [Verification](verification.md) — a file-based recipe (write lines to a mounted file → `file_log` → `debug`), verified on contrib v0.154.0 (schema unchanged through v0.157.0). Notes why `telemetrygen` cannot drive this receiver.
+- [Verification](verification.md) — a file-based recipe (write lines to a mounted file → `file_log` → `debug`), verified on contrib v0.159.0. Notes why `telemetrygen` cannot drive this receiver.
 - [Advanced use-cases](advanced.md) — multiline entries, encodings, durable offsets via `storage`, header metadata parsing, log-rotation handling (`on_truncate`), file ordering, and `compression`.
 - [Known quirks](quirks.md) — the `start_at: end` default, the rename/alias, feature-gated options, `delete_after_read` constraints, fingerprint re-ingestion, and stability.

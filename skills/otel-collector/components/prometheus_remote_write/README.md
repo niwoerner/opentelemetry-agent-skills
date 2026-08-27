@@ -15,7 +15,7 @@
 
 This is a **push** exporter — it sends OTLP metrics out as Prometheus Remote Write requests to any Remote-Write-compatible backend (Cortex, Mimir, Thanos, Prometheus itself with the receiver enabled, and similar). This is the mirror image of the [`prometheus`](../prometheus_exporter/README.md) exporter, which **hosts** a `/metrics` endpoint to be scraped: this one **initiates** outbound writes. If you are unsure which you want, "push to a remote URL" is this component; "expose for a scraper" is the other.
 
-By default it speaks **Remote Write 1.0** (`protobuf_message: prometheus.WriteRequest`), **requires TLS** (set `http.tls.insecure: true` for plaintext), and uses **snappy** compression (the only value the protocol — and this exporter's `Validate()` — accepts). Since v0.159.0, HTTP client settings belong under `http`; deprecated flat settings remain accepted by default for migration. Outgoing requests are queued through `remote_write_queue` (this exporter does **not** use the standard `sending_queue`). The full key list, defaults, and validation rules are in [configuration.md](configuration.md).
+By default it speaks **Remote Write 1.0** (`protobuf_message: prometheus.WriteRequest`), **requires TLS** (set `http.tls.insecure: true` for plaintext), and uses **snappy** compression (the only value the protocol — and this exporter's `Validate()` — accepts). HTTP client settings belong under `http`; deprecated flat settings remain accepted by default for migration. Outgoing requests are queued through `remote_write_queue` (this exporter does **not** use the standard `sending_queue`). The full key list, defaults, and validation rules are in [configuration.md](configuration.md).
 
 ## Main use-cases
 
@@ -40,6 +40,6 @@ Avoid when:
 ## Details
 
 - [Configuration](configuration.md) — `http.endpoint`, naming/metadata options, histogram conversion, `remote_write_queue`, resource conversion, WAL, RW version, HTTP/TLS/retry options, and validation rules.
-- [Verification](verification.md) — push to a Prometheus container with the remote-write receiver enabled and query the series back, proving `namespace` and `external_labels`. Data path verified on contrib v0.154.0; v0.159.0 nested HTTP config source-validated separately.
+- [Verification](verification.md) — push to a Prometheus container with the remote-write receiver enabled and query the series back, proving `namespace` and `external_labels`. Verified end-to-end on contrib v0.159.0.
 - [Advanced use-cases](advanced.md) — the WAL, RW2 / `protobuf_message` and its feature gate, `resource_to_telemetry_conversion` vs `target_info`, `external_labels`, the multi-worker feature gate with `num_consumers` / `max_batch_request_parallelism`, the `RetryOn429` gate, and `translation_strategy` choices.
 - [Known quirks](quirks.md) — push-not-pull, the type rename, `http.endpoint`, nested-vs-flat HTTP migration, TLS-on-by-default, snappy-only, dropped metric types, the `remote_write_queue` (not `sending_queue`) distinction, the `add_metric_suffixes` deprecation discrepancy, RW2 readiness, and per-signal stability.

@@ -4,13 +4,10 @@ See [Verification harness](../../SKILL.md#verification-harness) for how to run t
 
 Unlike the pull-based [`prometheus`](../prometheus_exporter/verification.md) exporter (where you scrape the exporter's own `/metrics`), here you **push** to a real backend and query the series back from it. The recipe runs two containers on a shared Docker network: a Prometheus server with the remote-write receiver enabled, and a collector that pushes into it. This is a **minimal repro** — it omits `memory_limiter` and `batch` on purpose, to isolate the exporter's behavior.
 
-**Verified on `otel/opentelemetry-collector-contrib:0.154.0` (2026-06-14)** using the then-flat
-HTTP settings. A `telemetrygen` cumulative Sum named `gen` (datapoints 0/1/2) pushed via RW1 landed
-in Prometheus as `testns_gen_total{job="telemetrygen", verified_by="ollygarden"} 2` — confirming the
-namespace prefix, counter suffix, `service.name`→`job` mapping, external label, and RW1 path. The
-recipe below uses the nested `http` block added in v0.159.0; that configuration shape is
-source-verified against the released v0.159.0 config loader, but the end-to-end data-path result
-above was not re-run.
+**Verified end-to-end on `otel/opentelemetry-collector-contrib:0.159.0` (2026-08-27).** A
+`telemetrygen` v0.159.0 cumulative Sum named `gen` (datapoints 0/1/2) pushed through the nested
+`http` configuration via RW1 and landed in Prometheus as
+`testns_gen_total{job="telemetrygen", verified_by="ollygarden"} 2`.
 
 Create a network:
 
@@ -67,7 +64,7 @@ Drive it with `telemetrygen` — see the `otel-telemetrygen` skill. Run it as a 
 
 ```bash
 docker run --rm --network prw-net \
-  ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:0.159.0 \
+  ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:v0.159.0 \
   metrics --otlp-insecure --otlp-endpoint prw-col:4317 \
   --metrics 3 --workers 1 --metric-type Sum
 ```
@@ -81,7 +78,7 @@ curl -s 'http://localhost:19090/api/v1/query?query=testns_gen_total'
 ```json
 {"status":"success","data":{"resultType":"vector","result":[
   {"metric":{"__name__":"testns_gen_total","job":"telemetrygen","verified_by":"ollygarden"},
-   "value":[1781411226.941,"2"]}]}}
+   "value":[1787819647.001,"2"]}]}}
 ```
 
 - **`namespace: testns`** → the `testns_` series prefix.

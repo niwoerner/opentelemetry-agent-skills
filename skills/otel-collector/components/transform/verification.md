@@ -4,6 +4,10 @@ See [Verification harness](../../SKILL.md#verification-harness) for how to run t
 
 `transform` ships in the `contrib` and `k8s` distributions, so a stock contrib collector can run this.
 
+Verified on `otel/opentelemetry-collector-contrib:0.159.0` with
+`ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:v0.159.0`
+(2026-08-27).
+
 Config (`transform-verify.yaml`) — add an `env` attribute to every log record that telemetrygen does **not** itself produce:
 
 ```yaml
