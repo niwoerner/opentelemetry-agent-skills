@@ -6,7 +6,7 @@ Inspect the lockfile and bootstrap first:
 
 ```sh
 bundle list | rg 'opentelemetry|rails|rack|sinatra|sidekiq|faraday|net-http|pg|mysql2|redis'
-rg -n "OpenTelemetry::SDK.configure|\.use_all|\.use 'OpenTelemetry::Instrumentation" .
+rg -n "OpenTelemetry::SDK.configure|\.use_all|OpenTelemetry::Instrumentation" .
 ```
 
 Avoid double instrumentation. Rails can pull together Rack, Action Pack, Active Record, Active

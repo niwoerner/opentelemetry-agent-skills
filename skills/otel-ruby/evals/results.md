@@ -6,6 +6,11 @@ toolset, prompt, fixture content, and grading expectations. The fixture was inli
 so the model did not need filesystem tools. The only arm difference was whether `otel-ruby` was
 installed and preloaded.
 
+After automated review corrections to Logger activation, protocol wording, bootstrap discovery,
+and dependency lookup, the proposed arm was rerun three times in fresh identical-condition
+sessions. All three final repetitions passed the unchanged rubric; the table and proposed-arm
+summaries below describe that final rerun.
+
 The current `origin/main` revision was `be1108c9fbbb0d5ea851d58d3d8f7039efeb1fa3`. Because
 `otel-ruby` is new and not present there, the current-main arm is identical to the withheld arm and
 requires no additional runs under the contribution policy.

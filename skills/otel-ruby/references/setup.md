@@ -51,12 +51,14 @@ require 'opentelemetry-logs-sdk'
 require 'opentelemetry/exporter/otlp_logs'
 require 'opentelemetry/instrumentation/rails'
 require 'opentelemetry/instrumentation/sidekiq'
+require 'opentelemetry/instrumentation/logger'
 
 OpenTelemetry::SDK.configure do |c|
   c.service_name = 'checkout'
   c.service_version = ENV.fetch('APP_VERSION', 'unknown')
   c.use 'OpenTelemetry::Instrumentation::Rails'
   c.use 'OpenTelemetry::Instrumentation::Sidekiq'
+  c.use 'OpenTelemetry::Instrumentation::Logger'
 end
 ```
 
@@ -89,8 +91,9 @@ OTEL_TRACES_SAMPLER_ARG=0.1
 OTEL_LOG_LEVEL=info
 ```
 
-The released `opentelemetry-exporter-otlp` gem supports `http/protobuf`; an unsupported
-`OTEL_EXPORTER_OTLP_PROTOCOL` or signal-specific protocol disables that exporter with a warning.
+The released automatic trace and log OTLP paths support `http/protobuf`; an unsupported general
+or relevant signal-specific protocol disables the trace or log exporter with a warning. The
+metrics path does not read protocol variables and always uses its HTTP/protobuf `MetricsExporter`.
 The core repository contains an `opentelemetry-exporter-otlp-grpc` prototype, but its changelog
 marks it unreleased and not production-ready. Do not recommend it until a released gem says
 otherwise. Use signal-specific endpoints and headers when the signals differ. Never place a

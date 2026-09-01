@@ -32,7 +32,7 @@ Resolve each gem independently with Bundler, inspect its changelog, and keep the
 |---|---|
 | Latest core releases and per-gem tags | `gh api repos/open-telemetry/opentelemetry-ruby/releases --paginate` |
 | Latest contrib instrumentation releases | `gh api repos/open-telemetry/opentelemetry-ruby-contrib/releases --paginate` |
-| Released gem version and dependencies | `gem info <gem> --remote` or `bundle info <gem>` for the locked version |
+| Released and locked gem dependencies | `gem specification <gem> dependencies --remote --yaml`; inspect `Gemfile.lock` for the locked dependency set |
 | Core implementation and changelogs | [open-telemetry/opentelemetry-ruby](https://github.com/open-telemetry/opentelemetry-ruby) |
 | Contrib catalog, compatibility, and per-gem options | [open-telemetry/opentelemetry-ruby-contrib](https://github.com/open-telemetry/opentelemetry-ruby-contrib) |
 | Ruby language docs | [OpenTelemetry Ruby documentation](https://opentelemetry.io/docs/languages/ruby/) |
