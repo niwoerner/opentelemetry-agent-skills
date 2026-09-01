@@ -65,6 +65,9 @@ skills/
   otel-dotnet/
     SKILL.md
     references/
+  otel-ruby/
+    SKILL.md
+    references/
   otel-browser/
     SKILL.md
     references/        # setup-sdk, instrumentation, performance
@@ -125,6 +128,7 @@ Language-specific skills:
 | `otel-js` | `skills/otel-js/` | OpenTelemetry in Node.js / JavaScript / TypeScript: NodeSDK setup, declarative YAML configuration via `@opentelemetry/configuration`, auto-instrumentations, and ESM vs CJS import patterns. |
 | `otel-python` | `skills/otel-python/` | OpenTelemetry in Python: declarative SDK setup via file config, API surface and logging bridge, zero-code instrumentation (opentelemetry-distro / opentelemetry-instrument) and contrib catalog, performance tuning, breaking-change audits. |
 | `otel-dotnet` | `skills/otel-dotnet/` | OpenTelemetry in .NET: DI/builder SDK setup (`OpenTelemetry.Extensions.Hosting`), native BCL instrumentation (`ActivitySource`, `Meter`, `ILogger`), zero-code CLR-profiler agent and contrib instrumentation catalog, performance tuning, breaking-change audits. |
+| `otel-ruby` | `skills/otel-ruby/` | OpenTelemetry in Ruby: SDK and Bundler setup, manual tracing, experimental metrics and logs, contrib instrumentation for Rails/Rack/Sinatra/Sidekiq and other gems, propagation, performance, and breaking-change audits. |
 | `otel-browser` | `skills/otel-browser/` | OpenTelemetry in the browser (Real User Monitoring / RUM): web tracing SDK (`sdk-trace-web`, `context-zone`) and experimental `browser-sdk`, event- and span-based browser instrumentations (web vitals, navigation, errors, fetch/XHR), sessions, frontend→backend trace propagation, and bundle-size/cost/PII trade-offs. |
 
 ## Contributing
