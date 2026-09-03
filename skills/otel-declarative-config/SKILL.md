@@ -101,6 +101,17 @@ export OTEL_CONFIG_FILE=/app/configs/otel.yaml
 Setting the variable alone does not bootstrap every language. The selected declarative bootstrap
 or autoconfigure path must run.
 
+For released implementations, verify the package version before using these exact entry points:
+
+| Runtime | Bootstrap / activation |
+|---|---|
+| Go | `go.opentelemetry.io/contrib/otelconf.NewSDK`; it reads `OTEL_CONFIG_FILE`. The old `OTEL_EXPERIMENTAL_CONFIG_FILE` is rejected, not accepted as an alias. |
+| Java | Add `io.opentelemetry:opentelemetry-sdk-extension-declarative-config` and run SDK autoconfigure; `OTEL_CONFIG_FILE` maps to the `otel.config.file` system property. For direct loading, use `DeclarativeConfiguration.parseAndCreate(InputStream)`. |
+| JavaScript (Node.js) | `@opentelemetry/configuration` exposes `createConfigFactory()`, which selects file configuration when `OTEL_CONFIG_FILE` names a YAML file; `@opentelemetry/sdk-node` consumes that model during its startup path. Both packages are experimental. |
+
+Other languages, agents, and framework starters can expose different or no bootstrap paths. Use the
+language-specific cross-reference below rather than extrapolating this table.
+
 Precedence is runtime/loader-specific: verify it in the selected loader's documentation or a
 controlled parser test. Do not assume a file overrides or merges with `OTEL_*` variables.
 Programmatic setup can choose whether to load or override a file, or build providers directly;

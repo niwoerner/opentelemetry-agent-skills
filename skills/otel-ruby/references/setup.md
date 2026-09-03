@@ -40,7 +40,9 @@ review the lockfile and each changed gem's changelog.
 Require the selected exporter and instrumentation gems before configuration. In Rails, place the
 configuration in an initializer; in Rack/Sinatra or a worker, run it during bootstrap.
 Ruby has no released declarative `OTEL_CONFIG_FILE` implementation; use `OTEL_*` environment
-variables and `OpenTelemetry::SDK.configure`.
+variables and `OpenTelemetry::SDK.configure`. Requiring the metrics and logs SDKs before
+`configure` installs their configurator hooks; their default exporter is OTLP when the matching
+exporter gem is loaded.
 
 ```ruby
 require 'opentelemetry/sdk'
@@ -93,7 +95,7 @@ OTEL_LOG_LEVEL=info
 
 The released automatic trace and log OTLP paths support `http/protobuf`; an unsupported general
 or relevant signal-specific protocol disables the trace or log exporter with a warning. The
-metrics path does not read protocol variables and always uses its HTTP/protobuf `MetricsExporter`.
+metrics path does not read protocol variables and uses its HTTP/protobuf `MetricsExporter`.
 The core repository contains an `opentelemetry-exporter-otlp-grpc` prototype, but its changelog
 marks it unreleased and not production-ready. Do not recommend it until a released gem says
 otherwise. Use signal-specific endpoints and headers when the signals differ. Never place a
@@ -122,6 +124,6 @@ phase. For short jobs, call `force_flush` before the process exits if the provid
 3. Send a request or execute a job against a disposable local receiver.
 4. Confirm the expected resource, parent/child relationship, and shutdown export.
 
-Sources: [core SDK README](https://github.com/open-telemetry/opentelemetry-ruby/tree/main/sdk),
+Sources: [core SDK 1.13.0](https://github.com/open-telemetry/opentelemetry-ruby/tree/opentelemetry-sdk/v1.13.0/sdk),
 [Ruby getting started](https://opentelemetry.io/docs/languages/ruby/getting-started/), and
-[contrib instrumentation catalog](https://github.com/open-telemetry/opentelemetry-ruby-contrib/tree/main/instrumentation).
+[contrib instrumentation catalog at the `all` 0.96.0 release](https://github.com/open-telemetry/opentelemetry-ruby-contrib/tree/opentelemetry-instrumentation-all/v0.96.0/instrumentation).

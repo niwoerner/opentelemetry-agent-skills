@@ -74,7 +74,7 @@ A data layer built on a global `*gorm.DB` (or `*sql.DB`) plus functions that don
 | net/http | `go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp` |
 | Gin | `go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin` |
 | Gorilla mux | `go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux` |
-| Echo | `go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho` |
+| Echo | `go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho` is deprecated as of v0.71.0; use `github.com/labstack/echo-opentelemetry` for new integrations. |
 | go-restful | `go.opentelemetry.io/contrib/instrumentation/github.com/emicklei/go-restful/otelrestful` |
 
 ```go

@@ -263,9 +263,56 @@ logger.LogWarning(
 
 With the OpenTelemetry .NET OTLP exporter, `EventId.Name` is exported as the OTLP log `event_name` field. The lower-level `LogRecordData.EventName` / `Logger.EmitLog` bridge API exists in source but is experimental/pre-release-gated, so prefer stable `ILogger` patterns unless the project has opted into the bridge API.
 
+## Ruby
+
+### Exception Recording
+
+Before:
+```ruby
+span.record_exception(exception)
+span.status = OpenTelemetry::Trace::Status.error(exception.message)
+```
+
+After:
+```ruby
+logger = OpenTelemetry.logger_provider.logger(name: 'my-gem')
+logger.on_emit(
+  event_name: exception_event_name,
+  severity_number: OpenTelemetry::Logs::SeverityNumber::SEVERITY_NUMBER_ERROR,
+  body: 'exception',
+  attributes: {
+    'exception.type' => exception.class.name,
+    'exception.message' => exception.message,
+    'exception.stacktrace' => exception.full_message
+  }
+)
+span.status = OpenTelemetry::Trace::Status.error(exception.message)
+```
+
+### General Event
+
+Before:
+```ruby
+span.add_event('retry.attempt', attributes: { 'retry.count' => count })
+```
+
+After:
+```ruby
+logger.on_emit(
+  event_name: 'retry.attempt',
+  body: 'retry.attempt',
+  attributes: { 'retry.count' => count }
+)
+```
+
+Ruby Logs API 0.4.1 and Logs SDK 0.6.1 expose `Logger#on_emit` with
+`event_name:` and use the current context by default. They do not expose an
+exception convenience parameter, so populate the applicable `exception.*`
+attributes explicitly.
+
 ## Key Rules Across All Languages
 
-1. The event name replaces the name from `AddEvent`. Use the dedicated event-name API where available -- `record.SetEventName(...)` (Go), `.setEventName(...)` (Java `LogRecordBuilder`), `eventName:` (JS `logger.emit`), `event_name=` (Python `Logger.emit`), or `EventId.Name` (.NET `ILogger`) -- which maps to the `event_name` LogRecord field. Only set an `event.name` attribute when the target SDK/exporter has no dedicated event-name path.
+1. The event name replaces the name from `AddEvent`. Use the dedicated event-name API where available -- `record.SetEventName(...)` (Go), `.setEventName(...)` (Java `LogRecordBuilder`), `eventName:` (JS `logger.emit`), `event_name=` (Python `Logger.emit`), `EventId.Name` (.NET `ILogger`), or `event_name:` (Ruby `Logger#on_emit`) -- which maps to the `event_name` LogRecord field. Only set an `event.name` attribute when the target SDK/exporter has no dedicated event-name path.
 2. All original attributes transfer to the log record attributes, preserving the
    original attribute keys unless an intentional mapping is documented and tested.
 3. The log record automatically inherits the active span context from `ctx` / the current context -- this is how trace correlation is maintained.

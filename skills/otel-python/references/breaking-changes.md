@@ -7,7 +7,7 @@ rots with each release.
 ## Step 1: Fetch the CHANGELOGs
 
 Fetch both released upstream sources before reviewing any code. As of
-2026-08-26, the released ceiling is core **1.44.0** and contrib **0.65b0**:
+2026-09-03, the released ceiling is core **1.44.0** and contrib **0.65b0**:
 
 ```
 WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-python/v1.44.0/CHANGELOG.md

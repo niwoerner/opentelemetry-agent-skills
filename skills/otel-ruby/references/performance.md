@@ -25,9 +25,10 @@ request path and is unsuitable for normal production traffic.
 ## Forks, threads, and fibers
 
 Pre-fork servers copy provider and processor state. Verify the exact SDK/server combination rather
-than assuming a background export thread survives. Current processors detect forks and recreate
-workers, but startup timing, inherited buffers, and graceful shutdown still matter. Exercise a
-request in a worker and prove it exports after the fork.
+than assuming a background export thread survives. The released batch span processor and metrics
+SDK include fork handling, but startup timing, inherited buffers, logs processing, and graceful
+shutdown still matter. Exercise a request in a worker and prove each enabled signal exports after
+the fork.
 
 Context is fiber-local. Test parentage across any custom thread pools, fibers, async schedulers,
 jobs, and callbacks that framework instrumentation does not already cover.
@@ -57,6 +58,6 @@ not make sensitive values safe to collect.
 An empty backend query is not proof of zero telemetry. Enable `OTEL_LOG_LEVEL=debug`, inspect SDK
 warnings and processor drop signals, and compare with a disposable local receiver.
 
-Sources: [trace SDK implementation](https://github.com/open-telemetry/opentelemetry-ruby/tree/main/sdk),
-[metrics SDK](https://github.com/open-telemetry/opentelemetry-ruby/tree/main/metrics_sdk), and
-[Ruby API benchmarks](https://github.com/open-telemetry/opentelemetry-ruby/tree/main/api/benchmarks).
+Sources: [trace SDK 1.13.0](https://github.com/open-telemetry/opentelemetry-ruby/tree/opentelemetry-sdk/v1.13.0/sdk),
+[metrics SDK 0.17.0](https://github.com/open-telemetry/opentelemetry-ruby/tree/opentelemetry-metrics-sdk/v0.17.0/metrics_sdk), and
+[Ruby API 1.11.0 benchmarks](https://github.com/open-telemetry/opentelemetry-ruby/tree/opentelemetry-api/v1.11.0/api/benchmarks).

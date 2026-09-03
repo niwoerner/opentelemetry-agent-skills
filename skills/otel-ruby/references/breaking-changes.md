@@ -27,10 +27,11 @@ different `0.x` metrics, logs, exporter, and instrumentation versions.
 
 ## Ruby and target-library compatibility
 
-Check both core and contrib requirements. Current contrib development requires Ruby 3.3 or newer,
-but an older locked instrumentation release may have a different range. Each instrumentation
-gemspec also constrains the Rails/framework/client versions it supports. Upgrade Ruby, Rails, or a
-client library and its OTel instrumentation as one compatibility decision.
+Check both core and contrib requirements. Current core and relevant contrib releases require Ruby
+3.3 or newer, but an older locked release may have a different range. Rails instrumentation
+`0.42.0` additionally requires Rails 7.1 or newer. Each instrumentation gemspec constrains the
+framework/client versions it supports. Upgrade Ruby, Rails, or a client library and its OTel
+instrumentation as one compatibility decision.
 
 ## Behavioral review
 

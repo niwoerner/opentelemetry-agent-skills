@@ -171,7 +171,7 @@ https://raw.githubusercontent.com/open-telemetry/opentelemetry-dotnet-contrib/ma
 | Package | Builder extension | NuGet |
 |---------|-------------------|-------|
 | `OpenTelemetry.Instrumentation.ConfluentKafka` | `.AddKafkaConsumerInstrumentation<TKey,TValue>()` / `.AddKafkaProducerInstrumentation<TKey,TValue>()` (both available on `TracerProviderBuilder` and `MeterProviderBuilder`) | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.ConfluentKafka) |
-| `OpenTelemetry.Instrumentation.MassTransit` | `.AddMassTransitInstrumentation()` | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.MassTransit) |
+| `OpenTelemetry.Instrumentation.MassTransit` | `.AddMassTransitInstrumentation()` for MassTransit 7 and earlier; deprecated — MassTransit 8+ emits `ActivitySource` telemetry directly, register it with `.AddSource("MassTransit")` | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.MassTransit) |
 | `OpenTelemetry.Instrumentation.Hangfire` | `.AddHangfireInstrumentation()` | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.Hangfire) |
 | `OpenTelemetry.Instrumentation.Quartz` | `.AddQuartzInstrumentation()` | [NuGet](https://www.nuget.org/packages/OpenTelemetry.Instrumentation.Quartz) |
 

@@ -18,6 +18,7 @@ the SDK migration.
 - `attribute.Value.Emit` deprecated (core v1.44.0). Use `attribute.Value.String` instead.
 - `sdk/log.WithExportBufferSize` is deprecated and has no effect as of log SDK v0.21.0 (core v1.45.0 release); the batch processor no longer keeps a separate export-request buffer.
 - `OTEL_EXPERIMENTAL_CONFIG_FILE` is no longer supported by root `otelconf` v0.23.0+ (contrib v1.43.0+). Use `OTEL_CONFIG_FILE`.
+- `go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho` is deprecated in v0.71.0 (contrib v1.46.0). Use `github.com/labstack/echo-opentelemetry`; removal is unreleased as of 2026-09-03.
 
 ## Removed APIs (instrumentation v0.65.0; contrib v1.40.0 release)
 

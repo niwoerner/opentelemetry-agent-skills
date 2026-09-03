@@ -79,6 +79,6 @@ The core repository ships `opentelemetry-test-helpers`,
 For integration tests, send to a disposable local OTLP receiver and verify the whole path. Never
 point a test at a production endpoint.
 
-Sources: [Ruby API](https://github.com/open-telemetry/opentelemetry-ruby/tree/main/api),
-[metrics API](https://github.com/open-telemetry/opentelemetry-ruby/tree/main/metrics_api), and
-[logs SDK examples](https://github.com/open-telemetry/opentelemetry-ruby/tree/main/examples/logs_sdk).
+Sources: [Ruby API 1.11.0](https://github.com/open-telemetry/opentelemetry-ruby/tree/opentelemetry-api/v1.11.0/api),
+[metrics API 0.7.0](https://github.com/open-telemetry/opentelemetry-ruby/tree/opentelemetry-metrics-api/v0.7.0/metrics_api), and
+[logs SDK 0.6.1 examples](https://github.com/open-telemetry/opentelemetry-ruby/tree/opentelemetry-logs-sdk/v0.6.1/examples/logs_sdk).
