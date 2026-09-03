@@ -30,7 +30,7 @@ jobs:
         run: |
           docker run --rm \
             -v "$WORKSPACE:/work" \
-            otel/weaver:v0.25.1 \
+            otel/weaver:v0.26.1 \
             registry check \
               --v2 \
               --registry /work/telemetry/registry/
@@ -41,7 +41,7 @@ jobs:
         run: |
           docker run --rm \
             -v "$WORKSPACE:/work" \
-            otel/weaver:v0.25.1 \
+            otel/weaver:v0.26.1 \
             registry generate \
               --v2 \
               --registry /work/telemetry/registry/ \
@@ -62,7 +62,7 @@ jobs:
           docker run --rm \
             -v "$WORKSPACE:/work" \
             -v /tmp/base:/baseline \
-            otel/weaver:v0.25.1 \
+            otel/weaver:v0.26.1 \
             registry diff \
               --v2 \
               --baseline-registry /baseline/telemetry/registry/ \
@@ -72,19 +72,19 @@ jobs:
 
 ## Notes
 
-- **Pin the Weaver version.** `otel/weaver:v0.25.1` (or the version your registry was authored against). Don't use `latest` — schema validation behavior changes between versions.
+- **Pin the Weaver version.** `otel/weaver:v0.26.1` (or the version your registry was authored against). Don't use `latest` — schema validation behavior changes between versions.
 - **Format before diffing.** Without `gofmt -w` (or your language's formatter), Jinja whitespace produces multi-blank-line diffs that fail the `git diff --exit-code` gate spuriously.
-- **`--future` is opt-in but still breaks custom `definition/2` registries.** In v0.25.1 it elevates the format's own instability warning to an error. Re-enable it once the format goes stable.
+- **`--future` is opt-in but still breaks custom `definition/2` registries.** In v0.26.1 it elevates the format's own instability warning to an error. Re-enable it once the format goes stable.
 - **Expected diagnostic noise.** `weaver registry check` emits `File format definition/2 is not yet stable` for each custom v2 definition file. Do not treat these warnings as a failure.
 - **The diff job is informational.** It produces markdown breaking-change output; failing the build on it is too aggressive while a registry is young. Promote to a hard gate once the registry stabilizes.
 
 ## Local equivalent
 
 ```bash
-docker run --rm -v "$PWD:/work" otel/weaver:v0.25.1 \
+docker run --rm -v "$PWD:/work" otel/weaver:v0.26.1 \
   registry check --v2 --registry /work/telemetry/registry/
 
-docker run --rm -v "$PWD:/work" otel/weaver:v0.25.1 \
+docker run --rm -v "$PWD:/work" otel/weaver:v0.26.1 \
   registry generate \
     --v2 \
     --registry /work/telemetry/registry/ \

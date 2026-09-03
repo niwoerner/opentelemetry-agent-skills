@@ -363,7 +363,7 @@ extract_v2_entries() {
     }
     function emit() {
       if (id != "") {
-        printf "%-*s %-12s %s\n", width, id, stability == "" ? "-" : stability, squish(brief)
+        printf "%-*s %-12s %s\n", width, id, (stability == "" ? "-" : stability), squish(brief)
       }
       id = stability = brief = ""
       collecting_brief = 0

@@ -26,7 +26,7 @@ description: "Telemetry conventions for the ecommerce monolith"
 stability: development
 ```
 
-`schema_url` is required and must follow the OTel schema URL format `http[s]://host/path/<version>`. The registry name is derived from the path (`example.com/schemas/ecommerce`) and the version from the final segment (`0.1.0`) — bump that segment on any schema change. Pick a stable URL even if it does not yet resolve. `description`, `stability`, and `dependencies` are optional. Dependency entries require `schema_url` and may add `registry_path` for the local, archive, or Git location; as of v0.25.1, a legacy dependency `name` cannot substitute for `schema_url`. The older top-level `semconv_version`/`schema_base_url` pair is deprecated; top-level `name` is not a v0.25.1 manifest field.
+`schema_url` is required and must follow the OTel schema URL format `http[s]://host/path/<version>`. The registry name is derived from the path (`example.com/schemas/ecommerce`) and the version from the final segment (`0.1.0`) — bump that segment on any schema change. Pick a stable URL even if it does not yet resolve. `description`, `stability`, and `dependencies` are optional. Dependency entries require `schema_url` and may add `registry_path` for the local, archive, or Git location; a legacy v1 manifest may instead identify a dependency by `name` plus `registry_path`. The older top-level `semconv_version`/`schema_base_url` pair is deprecated; top-level `name` is not a v0.26.1 v2 manifest field.
 
 ## Attributes
 
@@ -76,7 +76,7 @@ attributes:
 Notes:
 - Required fields: `key`, `type`, `stability`, `brief`.
 - Primitive `type` values: `string`, `int`, `double`, `boolean`, plus their `[]` array variants.
-- Enum types use the `members` form. Semantic-convention enums are open by definition — values outside the listed `id`s are allowed (the removed `allow_custom_values` flag no longer applies). Since v0.25.0, omitting a member `value` defaults it to the member `id` as a string; otherwise the explicit `value` type (`string`/`int`/`boolean`) determines the attribute type. The v2 syntax guide requires member `stability`; v0.25.1 reports only a non-fatal warning when it is missing in normal mode.
+- Enum types use the `members` form. Semantic-convention enums are open by definition — values outside the listed `id`s are allowed (the removed `allow_custom_values` flag no longer applies). Since v0.25.0, omitting a member `value` defaults it to the member `id` as a string; otherwise the explicit `value` type (`string`/`int`/`boolean`) determines the attribute type. The v2 syntax guide requires member `stability`; v0.26.1 reports only a non-fatal warning when it is missing in normal mode.
 - Provide `examples` for non-enum strings; it improves generated docs and helps reviewers.
 
 ## Metrics
@@ -116,8 +116,9 @@ Notes:
 - `instrument` is one of `counter`, `updowncounter`, `histogram`, `gauge`.
 - Counter and UpDownCounter names should not append `_total`.
 - Duration instruments should use `s`. Bucket boundaries scale accordingly (e.g. `0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5`).
-- Signal-level `requirement_level` is `recommended` or `opt_in`; it defaults to `recommended`, but spelling it out avoids the v0.25.1 future-validation warning. This field is separate from each attribute reference's requirement level.
+- Signal-level `requirement_level` is `recommended` or `opt_in`; it defaults to `recommended`, but spelling it out avoids the v0.26.1 future-validation warning. This field is separate from each attribute reference's requirement level.
 - `attributes:` here are by `ref` only. Declare attributes once in `attributes.yaml` and reference them across metrics, spans, and events.
+- Attribute references cannot set `stability` or `deprecated` in v2; those fields come from the referenced definition.
 
 ## Spans
 
@@ -182,4 +183,4 @@ Fast feedback loop:
 weaver registry check --v2 -r ./telemetry/registry/
 ```
 
-Expected diagnostic noise: `File format definition/2 is not yet stable` (a warning for each custom v2 definition file). This is normal as of v0.25.1. `--future` elevates that format warning to an error, so it cannot yet be used for a custom `definition/2` registry.
+Expected diagnostic noise: `File format definition/2 is not yet stable` (a warning for each custom v2 definition file). This is normal as of v0.26.1. `--future` elevates that format warning to an error, so it cannot yet be used for a custom `definition/2` registry.
