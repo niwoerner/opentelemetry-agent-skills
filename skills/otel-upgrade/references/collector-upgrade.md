@@ -33,6 +33,8 @@ If a relevant skill is unavailable, use the exact-version upstream source, relea
 3. Confirm that every configured component and configuration provider exists in the candidate artifact. Do not infer a stock distribution's contents from another distribution at the same release.
 4. Review release notes, migration guidance, and relevant source changes across the full version interval, but report only changes connected to the deployed distribution, components, configuration, or behavior.
 
+For upstream artifacts, use the [Collector releases](https://github.com/open-telemetry/opentelemetry-collector-releases/releases) for binaries and images, then inspect that release tag's distribution manifest for the compiled modules. Use the separate [Collector Helm chart](https://github.com/open-telemetry/opentelemetry-helm-charts/releases) and [Operator](https://github.com/open-telemetry/opentelemetry-operator/releases) releases for those wrappers. Their versions and support policies are independent of the Collector binary; resolve the image and effective configuration selected by the wrapper rather than assuming version correspondence.
+
 ## Check configuration compatibility
 
 1. Resolve the same configuration inputs, includes, environment substitutions, and provider sources for both artifacts without exposing secrets.
@@ -46,10 +48,11 @@ For a published distribution, verify the selected artifact, platforms, image met
 
 For a custom distribution:
 
-1. Verify version alignment from the exact target release rather than assuming all modules share one version.
-2. Inspect changes to the builder manifest, generated component registration, resolved module graph, and generated dependency files.
-3. Build every relevant production target, including applicable toolchains, operating systems, architectures, CGO settings, build tags, and container stages.
-4. Run the candidate binary's component inventory and configuration validation commands. Compilation proves only that the checked build target compiled.
+1. Identify the OCB executable itself with `ocb version` and use the [current OCB source and tags in Collector core](https://github.com/open-telemetry/opentelemetry-collector/tree/main/cmd/builder). Do not use the archived standalone `opentelemetry-collector-builder` repository's old release line as the modern OCB version source. Published OCB artifacts may be distributed through `opentelemetry-collector-releases`; verify their tag and embedded version independently.
+2. Verify module alignment from the exact target releases rather than assuming all core, contrib, stable, custom, or third-party modules share one version.
+3. Inspect changes to the builder manifest, generated component registration, resolved module graph, and generated dependency files.
+4. Build every relevant production target, including applicable toolchains, operating systems, architectures, CGO settings, build tags, and container stages.
+5. Run the candidate binary's component inventory and configuration validation commands. Compilation proves only that the checked build target compiled.
 
 ## Compare runtime behavior
 
@@ -64,6 +67,8 @@ Compare what is material to the deployment:
 - retry, queue, batching, timeout, and backpressure behavior
 - persistent queues, checkpoints, write-ahead logs, and storage extensions
 - resource use relative to configured limits and operational thresholds
+
+Also compare externally consumed telemetry names, units, attributes, temporality, aggregation, and instrumentation scope; protocol/schema changes; and self-telemetry defaults. A component can remain configuration-compatible while changing emitted telemetry or runtime resource use.
 
 ## Check rollout and rollback
 

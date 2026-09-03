@@ -13,6 +13,17 @@ Use this workflow for OpenTelemetry APIs, SDKs, instrumentation libraries, expor
 7. Check available downstream contracts, including APIs, schemas, persisted data, events, telemetry, dashboards, and alerts, and identify any required rollout ordering.
 8. When SDK instrumentation is involved and `otel-telemetry-emissions` is available, compare exact current and candidate telemetry. Report missing component or version coverage as unverified; do not infer emissions from semantic conventions.
 
+## Resolve versions and package families
+
+Use the ecosystem's registry as the source for a published package version and the tagged upstream source for its contents and release notes. Prefer machine-readable registry commands such as `go list -m -versions <module>`, `mvn dependency:get -Dartifact=<group>:<artifact>:<version>`, `npm view <package> versions --json`, `python -m pip index versions <distribution>`, `dotnet package search <package> --exact-match`, and `gem list --remote --all --exact <gem>`. Apply the repository's normal resolver afterward; a registry listing does not establish compatibility.
+
+Determine coordination from the release's actual package set and dependency constraints:
+
+- A repository or language may publish stable, experimental, instrumentation, exporter, semantic-convention, or other package lines at different versions and stability levels. Do not derive one line's target from another line's number.
+- For monorepos with independently versioned modules or gems, query every directly used package and inspect the candidate tag or release commit. A repository-wide latest tag is not necessarily the package's latest release.
+- Keep BOMs, dependency-management packages, metapackages, and lockfiles consistent with their documented role. Do not force equal versions when the upstream release does not.
+- Treat declarative configuration schemas, generated semantic-convention artifacts, and code generators as separate dependencies. Check schema/tool compatibility and regenerate checked-in output with the repository's pinned tool rather than editing it.
+
 ## Interpret the evidence
 
 - Dependency resolution shows that the resolver found a graph; it does not prove source or behavioral compatibility.
