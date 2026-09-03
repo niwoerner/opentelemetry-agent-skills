@@ -13,9 +13,8 @@ experimental Browser SDK and are outside this RUM setup.
 - [Connecting frontend to backend traces](#connecting-frontend-to-backend-traces)
 - [Validation levels](#validation-levels)
 
-> **Stability (captured 2026-08):** npm publishes `@opentelemetry/browser-sdk` 0.1.0; the upstream
-> GitHub `browser-sdk-v0.2.0` release tag is not an npm release. Check the current package version
-> and tagged source before answering. The settled path wires providers
+> **Stability (captured 2026-09):** the latest released Browser SDK is 0.3.0. Check the current
+> package version and matching tagged source before answering. The settled path wires providers
 > directly: the **stable** web tracing SDK (`@opentelemetry/sdk-trace-web`, `@opentelemetry/context-zone`)
 > for spans, plus the **experimental** Logs SDK (`@opentelemetry/api-logs`, `@opentelemetry/sdk-logs`,
 > still on the 0.x line) for events. Both approaches are shown below.
@@ -195,11 +194,12 @@ Keep authentication at the Collector or edge; do not put backend credentials in 
 
 `startBrowserSdk` exposes full control (`resourceAttributes`, `exportConfig`,
 `batchProcessorConfig`, per-signal `logs` / `traces` blocks with
-`spanLimits`/`logRecordLimits`, `contextManager`, and `propagators`), and `await sdk.shutdown()`
-flushes and stops. Published npm 0.1.0 accepts `traces.sampler` in its type but does not pass it to
-the provider. Source at the GitHub `browser-sdk-v0.2.0` release tag does pass the sampler; use that
-behavior only for a local build pinned to that tag until it is published. Keep exact compatible pins
-and re-check package metadata, release notes, and source after upgrades.
+`spanLimits`/`logRecordLimits`, `contextManager`, `propagators`, and `sampler`), and
+`await sdk.shutdown()` flushes and stops. Since 0.3.0, traces install the SDK's synchronous default
+context manager plus W3C Trace Context and Baggage propagators when none are supplied. This default
+manager preserves context only within `context.with`; supply a context manager appropriate to the
+application when context must cross asynchronous boundaries. Keep exact compatible pins and
+re-check package metadata, release notes, and source after upgrades.
 
 ### Per-signal SDKs (tree-shaking)
 

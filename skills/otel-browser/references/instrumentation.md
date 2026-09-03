@@ -1,12 +1,12 @@
 # Browser instrumentation catalog
 
-Captured against `@opentelemetry/browser-instrumentation` 0.7.0 (2026-08). Verify current exports,
+Captured against `@opentelemetry/browser-instrumentation` 0.8.0 (2026-09). Verify current exports,
 README options, and release notes before relying on experimental behavior.
 
 ## Contents
 
 - [Event-based instrumentations](#event-based-instrumentations-opentelemetrybrowser-instrumentation)
-- [Span-based instrumentations](#span-based-instrumentations-opentelemetry-js--js-contrib)
+- [Span-based instrumentations](#span-based-instrumentations)
 - [Choosing what to enable](#choosing-what-to-enable)
 
 Choosing and configuring browser/RUM instrumentations. Browser telemetry uses **two signal shapes**;
@@ -26,7 +26,7 @@ with a real begin/end and parent/child relationship.
 > against the upstream READMEs and `package.json` `exports` (see
 > [SKILL.md Sources of Truth](../SKILL.md#sources-of-truth)).
 
-### Network context correlation proposal (captured through 0.7.0)
+### Network context correlation (captured through 0.8.0)
 
 Release 0.6.0 added `ContextRegistry` and `NetworkContextRegistry` as a proposal for sharing
 OpenTelemetry context between instrumentations that observe the same network operation from
@@ -35,10 +35,12 @@ window, then lets a consumer match that context to a `PerformanceResourceTiming`
 `fetchStart` and `responseEnd` fall inside the window. This is intended to let resource-timing
 telemetry retain the network span's trace context.
 
-This is **not yet a user-facing activation mechanism** in 0.7.0: the package does not expose the
-registry through its npm `exports`, and no released instrumentation registers or consumes it.
-Track it as released experimental groundwork; do not import internal source paths or claim
-resource-timing events are correlated automatically.
+Release 0.8.0 added consolidated Fetch and XHR instrumentations. They register completed network
+span context internally, and Resource Timing consumes matching context automatically. Activate this
+correlation by using the 0.8.0 consolidated Fetch/XHR subpath exports together with Resource Timing;
+the registry itself remains an internal API and is not an npm subpath export. Do not import its
+internal source path, and do not claim this correlation for the separate opentelemetry-js Fetch/XHR
+packages.
 
 ## Event-based instrumentations (`@opentelemetry/browser-instrumentation`)
 
@@ -127,7 +129,7 @@ stability; verify via the
 `browser.web_vital.name`, `.value`, `.delta`, and `.id` log attributes. The `.rating` and
 `.navigation_type` attributes are recommended.
 
-`@opentelemetry/browser-instrumentation` 0.7.0 matches that released shape. Its record body is unset
+`@opentelemetry/browser-instrumentation` 0.8.0 matches that released shape. Its record body is unset
 unless `includeRawAttribution` is enabled, which adds JSON-stringified attribution details outside
 the semantic-convention fields. For hand-written reporting, put the web-vital fields in attributes,
 not the record body.
@@ -178,13 +180,13 @@ new UserActionInstrumentation({ autoCapturedActions: ['click'] }); // default
 
 > `data-otel-*` values are exported verbatim — do not put PII (emails, names) in them.
 
-In 0.7.0, user-action instrumentation also accepts `applyCustomLogRecordData`; review that hook as
+User-action instrumentation also accepts `applyCustomLogRecordData`; review that hook as
 untrusted-data handling and keep any added fields bounded and non-PII.
 
-## Span-based instrumentations (`opentelemetry-js` / `js-contrib`)
+## Span-based instrumentations
 
-These produce **spans** and live outside `opentelemetry-browser`. The easiest on-ramp is the auto
-bundle:
+These produce **spans**. The established opentelemetry-js and js-contrib packages are available
+through the auto bundle:
 
 ```typescript
 import { getWebAutoInstrumentations } from '@opentelemetry/auto-instrumentations-web';
@@ -198,6 +200,8 @@ registerInstrumentations({
 
 | Package | Repo | What it does |
 |---|---|---|
+| `@opentelemetry/browser-instrumentation/experimental/fetch` | browser | Experimental consolidated Fetch spans; correlates matching Resource Timing events. |
+| `@opentelemetry/browser-instrumentation/experimental/xhr` | browser | Experimental consolidated XHR spans; correlates matching Resource Timing events. |
 | `instrumentation-fetch` | js | Spans for `fetch()`; injects `traceparent` (configure `propagateTraceHeaderCorsUrls`). |
 | `instrumentation-xml-http-request` | js | Spans for `XMLHttpRequest`; same propagation knobs. |
 | `instrumentation-document-load` | js-contrib | Spans for document load + navigation/resource timing (span flavor). |
@@ -207,7 +211,8 @@ registerInstrumentations({
 | `instrumentation-web-exception` | js-contrib | Event-based unhandled exception capture. |
 | `plugin-react-load` | js-contrib | React component mount/load performance; **unmaintained** upstream. |
 
-The released fetch/XHR instrumentations `0.221.0` and document-load `0.66.0` emit only the stable
+The released opentelemetry-js fetch/XHR instrumentations `0.222.0` and js-contrib document-load
+`0.67.0` emit only the stable
 HTTP semantic conventions. Their `semconvStabilityOptIn` migration option and legacy attributes
 (`http.method`, `http.url`, `http.status_code`, …) are gone; query the stable names such as
 `http.request.method`, `url.full`, and `http.response.status_code`.
