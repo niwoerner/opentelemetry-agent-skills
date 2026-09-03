@@ -119,7 +119,7 @@ Resource attributes:
      -> k8s.node.name: Str(k8sattr-verify-control-plane)
 ```
 
-`k8s.deployment.name: demo` is the strongest signal — producing it means the processor resolved the pod purely from the `k8s.pod.ip` we set, then derived the deployment name from the pod's owner ReplicaSet name via the default heuristic. The recipe therefore needs no `replicasets` or `deployments` grants; add them only for `k8s.deployment.uid` or workload label/annotation extraction.
+`k8s.deployment.name: demo` is the strongest signal — producing it means the processor resolved the pod purely from the `k8s.pod.ip` we set, then derived the deployment name from the pod's owner ReplicaSet name via the default heuristic. The recipe therefore needs no `replicasets` or `deployments` grants. If you enable `k8s.deployment.uid` or workload label/annotation extraction, grant access to each selected workload source as shown in the [RBAC table](advanced.md#rbac); for example, CronJob extraction requires both `jobs` and `cronjobs`.
 
 ## Teardown
 

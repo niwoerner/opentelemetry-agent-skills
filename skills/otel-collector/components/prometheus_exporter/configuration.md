@@ -29,7 +29,8 @@ The exporter also accepts all standard HTTP **server** options from the embedded
 | `keepalive.enabled` | `true` |
 
 The former flat `idle_timeout` and `keep_alives_enabled` fields are deprecated in core v0.160.0.
-They still work, but cannot be set together with the new `keepalive` block.
+Nonzero `idle_timeout` and `keep_alives_enabled: false` cannot be set with the new `keepalive` block;
+the no-op values `idle_timeout: 0` and `keep_alives_enabled: true` may coexist with it.
 
 ## `translation_strategy`
 
