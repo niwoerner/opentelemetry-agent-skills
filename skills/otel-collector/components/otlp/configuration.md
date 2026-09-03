@@ -75,12 +75,14 @@ enables both at their defaults. Listing only `grpc:` disables HTTP, and vice ver
 | `read_timeout` | duration | 0 (none) | Max time to read the full request. |
 | `read_header_timeout` | duration | 0 (none) | Max time to read request headers. |
 | `write_timeout` | duration | 0 (none) | Max time to write the response. |
-| `keepalive.idle_timeout` | duration | 0 (none) | Max idle time on a keep-alive connection. |
+| `keepalive.idle_timeout` | duration | `1m` | Max idle time on a keep-alive connection. |
 | `keepalive.enabled` | bool | `true` | Whether to allow HTTP keep-alives. |
 | `middlewares` | list | — | HTTP server middleware extensions. |
 
-Core v0.160.0 deprecates the flat HTTP `idle_timeout` and `keep_alives_enabled` keys. They still
-work, but cannot be configured together with the new `keepalive` block.
+Core v0.160.0 deprecates the flat HTTP `idle_timeout` and `keep_alives_enabled` keys. Non-no-op
+legacy values cannot be configured with the new `keepalive` block: `idle_timeout` conflicts when
+nonzero, and `keep_alives_enabled` conflicts when `false`. The no-op legacy values
+`idle_timeout: 0` and `keep_alives_enabled: true` may coexist with `keepalive`.
 
 There is **no profiles URL-path field** — the HTTP config exposes only traces/metrics/logs override keys. Profiles (Alpha) are still served over HTTP, but on a fixed, non-configurable path: `/v1development/profiles`.
 

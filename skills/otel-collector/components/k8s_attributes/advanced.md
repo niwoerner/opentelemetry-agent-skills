@@ -99,7 +99,7 @@ Extracting `from:` a workload (deployment/replicaset/statefulset/daemonset/job/c
 
 ## Deployment-name lookup
 
-`k8s.deployment.name` is derived by trimming the pod-template-hash off the pod's owner ReplicaSet name — no ReplicaSet watch, cheaper RBAC, less memory. You still must list `k8s.deployment.name` (or `service.name`) in `extract.metadata` for it to be produced. The former `deployment_name_from_replicaset` switch was removed in v0.160.0.
+`k8s.deployment.name` is derived by trimming the pod-template-hash off the pod's owner ReplicaSet name — no ReplicaSet watch, cheaper RBAC, less memory. If you configure an explicit `extract.metadata` list, include `k8s.deployment.name` (or `service.name`) for it to be produced; the omitted list already includes `k8s.deployment.name` by default. The former `deployment_name_from_replicaset` switch was removed in v0.160.0.
 
 The heuristic sets a wrong name for pods owned by a **standalone** ReplicaSet (one with no Deployment); in rare cases deployment names of 247–253 chars come back slightly truncated. Enable `k8s.deployment.uid` to start informer-backed lookup instead, at the cost of `replicasets` RBAC and extra memory:
 

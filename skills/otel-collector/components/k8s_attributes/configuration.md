@@ -50,7 +50,7 @@ extract:
   labels:          # turn k8s labels into resource attributes
     - tag_name: app.label.component       # attribute name to write
       key: app.kubernetes.io/component    # exact label key (mutually exclusive with key_regex)
-      from: pod                           # pod | namespace | node | deployment | statefulset | daemonset | job
+      from: pod                           # pod | namespace | node | deployment | replicaset | statefulset | daemonset | job | cronjob
   annotations:     # same shape as labels, for annotations
     - tag_name: git.commit
       key: git-commit
@@ -71,7 +71,9 @@ extract:
 
 `deployment_name_from_replicaset` was removed in v0.160.0 and is now an unknown-key startup error.
 Deployment names use the ReplicaSet-name heuristic unless `k8s.deployment.uid` or deployment /
-ReplicaSet label or annotation extraction starts the informer lookup.
+ReplicaSet label or annotation extraction starts the informer lookup. When configuring an explicit
+`extract.metadata` list, include `k8s.deployment.name` (or `service.name`) to emit the derived name;
+omitting the list uses the defaults below.
 
 ### Default-extracted metadata
 

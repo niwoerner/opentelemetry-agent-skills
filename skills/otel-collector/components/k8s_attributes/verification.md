@@ -26,9 +26,6 @@ rules:
   - apiGroups: [""]
     resources: ["pods", "namespaces", "nodes"]
     verbs: ["get", "watch", "list"]
-  - apiGroups: ["apps"]
-    resources: ["replicasets", "deployments"]   # optional: only for k8s.deployment.uid or workload extraction; the default heuristic needs neither
-    verbs: ["get", "watch", "list"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -75,7 +72,7 @@ spec:
       serviceAccountName: otel-collector
       containers:
         - name: otel-collector
-          image: otel/opentelemetry-collector-contrib:0.156.0
+          image: otel/opentelemetry-collector-contrib:0.160.0
           args: ["--config=/etc/otel/config.yaml"]
           ports: [{containerPort: 4317}]
           volumeMounts: [{name: config, mountPath: /etc/otel}]
@@ -108,7 +105,8 @@ Flags confirmed against the `otel-telemetrygen` skill (`references/flags.md`): `
 kubectl logs deployment/otel-collector | grep -A7 'Resource attributes'
 ```
 
-The trace went in carrying only `k8s.pod.ip` and came out with the demo pod's metadata added to its resource (verified run):
+A successful run sends a trace carrying only `k8s.pod.ip` and shows the demo pod's metadata added to
+its resource in this shape:
 
 ```
 Resource attributes:
@@ -121,7 +119,7 @@ Resource attributes:
      -> k8s.node.name: Str(k8sattr-verify-control-plane)
 ```
 
-`k8s.deployment.name: demo` is the strongest signal — producing it means the processor resolved the pod purely from the `k8s.pod.ip` we set, then derived the deployment name from the pod's owner ReplicaSet name via the default heuristic (which is why the `replicasets`/`deployments` grants above are optional — needed only for `k8s.deployment.uid` or workload label/annotation extraction).
+`k8s.deployment.name: demo` is the strongest signal — producing it means the processor resolved the pod purely from the `k8s.pod.ip` we set, then derived the deployment name from the pod's owner ReplicaSet name via the default heuristic. The recipe therefore needs no `replicasets` or `deployments` grants; add them only for `k8s.deployment.uid` or workload label/annotation extraction.
 
 ## Teardown
 

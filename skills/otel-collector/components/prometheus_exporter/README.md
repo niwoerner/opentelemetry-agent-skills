@@ -39,6 +39,6 @@ Avoid when:
 ## Details
 
 - [Configuration](configuration.md) — `endpoint`, naming, `resource_constant_labels`, deprecated resource conversion, OpenMetrics, the embedded HTTP server options, and validation rules.
-- [Verification](verification.md) — drive an OTLP pipeline with `telemetrygen` and `curl` the exporter's own `/metrics`, proving namespace, suffixing, labels, timestamps, and latest-value accumulation. Verified on contrib v0.154.0.
+- [Verification](verification.md) — drive an OTLP pipeline with `telemetrygen` and `curl` the exporter's own `/metrics`, proving namespace, suffixing, `const_labels`, timestamps, and latest-value accumulation on contrib v0.154.0. It does not exercise `resource_constant_labels`, added in v0.160.0.
 - [Advanced use-cases](advanced.md) — `target_info` vs `resource_constant_labels`, OpenMetrics + exemplars, native histograms, `translation_strategy` choices, and the queue caveat.
 - [Known quirks](quirks.md) — pull-not-push, the shared `prometheus` type string, required `endpoint`, stale series and counter resets, `add_metric_suffixes` deprecation, exemplar limits, horizontal-scaling behavior, and per-signal stability.
