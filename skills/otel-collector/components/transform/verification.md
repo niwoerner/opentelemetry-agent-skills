@@ -6,7 +6,7 @@ See [Verification harness](../../SKILL.md#verification-harness) for how to run t
 
 Verified on `otel/opentelemetry-collector-contrib:0.159.0` with
 `ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:v0.159.0`
-(2026-08-27).
+(2026-08-27). This recipe's schema is unchanged through v0.160.0; it does not use `shared_cache`.
 
 Config (`transform-verify.yaml`) — add an `env` attribute to every log record that telemetrygen does **not** itself produce:
 

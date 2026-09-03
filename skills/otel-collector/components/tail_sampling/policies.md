@@ -81,6 +81,9 @@ All policies are evaluated (unless `sample_on_first_match: true`), then a single
 
 The alpha `processor.tailsamplingprocessor.usetracestate` gate is off by default. When enabled, the `probabilistic` policy reads OpenTelemetry probability sampling fields (`rv` and `th` in the `ot` section) from W3C `tracestate`: it uses explicit `rv` randomness when present, otherwise trace-ID-derived randomness, and falls back to the legacy FNV trace-ID hash (with `hash_salt`) when no probability sampling information exists.
 
-For sampled traces, the processor rewrites each parseable span's outgoing `th` to the smallest effective threshold across policies that voted to sample; non-probabilistic sample decisions imply always-sample (`th=0`). Existing stricter thresholds are preserved. Spans with unparseable tracestate are skipped during rewriting and counted by the Development metric `otelcol_processor_tail_sampling_count_spans_with_unparseable_tracestate`.
+For sampled traces, the processor rewrites each parseable span's outgoing `th` to the smallest effective threshold across policies that voted to sample. Since v0.160.0, top-level and `and`-nested `rate_limiting` and `bytes_limiting` policies report the threshold actually applied; their token-bucket limits and burst behavior are unchanged. These policies inside `composite` still report always-sample. Existing stricter thresholds are preserved. Spans with unparseable tracestate are skipped during rewriting and counted by the Development metric `otelcol_processor_tail_sampling_count_spans_with_unparseable_tracestate`.
+
+Do not combine tracestate handling with `sample_on_first_match`: stopping early can skip a later
+policy with a less strict threshold and make adjusted counts incorrect.
 
 The `and`, `composite`, `not`, and `drop` policy types compose other policies; see [Advanced use-cases](advanced.md) for worked examples.

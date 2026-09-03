@@ -56,7 +56,6 @@ extract:
       key: git-commit
       from: pod
   otel_annotations: true                  # auto-extract resource.opentelemetry.io/* annotations
-  deployment_name_from_replicaset: true   # deprecated; default. Derives k8s.deployment.name from the ReplicaSet name (heuristic, no ReplicaSet watch). Set false to force ReplicaSet-informer lookup.
 ```
 
 **`labels` / `annotations` fields:**
@@ -66,9 +65,13 @@ extract:
 | `tag_name` | `k8s.<from>.labels.<key>` / `k8s.<from>.annotations.<key>` | Output attribute name. With `key_regex`, may use `$1` backreferences. |
 | `key` | — | Exact key to match. Mutually exclusive with `key_regex`. |
 | `key_regex` | — | Regex matched against the **key** (not the value). Mutually exclusive with `key`. |
-| `from` | `pod` | Source object: `pod`, `namespace`, `node`, `deployment`, `statefulset`, `daemonset`, `job`. |
+| `from` | `pod` | Source object: `pod`, `namespace`, `node`, `deployment`, `replicaset`, `statefulset`, `daemonset`, `job`, `cronjob`. |
 
 `otel_annotations: true` lifts pod annotations prefixed `resource.opentelemetry.io/` straight onto the resource (`resource.opentelemetry.io/foo: bar` → attribute `foo: bar`).
+
+`deployment_name_from_replicaset` was removed in v0.160.0 and is now an unknown-key startup error.
+Deployment names use the ReplicaSet-name heuristic unless `k8s.deployment.uid` or deployment /
+ReplicaSet label or annotation extraction starts the informer lookup.
 
 ### Default-extracted metadata
 
@@ -105,6 +108,9 @@ filter:
 `filter.node` / `filter.node_from_env_var` and `filter.namespace` are the two big memory levers — without them a DaemonSet caches every pod in the cluster.
 
 ## `pod_association`
+
+Each association must be unique. v0.160.0 rejects duplicate source sets even when their sources are
+listed in a different order.
 
 Ordered list; the first association whose **every** source matches wins. Default order: `k8s.pod.ip` resource attr → `ip` resource attr → connection IP → `host.name` (if a valid IP).
 

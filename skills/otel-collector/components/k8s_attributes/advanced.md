@@ -22,10 +22,9 @@ Add resources as you extract more metadata:
 | Extracted metadata | Add resource | API group |
 |--------------------|--------------|-----------|
 | `k8s.deployment.name` (default heuristic) | *nothing extra* — derived from the pod's owner ReplicaSet name | — |
-| `k8s.deployment.uid`, or `k8s.deployment.name` with `deployment_name_from_replicaset: false` | `replicasets` | `apps`, `extensions` |
-| deployment labels/annotations (`from: deployment`) | `replicasets` + `deployments` | `apps`, `extensions` |
+| `k8s.deployment.uid`, or deployment/ReplicaSet labels or annotations | `replicasets`; `deployments` for `from: deployment` | `apps`, `extensions` |
 | `k8s.statefulset.*` / `k8s.daemonset.*` | `statefulsets` / `daemonsets` | `apps` |
-| `k8s.job.*`, `k8s.cronjob.uid`, or job labels/annotations (`from: job`) | `jobs` | `batch` |
+| `k8s.job.*`, `k8s.cronjob.uid`, or `from: job` / `from: cronjob` extraction | `jobs`; additionally `cronjobs` for `from: cronjob` | `batch` |
 | `k8s.cronjob.name` alone | *nothing extra* — derived from the Job name via heuristic | — |
 | `k8s.node.*` or node labels/annotations | `nodes` | `` (core) |
 
@@ -96,18 +95,17 @@ extract:
   otel_annotations: true   # also lift resource.opentelemetry.io/* annotations
 ```
 
-Extracting `from:` a workload (deployment/statefulset/daemonset/job) makes the processor watch that resource — extra RBAC and roughly +30% memory. Only do it when you need it.
+Extracting `from:` a workload (deployment/replicaset/statefulset/daemonset/job/cronjob) makes the processor watch that resource — extra RBAC and roughly +30% memory. Only do it when you need it.
 
-## `deployment_name_from_replicaset` (deprecated)
+## Deployment-name lookup
 
-Since v0.153.0 this is the **default** behavior and the option is **deprecated** (slated for removal): `k8s.deployment.name` is derived by trimming the pod-template-hash off the pod's owner ReplicaSet name — no ReplicaSet watch, cheaper RBAC, less memory. You still must list `k8s.deployment.name` (or `service.name`) in `extract.metadata` for it to be produced.
+`k8s.deployment.name` is derived by trimming the pod-template-hash off the pod's owner ReplicaSet name — no ReplicaSet watch, cheaper RBAC, less memory. You still must list `k8s.deployment.name` (or `service.name`) in `extract.metadata` for it to be produced. The former `deployment_name_from_replicaset` switch was removed in v0.160.0.
 
-The heuristic sets a wrong name for pods owned by a **standalone** ReplicaSet (one with no Deployment); in rare cases deployment names of 247–253 chars come back slightly truncated. To force accurate ReplicaSet-informer lookup instead (at the cost of `replicasets` RBAC and extra memory), set it `false` or enable `k8s.deployment.uid`:
+The heuristic sets a wrong name for pods owned by a **standalone** ReplicaSet (one with no Deployment); in rare cases deployment names of 247–253 chars come back slightly truncated. Enable `k8s.deployment.uid` to start informer-backed lookup instead, at the cost of `replicasets` RBAC and extra memory:
 
 ```yaml
 extract:
-  metadata: [k8s.deployment.name]
-  deployment_name_from_replicaset: false   # force informer lookup; needs replicasets RBAC
+  metadata: [k8s.deployment.name, k8s.deployment.uid]
 ```
 
 ## `wait_for_metadata`

@@ -1,6 +1,6 @@
 # `otlp` receiver: configuration
 
-All keys live under the receiver instance (`receivers: { otlp: { … } }`). The only top-level key is `protocols:`, which holds two optional sub-blocks. Facts below trace to the core **v1.63.0 / v0.157.0** source (`receiver/otlpreceiver/config.go`, `config/configgrpc/configgrpc.go` `ServerConfig`, `config/confighttp/server.go` `ServerConfig`, and `config/configtls`).
+All keys live under the receiver instance (`receivers: { otlp: { … } }`). The only top-level key is `protocols:`, which holds two optional sub-blocks. Facts below trace to the core **v1.66.0 / v0.160.0** source (`receiver/otlpreceiver/config.go`, `config/configgrpc/configgrpc.go` `ServerConfig`, `config/confighttp/server.go` `ServerConfig`, and `config/configtls`).
 
 ## Top-level
 
@@ -75,9 +75,12 @@ enables both at their defaults. Listing only `grpc:` disables HTTP, and vice ver
 | `read_timeout` | duration | 0 (none) | Max time to read the full request. |
 | `read_header_timeout` | duration | 0 (none) | Max time to read request headers. |
 | `write_timeout` | duration | 0 (none) | Max time to write the response. |
-| `idle_timeout` | duration | 0 (none) | Max idle time on a keep-alive connection. |
-| `keep_alives_enabled` | bool | `true` | Whether to allow HTTP keep-alives. |
+| `keepalive.idle_timeout` | duration | 0 (none) | Max idle time on a keep-alive connection. |
+| `keepalive.enabled` | bool | `true` | Whether to allow HTTP keep-alives. |
 | `middlewares` | list | — | HTTP server middleware extensions. |
+
+Core v0.160.0 deprecates the flat HTTP `idle_timeout` and `keep_alives_enabled` keys. They still
+work, but cannot be configured together with the new `keepalive` block.
 
 There is **no profiles URL-path field** — the HTTP config exposes only traces/metrics/logs override keys. Profiles (Alpha) are still served over HTTP, but on a fixed, non-configurable path: `/v1development/profiles`.
 

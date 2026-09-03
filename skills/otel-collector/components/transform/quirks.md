@@ -26,7 +26,7 @@ Under `propagate`, the first statement that errors (a type mismatch, a nil deref
 - set(log.attributes["uid"], log.cache["user"]["id"]) where log.cache["user"] != nil
 ```
 
-`silent` hides evaluation errors entirely — if a transform "isn't working," confirm it isn't set to `silent`. The default flipped from `propagate` to `ignore` in v0.153.0 and became permanent when `processor.transform.defaultErrorModeIgnore` reached Stable in v0.157.0. The gate remains registered in released v0.159.0 (with v0.159.0 recorded as its metadata end version), and disabling it fails startup. Pre-v0.153.0 collectors still default to `propagate`; on v0.153.0–v0.156.0 the Beta gate could be disabled to restore it.
+`silent` hides evaluation errors entirely — if a transform "isn't working," confirm it isn't set to `silent`. The default flipped from `propagate` to `ignore` in v0.153.0 and became permanent when `processor.transform.defaultErrorModeIgnore` reached Stable in v0.157.0. The gate remains registered through released v0.160.0 despite its v0.159.0 metadata end version, and disabling it fails startup. Pre-v0.153.0 collectors still default to `propagate`; on v0.153.0–v0.156.0 the Beta gate could be disabled to restore it.
 
 ## Context performance
 

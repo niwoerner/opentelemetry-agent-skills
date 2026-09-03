@@ -3,7 +3,8 @@
 Confirms that detected attributes appear in the **Resource attributes** block of telemetry. Uses the two detectors that work without a cloud/metadata service: `env` (reads `OTEL_RESOURCE_ATTRIBUTES` from the Collector's environment) and `system` (reads the host machine).
 
 Verified on `otel/opentelemetry-collector-contrib:0.159.0` with telemetrygen v0.159.0
-(2026-08-27).
+(2026-08-27). This `env` + `system` recipe's schema is unchanged through v0.160.0; it does not
+exercise `azureappservice`.
 
 See the `otel-collector` SKILL.md **Verification harness** note: this config is a minimal repro and omits `memory_limiter` and other production scaffolding on purpose.
 

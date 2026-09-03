@@ -1,6 +1,6 @@
 # `prometheus` exporter: advanced use-cases
 
-## Resource attributes: `target_info` vs `resource_to_telemetry_conversion`
+## Resource attributes: `target_info` vs `resource_constant_labels`
 
 By default, resource attributes are **not** copied onto each metric's labels — they are exposed on a separate `target_info` series, following Prometheus convention. To use them in PromQL you join on the standard identity labels:
 
@@ -21,15 +21,18 @@ Two ways to bring the attributes onto the metric labels directly instead:
             - set(attributes["namespace"], resource.attributes["k8s.namespace.name"])
   ```
 
-- **Copy them all** by enabling conversion on the exporter (simplest, but can explode label cardinality):
+- **Select resource labels** with wildcard `included` / `excluded` patterns:
 
   ```yaml
   exporters:
     prometheus:
       endpoint: 0.0.0.0:9464
-      resource_to_telemetry_conversion:
-        enabled: true
+      resource_constant_labels:
+        included: ["k8s.*", "deployment.environment.name"]
+        excluded: ["k8s.pod.uid"]
   ```
+
+The older `resource_to_telemetry_conversion` block is deprecated in v0.160.0.
 
 ## OpenMetrics and exemplars
 

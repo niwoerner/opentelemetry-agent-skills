@@ -184,6 +184,10 @@ processors:
           - set(datapoint.attributes["env"], "prod")
 ```
 
+Set `shared_cache: true` only on advanced statement groups that must share context cache state
+across separate iterations. Sharing occurs only among groups in the same transform processor
+instance that opt in; the option is experimental and defaults to `false`.
+
 ### `filter`
 
 ```yaml
@@ -358,6 +362,11 @@ where span.kind == SPAN_KIND_SERVER and IsMatch(span.name, "expensive.*")
 | `cache["x"]` errors in span context | Cache requires a context prefix since v0.120 | Write `span.cache["x"]` |
 | `Bool("yes")` errors | String inputs use Go boolean parsing; arbitrary non-empty strings are not truthy | Use `IsMatch` with an explicit pattern, or check with `where` |
 | `Base64Decode` deprecation warning | v0.141+ moved to generic decoder | Use `Decode(value, "base64")` |
+
+Since v0.160, parser diagnostics identify the input kind, line and column, nearby source, and the
+expected token when available, for example
+`statement has invalid syntax at 1:5: (expected ")" Key*)`. Odd-length byte literals instead report
+`byte literals must have an even number of hexadecimal digits` within the wrapped expression error.
 
 ### Checklist before shipping
 

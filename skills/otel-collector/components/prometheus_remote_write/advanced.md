@@ -31,7 +31,7 @@ RW2 is only honored when the feature gate `exporter.prometheusremotewritexporter
 
 RW2 also unlocks the UTF-8 `translation_strategy` values (`NoUTF8EscapingWithSuffixes`, `NoTranslation`), which are rejected under RW1.
 
-## `resource_to_telemetry_conversion` vs `target_info`
+## `resource_constant_labels` vs `target_info`
 
 By default, resource attributes are **not** copied onto each series — they are emitted on a separate `target_info` metric (`target_info.enabled` defaults to `true`). To use them in PromQL, join on the identity labels:
 
@@ -52,17 +52,19 @@ Two ways to bring attributes onto the metric labels directly:
             - set(attributes["namespace"], resource.attributes["k8s.namespace.name"])
   ```
 
-- **Copy them all** by enabling conversion on the exporter (simplest, but can explode label cardinality). Use `exclude_service_attributes` to keep `service.name` / `service.instance.id` / `service.namespace` off the labels (they already map to `job` / `instance`):
+- **Select resource labels** with wildcard `included` / `excluded` patterns:
 
   ```yaml
   exporters:
     prometheus_remote_write:
       http:
         endpoint: https://my-cortex:7900/api/v1/push
-      resource_to_telemetry_conversion:
-        enabled: true
-        exclude_service_attributes: true
+      resource_constant_labels:
+        included: ["k8s.*", "deployment.environment.name"]
+        excluded: ["k8s.pod.uid"]
   ```
+
+The legacy `resource_to_telemetry_conversion` block is deprecated in v0.160.0.
 
 ## `external_labels`
 

@@ -1,6 +1,6 @@
 # `prometheus` exporter: configuration
 
-All keys live under the exporter instance — `exporters: { prometheus: { … } }`. Facts below trace to contrib **v0.157.0** source (`exporter/prometheusexporter/config.go` + `factory.go`, with the embedded `confighttp.ServerConfig`).
+All keys live under the exporter instance — `exporters: { prometheus: { … } }`. Facts below trace to contrib **v0.160.0** source (`exporter/prometheusexporter/config.go` + `factory.go`, with the embedded `confighttp.ServerConfig`).
 
 ## Top-level keys
 
@@ -11,7 +11,8 @@ All keys live under the exporter instance — `exporters: { prometheus: { … } 
 | `const_labels` | map[string]string | — | Key/value labels applied to **every** exported metric. |
 | `send_timestamps` | bool | `false` | When `true`, appends the underlying sample timestamp to each exposed line. |
 | `metric_expiration` | duration | `5m` | How long a series stays exposed without an update; after this it is dropped from `/metrics`. |
-| `resource_to_telemetry_conversion` | object | — | Block with `enabled` (bool, default `false`). When `true`, **all** resource attributes are converted to metric labels (otherwise they land on a `target_info` series). |
+| `resource_constant_labels` | object | — | Select resource attributes to add as labels with `included` / `excluded` wildcard patterns. Added in v0.160.0. The legacy `enabled` and `exclude_service_attributes` fields are rejected in this block. |
+| `resource_to_telemetry_conversion` | object | — | **Deprecated** in v0.160.0; use `resource_constant_labels`. Its legacy `enabled` / `exclude_service_attributes` fields remain accepted unless the migration gate is enabled. |
 | `enable_open_metrics` | bool | `false` | When `true`, exposes using OpenMetrics format. Exemplars are exported **only** in OpenMetrics format, and **only** for histograms and monotonic sums (counters). |
 | `without_scope_info` | bool | `false` | When `true`, omits instrumentation-scope labels (`otel_scope_name`, `otel_scope_version`, `otel_scope_schema_url`, and scope attributes). |
 | `add_metric_suffixes` | bool | `true` | **Deprecated** (use `translation_strategy`). When `true`, appends type/unit suffixes (e.g. counters get `_total`). **Ignored** when `translation_strategy` is explicitly set. |
@@ -24,8 +25,11 @@ The exporter also accepts all standard HTTP **server** options from the embedded
 |-----|---------|
 | `write_timeout` | `30s` |
 | `read_header_timeout` | `1m` |
-| `idle_timeout` | `1m` |
-| `keep_alives_enabled` | `true` |
+| `keepalive.idle_timeout` | `1m` |
+| `keepalive.enabled` | `true` |
+
+The former flat `idle_timeout` and `keep_alives_enabled` fields are deprecated in core v0.160.0.
+They still work, but cannot be set together with the new `keepalive` block.
 
 ## `translation_strategy`
 
@@ -49,11 +53,14 @@ Optional. The standard `exporterhelper` queue block. Because this is a **pull** 
 | Condition | Error / rule | When |
 |-----------|--------------|------|
 | `translation_strategy` set to anything other than the four valid values | `invalid translation_strategy: <v>` | config validation |
+| both resource-conversion blocks configured | rejected; use only `resource_constant_labels` | config validation |
+| `resource_constant_labels.enabled` or `.exclude_service_attributes` set | rejected; use `included` / `excluded` | config validation |
 
-`Config.Validate()` checks **only** `translation_strategy`. There is no other validation (notably, an empty `endpoint` is not caught by `Config.Validate()`); `endpoint` has no default, so the missing-address error surfaces one step later, at exporter construction during pipeline build — which the `validate` subcommand triggers, reporting `expecting a non-blank address to run the Prometheus metrics handler`.
+An empty `endpoint` is not caught by `Config.Validate()`; `endpoint` has no default, so the missing-address error surfaces one step later, at exporter construction during pipeline build — which the `validate` subcommand triggers, reporting `expecting a non-blank address to run the Prometheus metrics handler`.
 
 ## Feature gate
 
 | Gate | Stage | Since | Effect |
 |------|-------|-------|--------|
 | `exporter.prometheusexporter.DisableAddMetricSuffixes` | `beta` | v0.132.0 | When enabled, the deprecated `add_metric_suffixes` is ignored and `translation_strategy` is always used. (Spec PR 4533.) |
+| `exporter.prometheus.DisableResourceToTelemetryConversion` | `alpha` | v0.160.0 | Rejects deprecated `resource_to_telemetry_conversion`; use `resource_constant_labels`. |

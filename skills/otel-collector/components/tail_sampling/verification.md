@@ -6,7 +6,8 @@ See [Verification harness](../../SKILL.md#verification-harness) for how to run t
 
 Verified on `otel/opentelemetry-collector-contrib:0.159.0` with
 `ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:v0.159.0`
-(2026-08-27).
+(2026-08-27). This status-code-policy recipe's schema is unchanged through v0.160.0; it does not
+exercise tracestate-aware limiting.
 
 Config (`tailsampling-verify.yaml`):
 

@@ -10,7 +10,8 @@ The `file_log` receiver ships in the `contrib` and `k8s` distributions. This rec
 collector — `file_log` tailing a mounted directory, feeding a `debug` exporter — and proves the
 pipeline by writing three pre-formatted lines and reading them back parsed.
 
-Verified on `otel/opentelemetry-collector-contrib:0.159.0` (2026-08-27).
+Verified on `otel/opentelemetry-collector-contrib:0.159.0` (2026-08-27). The recipe's schema is
+unchanged through v0.160.0; it does not exercise `skip_unmodified_files`.
 
 Config (`file_log.yaml`) — note `start_at: beginning`, without which an existing idle file is
 skipped (the receiver's top gotcha):

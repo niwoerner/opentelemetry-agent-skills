@@ -1,6 +1,6 @@
 # `prometheus_remote_write` exporter: configuration
 
-All keys live under the exporter instance — `exporters: { prometheus_remote_write: { … } }` (the deprecated alias `prometheusremotewrite` also works). Facts below trace to contrib **v0.159.0** source (`exporter/prometheusremotewriteexporter/config.go` + `factory.go` + `wal.go`, with `confighttp.ClientConfig`, `exporterhelper.TimeoutConfig`, and `configretry.BackOffConfig`).
+All keys live under the exporter instance — `exporters: { prometheus_remote_write: { … } }` (the deprecated alias `prometheusremotewrite` also works). Facts below trace to contrib **v0.160.0** source (`exporter/prometheusremotewriteexporter/config.go` + `factory.go` + `wal.go`, with `confighttp.ClientConfig`, `exporterhelper.TimeoutConfig`, and `configretry.BackOffConfig`).
 
 ## Top-level keys
 
@@ -21,7 +21,8 @@ All keys live under the exporter instance — `exporters: { prometheus_remote_wr
 | `convert_explicit_histograms_to_nhcb` | bool | `false` | Convert explicit-bucket histograms to Native Histograms with Custom Buckets (schema -53), for RW1 or RW2. Added in v0.158.0. |
 | `keep_classic_histograms` | bool | `false` | Also emit classic histogram series during NHCB migration; no effect unless conversion is enabled. |
 | `remote_write_queue` | object | see below | Outgoing-request queue. This exporter does **not** use `sending_queue`. |
-| `resource_to_telemetry_conversion` | object | see below | Convert resource attributes to metric labels. |
+| `resource_constant_labels` | object | see below | Select resource attributes to convert to labels. Added in v0.160.0. |
+| `resource_to_telemetry_conversion` | object | see below | **Deprecated** in v0.160.0; use `resource_constant_labels`. |
 | `wal` | object | off unless `directory` set | Write-ahead log. See [wal](#wal). |
 | `target_info` | object | `enabled: true` | Emit a `target_info` metric per resource for resource-attribute joins. |
 | `retry_on_failure` | object | `configretry.BackOffConfig` | Standard retry block; the factory overrides `InitialInterval` to `50ms`. Cross-reference the [exporterhelper retry docs](https://github.com/open-telemetry/opentelemetry-collector/blob/main/exporter/exporterhelper/README.md). |
@@ -46,12 +47,17 @@ exporterhelper send timeout at top level.) Cross-reference rather than enumerati
 | `queue_size` | int | `10000` | Maximum number of OTLP metric batches queued at once. Ignored if `enabled: false`. |
 | `num_consumers` | int | `5` (or `1` when `EnableMultipleWorkers` gate is on) | Workers used to fan out outgoing requests. See [advanced.md](advanced.md) for how the feature gate changes its meaning. |
 
-## `resource_to_telemetry_conversion`
+## Resource labels
 
 | Key | Type | Default | Meaning |
 |-----|------|---------|---------|
-| `enabled` | bool | `false` | When `true`, **all** resource attributes are converted to metric labels (otherwise they land on `target_info`). |
-| `exclude_service_attributes` | bool | `false` | When `true`, excludes `service.name`, `service.instance.id`, and `service.namespace` (already mapped to `job` / `instance`) from the converted labels. |
+| `resource_constant_labels.included` | []string | `[]` | Wildcard patterns selecting resource attributes to convert to labels. |
+| `resource_constant_labels.excluded` | []string | `[]` | Wildcard patterns removed from the included set. |
+
+The deprecated `resource_to_telemetry_conversion` block retains `enabled` and
+`exclude_service_attributes` for migration. Do not configure both blocks. The alpha
+`exporter.prometheusremotewrite.DisableResourceToTelemetryConversion` gate rejects the deprecated
+block. `enabled` and `exclude_service_attributes` are not valid under `resource_constant_labels`.
 
 ## `wal`
 
@@ -98,5 +104,7 @@ When set, this enum takes precedence over the deprecated `add_metric_suffixes`. 
 | `translation_strategy` not one of the four valid values | `invalid translation_strategy: <v>` |
 | `translation_strategy` = `NoUTF8EscapingWithSuffixes` or `NoTranslation` under RW1 | `translation strategy <v> requires Prometheus Remote Write 2.0 (UTF-8 support)` |
 | `include_metadata_keys` contains `Content-Encoding`, `Content-Type`, `User-Agent`, or `X-Prometheus-Remote-Write-Version` (case-insensitive) | rejected because it collides with a reserved Remote Write header |
+| both resource-label blocks configured | `cannot configure both resource_to_telemetry_conversion and resource_constant_labels; resource_to_telemetry_conversion is deprecated` |
+| legacy fields under `resource_constant_labels` | `enabled and exclude_service_attributes are not supported under resource_constant_labels; use included and excluded instead` |
 
 > Note: `Validate()` does **not** catch an unset `http.endpoint` — the factory ships a non-empty placeholder default, so the failure surfaces at send time, not config validation.

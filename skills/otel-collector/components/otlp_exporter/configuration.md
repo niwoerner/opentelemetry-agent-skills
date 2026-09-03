@@ -1,6 +1,6 @@
 # `otlp_grpc` exporter: configuration
 
-All keys live under the exporter instance — `exporters: { otlp_grpc: { … } }` or, via the deprecated alias, `exporters: { otlp: { … } }`. Facts below trace to core **v1.65.0 / v0.159.0** source (`exporter/otlpexporter/config.go` + `factory.go`, `config/configgrpc/configgrpc.go` `ClientConfig`, `config/configtls`, `config/configretry/backoff.go`, and `exporter/exporterhelper/internal/queuebatch/config.go` + `queue_sender.go`).
+All keys live under the exporter instance — `exporters: { otlp_grpc: { … } }` or, via the deprecated alias, `exporters: { otlp: { … } }`. Facts below trace to core **v1.66.0 / v0.160.0** source (`exporter/otlpexporter/config.go` + `factory.go`, `config/configgrpc/configgrpc.go` `ClientConfig`, `config/configtls`, `config/configretry/backoff.go`, and `exporter/exporterhelper/internal/queuebatch/config.go` + `queue_sender.go`).
 
 ## Top-level (gRPC client) keys
 

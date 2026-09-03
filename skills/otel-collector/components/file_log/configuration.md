@@ -1,6 +1,6 @@
 # `file_log` receiver: configuration
 
-Every key below traces to the contrib v0.159.0 source (`receiver/filelogreceiver/README.md`, generated from the `fileconsumer` config). The receiver wraps the stanza `file_input` operator, so most keys are file-discovery and file-reading knobs; the parsing pipeline is `operators` (see [operators.md](operators.md)).
+Every key below traces to the contrib v0.160.0 source (`receiver/filelogreceiver/README.md`, generated from the `fileconsumer` config). The receiver wraps the stanza `file_input` operator, so most keys are file-discovery and file-reading knobs; the parsing pipeline is `operators` (see [operators.md](operators.md)).
 
 Only `include` is required.
 
@@ -64,6 +64,7 @@ Each toggles a `log.file.*` attribute on every record from that file. `*_owner_*
 | `acquire_fs_lock` | bool | `false` | Acquire a filesystem lock before reading (Unix only). |
 | `file_cache_advise` | bool | `false` | Hint the OS to release cached pages after read (Linux only); helps page-cache pressure on large sequential reads. |
 | `on_truncate` | `ignore` \| `read_whole_file` \| `read_new` | `ignore` | Behavior when a same-fingerprint file shrinks (copytruncate rotation). See [advanced.md](advanced.md#log-rotation-and-on_truncate). |
+| `skip_unmodified_files` | bool | `false` | Skip opening and fingerprinting a tracked file when its path and modification time are unchanged since the previous poll. Added in v0.160.0. |
 | `polls_to_archive` | int | `0` | **Experimental.** With `storage` set, retain offsets of old readers on disk for this many poll cycles instead of purging after 3 generations. |
 
 ## Header metadata parsing

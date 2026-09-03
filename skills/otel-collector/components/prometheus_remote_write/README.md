@@ -34,12 +34,12 @@ Avoid when:
 - [`prometheus` exporter](../prometheus_exporter/README.md) — the **pull / expose** sibling (hosts `/metrics`); same family, opposite direction. This one pushes.
 - [`otlp_grpc`](../otlp_exporter/README.md) / `otlphttp` exporter — OTLP egress when the backend speaks OTLP.
 - [`prometheus` receiver](../prometheus/README.md) — scrape **ingress** that pulls Prometheus-format metrics into a pipeline.
-- [`resource`](../resource/README.md) / [`transform`](../transform/README.md) — shape resource attributes into labels before export (relates to `resource_to_telemetry_conversion` / `target_info`).
+- [`resource`](../resource/README.md) / [`transform`](../transform/README.md) — shape resource attributes before `resource_constant_labels` or `target_info` export.
 - [`file_storage`](../file_storage/README.md) — only loosely related: the WAL here is the exporter's **own** on-disk buffer, **not** the `file_storage` extension (see [quirks.md](quirks.md)).
 
 ## Details
 
 - [Configuration](configuration.md) — `http.endpoint`, naming/metadata options, histogram conversion, `remote_write_queue`, resource conversion, WAL, RW version, HTTP/TLS/retry options, and validation rules.
 - [Verification](verification.md) — push to a Prometheus container with the remote-write receiver enabled and query the series back, proving `namespace` and `external_labels`. Verified end-to-end on contrib v0.159.0.
-- [Advanced use-cases](advanced.md) — the WAL, RW2 / `protobuf_message` and its feature gate, `resource_to_telemetry_conversion` vs `target_info`, `external_labels`, the multi-worker feature gate with `num_consumers` / `max_batch_request_parallelism`, the `RetryOn429` gate, and `translation_strategy` choices.
+- [Advanced use-cases](advanced.md) — the WAL, RW2, `resource_constant_labels` vs `target_info`, external labels, worker/retry feature gates, and translation choices.
 - [Known quirks](quirks.md) — push-not-pull, the type rename, `http.endpoint`, nested-vs-flat HTTP migration, TLS-on-by-default, snappy-only, dropped metric types, the `remote_write_queue` (not `sending_queue`) distinction, the `add_metric_suffixes` deprecation discrepancy, RW2 readiness, and per-signal stability.

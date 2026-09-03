@@ -8,6 +8,8 @@ Unlike the pull-based [`prometheus`](../prometheus_exporter/verification.md) exp
 `telemetrygen` v0.159.0 cumulative Sum named `gen` (datapoints 0/1/2) pushed through the nested
 `http` configuration via RW1 and landed in Prometheus as
 `testns_gen_total{job="telemetrygen", verified_by="ollygarden"} 2`.
+This recipe's schema is unchanged through v0.160.0; it does not exercise
+`resource_constant_labels`.
 
 Create a network:
 

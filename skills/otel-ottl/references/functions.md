@@ -1,6 +1,6 @@
 # OTTL Functions Catalog
 
-Editor and converter reference for collector-contrib **v0.159.0**. Editors mutate telemetry; converters return values for use in expressions. See the upstream `pkg/ottl/ottlfuncs/README.md` for the authoritative source.
+Editor and converter reference for collector-contrib **v0.160.0**. Editors mutate telemetry; converters return values for use in expressions. See the upstream `pkg/ottl/ottlfuncs/README.md` for the authoritative source.
 
 ## Contents
 
@@ -16,7 +16,7 @@ Editor and converter reference for collector-contrib **v0.159.0**. Editors mutat
 The `transform` processor adds the following functions to the common OTTL
 catalog. They are not generally available in other OTTL-consuming components.
 The contexts and signatures below are pinned to the released
-[v0.159.0 transform processor source](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.159.0/processor/transformprocessor/README.md#supported-functions).
+[v0.160.0 transform processor source](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.160.0/processor/transformprocessor/README.md#supported-functions).
 
 | Context | Signature | Behavior and limits |
 |---------|-----------|---------------------|
@@ -38,16 +38,16 @@ The contexts and signatures below are pinned to the released
 | `log` | `ParseCLF(target, format?)` | Parses CLF (`"clf"`, default) or NCSA combined (`"combined"`) text into a map; malformed or empty input errors. |
 | `log` | `ParseELF(target)` | Parses a complete W3C Extended Log Format block into directive metadata, fields, and entries; requires a `#Version` directive and `#Fields` before data. Added in v0.158. |
 | `log` | `ParseLEEF(target)` | Parses LEEF 1.0/2.0 into a map; malformed or empty input errors; attribute values remain strings. |
-| `span` | `set_semconv_span_name(semconv_version, original_span_name_attribute?)` | Derives low-cardinality HTTP, RPC, messaging, or database span names. v0.159 accepts semantic-convention versions 1.37.0 through 1.43.0; unrelated spans are unchanged. |
+| `span` | `set_semconv_span_name(semconv_version, original_span_name_attribute?)` | Derives low-cardinality HTTP, RPC, messaging, or database span names. v0.160 accepts semantic-convention versions 1.37.0 through 1.43.0; unrelated spans are unchanged. |
 
 For full behavior, examples, and edge cases, follow the tag-pinned
-[metrics](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.159.0/processor/transformprocessor/README.md#convert_sum_to_gauge),
-[logs](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.159.0/processor/transformprocessor/README.md#parsecef), and
-[traces](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.159.0/processor/transformprocessor/README.md#set_semconv_span_name)
+[metrics](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.160.0/processor/transformprocessor/README.md#convert_sum_to_gauge),
+[logs](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.160.0/processor/transformprocessor/README.md#parsecef), and
+[traces](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.160.0/processor/transformprocessor/README.md#set_semconv_span_name)
 function sections. The registrations that constrain the contexts are also tag-pinned:
-[metric/datapoint](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.159.0/processor/transformprocessor/internal/metrics/functions.go),
-[log](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.159.0/processor/transformprocessor/internal/logs/functions.go), and
-[span](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.159.0/processor/transformprocessor/internal/traces/functions.go).
+[metric/datapoint](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.160.0/processor/transformprocessor/internal/metrics/functions.go),
+[log](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.160.0/processor/transformprocessor/internal/logs/functions.go), and
+[span](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.160.0/processor/transformprocessor/internal/traces/functions.go).
 
 ## Editors (data manipulation)
 
@@ -60,11 +60,22 @@ set(span.attributes["env"], "production")
 set(log.body, Concat([log.severity_text, ": ", log.body.string], ""))
 ```
 
-In v0.159, `nil` is still ignored by default, preserving the existing target value and logging a
+In v0.160, `nil` is still ignored by default, preserving the existing target value and logging a
 one-time deprecation warning. Enabling the alpha `ottl.set.allowNil` feature gate passes `nil`
 directly to the target: a map or slice path may be cleared, a `pcommon.Value` may become empty, and
 strictly typed targets may return an error. Guard missing sources when behavior must not depend on
 the gate.
+
+### `clear` (v0.160+)
+```ottl
+clear(target)
+clear(span.attributes["http.request.header.authorization"])
+```
+
+Sets the target to the empty value for its current type: for example, `""`, `0`, `false`, an empty
+`pcommon.Map`, `pcommon.Slice`, or `pcommon.Value`, or a zero TraceID/SpanID/time. For Go maps,
+slices, pointers, byte slices, and a current `nil` value, it passes `nil`; whether the path setter
+accepts that value is target-specific and may produce an evaluation error.
 
 ### `append`
 ```ottl

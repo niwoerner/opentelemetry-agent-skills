@@ -20,6 +20,8 @@ The single most common surprise: **`start_at` defaults to `end`**, so a file tha
 
 For ordered discovery, explicit `ordering_criteria.top_n: 0` means "match all." The
 `filelog.requireExplicitTopN` migration gate rejects an omitted `top_n`.
+Since v0.160.0, `skip_unmodified_files: true` can avoid reopening and fingerprinting tracked files
+whose path and modification time have not changed since the previous poll.
 
 ## Main use-cases
 

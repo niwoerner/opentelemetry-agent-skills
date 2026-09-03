@@ -11,7 +11,7 @@ fixture execution, and live execution; report only the levels actually completed
   short-lived container and output directory.
 - Pick a unique container name and a newly created empty output directory. Never reuse `./out` or
   a prior `result.json`; stale output can create a false positive.
-- Pin Collector and telemetrygen to compatible reviewed versions. The examples use `0.159.0`.
+- Pin Collector and telemetrygen to compatible reviewed versions. The examples use `0.160.0`.
 
 ## Minimal local pipeline
 
@@ -119,7 +119,7 @@ started_container_id=$(docker run -d --name "$container_name" \
   --user "$(id -u):$(id -g)" \
   -v "$config_path:/etc/otelcol-contrib/config.yaml:ro" \
   -v "$output_dir:/output" \
-  otel/opentelemetry-collector-contrib:0.159.0 \
+  otel/opentelemetry-collector-contrib:0.160.0 \
   --config=/etc/otelcol-contrib/config.yaml)
 docker_run_status=$?
 [ "$docker_run_status" -eq 0 ] || exit "$docker_run_status"
@@ -151,7 +151,7 @@ fi
 
 set +e
 docker run --rm --network "container:$container_id" \
-  ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:v0.159.0 \
+  ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:v0.160.0 \
   logs --otlp-insecure --otlp-endpoint 127.0.0.1:4317 \
   --logs 1 --severity-text Info
 telemetrygen_status=$?

@@ -6,7 +6,7 @@ description: OpenTelemetry Transformation Language (OTTL) expert for writing and
 # OpenTelemetry Transformation Language (OTTL)
 
 OTTL transforms or selects telemetry inside Collector components. This skill is pinned to
-collector-contrib **v0.159.0**. Function, path, default, and feature-gate availability varies by
+collector-contrib **v0.160.0**. Function, path, default, and feature-gate availability varies by
 release; when the user's version differs, verify against the matching upstream tag.
 
 ## Workflow
@@ -24,7 +24,7 @@ release; when the user's version differs, verify against the matching upstream t
    such as `ParseJSON` and `IsMatch` return values; they do not mutate.
 4. **Set error behavior deliberately.** `ignore` logs statement errors and continues; `silent`
    continues without logging; `propagate` returns the error and can cause the component to drop the
-   payload. In v0.159, transform and filter default to `ignore`; their Stable default-error gates
+   payload. In v0.160, transform and filter default to `ignore`; their stable default-error gates
    remain registered even though their metadata names v0.159 as the end version. Routing also
    defaults to `ignore` while its beta default-error feature gate is enabled. For routing, `ignore`
    sends an errored payload to `default_pipelines`; configure that fallback or the payload is dropped.
@@ -54,7 +54,7 @@ For a single path or function, read only the relevant section instead of loading
   flag admits pretty-printed objects containing newlines. Checking `IsMap` after
   parsing does not prevent arrays or scalar JSON from being parsed.
 - On a version-pinned request, confirm every chosen path and function against that release tag;
-  do not assume a function listed for this skill's v0.159 anchor exists in an older release.
+  do not assume a function listed for this skill's v0.160 anchor exists in an older release.
   For v0.156 JSON-object parsing, `ParseJSON`, `IsString`, and `IsMatch` are available without the
   v0.157 alpha lambda feature gate.
 - Request metadata is read-only and may contain credentials. Copy only explicitly allowlisted,
@@ -65,7 +65,7 @@ For a single path or function, read only the relevant section instead of loading
   `otelcol.grpc.metadata`.
 - Log-record-specific rewrites of shared resource or scope data require `flatten_data: true` and the
   alpha `transform.flatten.logs` gate. This copies and regroups data; do not enable it accidentally.
-- In v0.159, `set(target, nil)` remains a no-op by default. The alpha `ottl.set.allowNil` gate passes
+- In v0.160, `set(target, nil)` remains a no-op by default. The alpha `ottl.set.allowNil` gate passes
   nil to the target instead; target behavior then varies from clearing a value to returning an error.
   Use a `where source != nil` guard when the destination must remain unchanged for missing input.
 - Hashing an identifier does not necessarily anonymize it. Apply the organization's data-handling
@@ -79,6 +79,8 @@ For a single path or function, read only the relevant section instead of loading
   guard and `Len`, or `truncate_all` for a map.
 - Current span-event paths use `spanevent.*`, not `span_event.*`. Cache paths are context-qualified,
   such as `span.cache["parsed"]`.
+- Quote any OTTL statement containing a map literal when YAML includes a space after `:`, for
+  example `'set(log.attributes["a"], {"foo": "bar"})'`; otherwise YAML parses `: ` as a mapping.
 - Since v0.159, polymorphic `pcommon.Value` paths compare by their underlying type; maps and slices
   support only equality and inequality, while primitive values also support ordering.
 - Use `Decode(value, "base64")`; `Base64Decode` is deprecated.
@@ -86,7 +88,7 @@ For a single path or function, read only the relevant section instead of loading
 
 ## Upstream sources
 
-- [OTTL package](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/v0.159.0/pkg/ottl)
-- [Transform processor](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/v0.159.0/processor/transformprocessor)
-- [Filter processor](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/v0.159.0/processor/filterprocessor)
-- [Routing connector](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/v0.159.0/connector/routingconnector)
+- [OTTL package](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/v0.160.0/pkg/ottl)
+- [Transform processor](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/v0.160.0/processor/transformprocessor)
+- [Filter processor](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/v0.160.0/processor/filterprocessor)
+- [Routing connector](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/v0.160.0/connector/routingconnector)

@@ -38,5 +38,5 @@ Avoid it when:
 
 - [Configuration](configuration.md) — full config table, the `extract` / `filter` / `pod_association` blocks, default-extracted fields, and the available metadata fields.
 - [Verification](verification.md) — end-to-end recipe against a real (kind) cluster: telemetrygen → `k8s_attributes` → `debug` showing pod attributes added.
-- [Advanced use-cases](advanced.md) — RBAC, agent/gateway passthrough split, namespace/node filtering, labels & annotations, `deployment_name_from_replicaset`, `wait_for_metadata`.
+- [Advanced use-cases](advanced.md) — RBAC, agent/gateway passthrough split, namespace/node filtering, workload labels & annotations, deployment-name lookup, `wait_for_metadata`.
 - [Known quirks](quirks.md) — association failures, connection-based association vs batching, memory, the removed `regex` field, semconv feature gates, stability caveats.

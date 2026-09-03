@@ -27,7 +27,7 @@ rules:
     resources: ["pods", "namespaces", "nodes"]
     verbs: ["get", "watch", "list"]
   - apiGroups: ["apps"]
-    resources: ["replicasets", "deployments"]   # optional: only for deployment_name_from_replicaset:false or k8s.deployment.uid; the default heuristic needs neither
+    resources: ["replicasets", "deployments"]   # optional: only for k8s.deployment.uid or workload extraction; the default heuristic needs neither
     verbs: ["get", "watch", "list"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -121,7 +121,7 @@ Resource attributes:
      -> k8s.node.name: Str(k8sattr-verify-control-plane)
 ```
 
-`k8s.deployment.name: demo` is the strongest signal — producing it means the processor resolved the pod purely from the `k8s.pod.ip` we set, then derived the deployment name from the pod's owner ReplicaSet name via the default heuristic (which is why the `replicasets`/`deployments` grants above are optional — needed only if you set `deployment_name_from_replicaset: false` or extract `k8s.deployment.uid`).
+`k8s.deployment.name: demo` is the strongest signal — producing it means the processor resolved the pod purely from the `k8s.pod.ip` we set, then derived the deployment name from the pod's owner ReplicaSet name via the default heuristic (which is why the `replicasets`/`deployments` grants above are optional — needed only for `k8s.deployment.uid` or workload label/annotation extraction).
 
 ## Teardown
 

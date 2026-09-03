@@ -24,6 +24,10 @@ The old `extract.labels[].regex` / `extract.annotations[].regex` fields (which p
 
 By default, label/annotation attributes use the **plural** v0 format (`k8s.pod.labels.<key>`). The v1 semconv form is **singular** (`k8s.pod.label.<key>`) and is gated behind `processor.k8sattributes.EmitV1K8sConventions` (emit both) and `processor.k8sattributes.DontEmitV0K8sConventions` (drop the plural form). The same gates also switch `container.image.tag` (string) → `container.image.tags` (slice). Migrate by enabling the first gate, repointing dashboards/queries to the singular/plural names, then enabling the second. The gates affect only the **default** `tag_name`; an explicit `tag_name` is unchanged. (The older `k8sattr.labelsAnnotationsSingular.allow` gate was **removed** in v0.155.0.)
 
+The internal-telemetry gates `processor.k8sattributes.telemetry.enableNewFormatMetrics` and
+`processor.k8sattributes.telemetry.disableOldFormatMetrics` are Beta and enabled by default in
+v0.160.0; the new metric names are emitted and old-format metrics are disabled by default.
+
 ## Don't use it for sidecars, or outside Kubernetes
 
 For a sidecar, inject pod metadata via the Kubernetes downward API as env vars — it's simpler and needs no RBAC. Outside Kubernetes there is no API to watch; use [`resource_detection`](../resource_detection/README.md) for cloud/host attributes instead. Host-network pods also can't be told apart by IP — associate them on `k8s.pod.name`/`k8s.pod.uid`.
